@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\User;
+use App\Box;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,21 +15,16 @@ class BoxClicked implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $game_id;
-    public $x;
-    public $y;
-    
+    public $box;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($x, $y, $id)
+    public function __construct(Box $box)
     {
-        $this->x = $x;
-        $this->y = $y;
-        $this->game_id = $id;
+        $this->box = $box;
         
         
     }
@@ -41,14 +36,15 @@ class BoxClicked implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game_id);
+        return new PrivateChannel('game.' . $this->box->user_color->game->id);
     }
 
     public function broadcastWith()
     {
         return [
-            'x' => $this->x,
-            'y' => $this->y,
+            'x' => $this->box->x,
+            'y' => $this->box->y,
+            'color' => $this->box->user_color->color
         ];
     }
 }

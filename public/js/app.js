@@ -48829,7 +48829,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/Games.vue"
+Component.options.__file = "resources\\assets\\js\\components\\Games.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Games.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -48970,7 +48970,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/Game.vue"
+Component.options.__file = "resources\\assets\\js\\components\\Game.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Game.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -49028,7 +49028,7 @@ exports = module.exports = __webpack_require__(46)(undefined);
 
 
 // module
-exports.push([module.i, "\n.main {\n    border: 2px solid;\n}\n.box {\n    border: 2px solid;\n    height: 150px;\n    background-color: whitesmoke;\n}\n", ""]);
+exports.push([module.i, "\n.main {\r\n    border: 2px solid;\n}\n.box {\r\n    border: 2px solid;\r\n    height: 150px;\r\n    background-color: whitesmoke;\n}\r\n", ""]);
 
 // exports
 
@@ -49407,7 +49407,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['gameData', 'user'],
+    props: ['gameData', 'user', 'userColor', 'boxes'],
 
     data: function data() {
         return {
@@ -49420,6 +49420,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     mounted: function mounted() {
         this.game = this.gameData;
+        console.log(this.boxes);
+        this.boxes.forEach(function (e) {
+            $('.box-' + e.x + '-' + e.y).css('background-color', e.user_color.color);
+        });
+        console.log(this.status);
         this.listenForClicks();
         //this.listenForGameStart()
     },
@@ -49430,14 +49435,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             //console.log(x, y);
             //$(`.box`).css('background-color', 'whitesmoke');
             //$(`.box-${x}-${y}`).css('background-color', 'yellow');
-            axios.post('/games/' + this.game.id + '/box/clicked', { x: x, y: y }).then(function (response) {});
+            // if (!(this.userColor == 'guest')) {
+            // axios.post('/games/' + this.userColor.id + '/box/clicked', { x, y })
+            //     .then((response) => {
+
+            //     });
+            // }
+
         },
         listenForClicks: function listenForClicks() {
             var _this = this;
 
             Echo.private('game.' + this.game.id).listen('BoxClicked', function (e) {
                 console.log(e);
-                $('.box-' + e.x + '-' + e.y).css('background-color', 'yellow');
+                $('.box-' + e.x + '-' + e.y).css('background-color', e.color);
             }).listen('UserIsReady', function (e) {
                 console.log(e);
                 _this.game.in_progress = e.in_progress;
@@ -49552,7 +49563,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/CreateGame.vue"
+Component.options.__file = "resources\\assets\\js\\components\\CreateGame.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] CreateGame.vue: functional components are not supported with templates, they should use render functions.")}
 

@@ -30,7 +30,7 @@
 
 <script>
 export default {
-    props: ['gameData', 'user'],
+    props: ['gameData', 'user', 'userColor', 'boxes'],
 
     data () {
         return {
@@ -43,6 +43,12 @@ export default {
     },
     mounted () {
         this.game = this.gameData
+        console.log(this.boxes)
+        this.boxes.forEach(e => {
+           $(`.box-${e.x}-${e.y}`).css('background-color', e.user_color.color);
+
+        })
+        console.log(this.status)
         this.listenForClicks()
         //this.listenForGameStart()
     },
@@ -52,10 +58,12 @@ export default {
             //console.log(x, y);
             //$(`.box`).css('background-color', 'whitesmoke');
             //$(`.box-${x}-${y}`).css('background-color', 'yellow');
-            axios.post('/games/' + this.game.id + '/box/clicked', { x, y })
-                .then((response) => {
+            // if (!(this.userColor == 'guest')) {
+            // axios.post('/games/' + this.userColor.id + '/box/clicked', { x, y })
+            //     .then((response) => {
 
-                });
+            //     });
+            // }
 
         },
 
@@ -63,7 +71,7 @@ export default {
             Echo.private('game.' + this.game.id)
                 .listen('BoxClicked', (e) => {
                     console.log(e);
-                    $(`.box-${e.x}-${e.y}`).css('background-color', 'yellow');
+                    $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
 
                 })
                 .listen('UserIsReady', (e) => {

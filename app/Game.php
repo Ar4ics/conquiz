@@ -3,6 +3,7 @@
 namespace App;
 
 use App\User;
+use App\UserColor;
 use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
@@ -13,6 +14,11 @@ class Game extends Model
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function user_colors()
+    {
+        return $this->hasMany(UserColor::class);
     }
 
     public function winner()
