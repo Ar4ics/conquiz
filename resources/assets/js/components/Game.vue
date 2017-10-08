@@ -1,13 +1,7 @@
 <template>
     <div class="container">
         <p>Комната: {{ game.title }}</p>
-        <p>Участники:</p>
-        <p v-if="!question" v-for="u in game.user_colors">
-            {{ u.user.name }} -
-            <span :style="{ 'background-color': u.color }">
-                {{ move.user_id === u.user_id ? 'ходит' : '' }}
-            </span>
-        </p>
+
         <div v-if="question">
             <p>{{ question.title }}</p>
             <p>Варианты ответов:</p>
@@ -17,6 +11,15 @@
                 <button v-on:click="answer(2)">{{ question.c }}</button>
                 <button v-on:click="answer(3)">{{ question.d }}</button>
             </div>
+        </div>
+        <div v-else>
+            <p>Участники:</p>
+            <p v-for="u in game.user_colors">
+                {{ u.user.name }} -
+                <span :style="{ 'background-color': u.color }">
+                {{ move.user_id === u.user_id ? 'ходит' : '' }}
+            </span>
+            </p>
         </div>
 
         <div class="row main">
@@ -48,13 +51,18 @@
             return {
                 rows: 3,
                 cols: 4,
-                move: this.whoMoves,
-                game: this.gameData,
-                question: null
+                move: {
+                    user_id: ''
+                },
+                game: {
+                    user_colors: []
+                },
+                question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion
             }
         },
         mounted() {
-            this.question = (this.initialQuestion === 'empty') ? null : this.initialQuestion;
+            this.move = this.whoMoves;
+            this.game = this.gameData;
             this.boxes.forEach(e => {
                 $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
 
@@ -65,9 +73,6 @@
 
         methods: {
             clickBox(x, y) {
-//                console.log(x, y);
-//                $(`.box`).css('background-color', 'whitesmoke');
-//                $(`.box-${x}-${y}`).css('background-color', 'yellow');
                 if (!(this.player === 'guest')) {
                     const userColorId = this.player.id;
                     axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})

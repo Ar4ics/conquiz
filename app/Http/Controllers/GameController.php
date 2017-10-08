@@ -74,10 +74,10 @@ class GameController extends Controller
         $player = $game->getUserColor(Auth::user()->id) ?? "'guest'";
         $who_moves = UserColor::where('game_id', $game->id)
                 ->where('has_moved', '=', 'false')
-                ->first() ?? "'nobody'";
+                ->first() ?? collect();
 
         $question = Question::find($game->current_question_id,
-                ['id', 'title', 'a', 'b', 'c', 'd']) ?? "'empty'";
+                ['id', 'title', 'a', 'b', 'c', 'd']) ?? collect();
         return view('game', [
             'game' => $game,
             'player' => $player,
