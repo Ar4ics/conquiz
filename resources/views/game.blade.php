@@ -4,10 +4,11 @@
 
 
 @section('content')
-    <game :game-data="{{ $game }}" 
-    :user="{{ Auth::user() }}" 
-    :user-color="{{ $user_color }}"
-    :status="{{ $status }}"
-    :boxes="{{ $boxes }}">
+    <game :game-data="{{ $game }}"
+          :player="{{ $player }}"
+          :boxes="{{ $boxes }}"
+          :who-moves="{{ $who_moves }}"
+          :initial-question="{{ $question }}"
+    >
     </game>
 @endsection

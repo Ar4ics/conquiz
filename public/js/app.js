@@ -48829,7 +48829,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources\\assets\\js\\components\\Games.vue"
+Component.options.__file = "resources/assets/js/components/Games.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Games.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -48916,7 +48916,7 @@ var render = function() {
       return _c("div", { key: game.id }, [
         _c("h4", [_vm._v(_vm._s(game.title))]),
         _vm._v(" "),
-        _c("p", [_vm._v("Игроков: " + _vm._s(game.users_count))]),
+        _c("p", [_vm._v("Игроков: " + _vm._s(game.user_colors_count))]),
         _vm._v(" "),
         _c(
           "button",
@@ -48970,7 +48970,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources\\assets\\js\\components\\Game.vue"
+Component.options.__file = "resources/assets/js/components/Game.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Game.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -49028,7 +49028,7 @@ exports = module.exports = __webpack_require__(46)(undefined);
 
 
 // module
-exports.push([module.i, "\n.main {\r\n    border: 2px solid;\n}\n.box {\r\n    border: 2px solid;\r\n    height: 150px;\r\n    background-color: whitesmoke;\n}\r\n", ""]);
+exports.push([module.i, "\n.main {\n    border: 2px solid;\n}\n.box {\n    border: 2px solid;\n    height: 150px;\n    background-color: white;\n}\n", ""]);
 
 // exports
 
@@ -49405,26 +49405,36 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['gameData', 'user', 'userColor', 'boxes'],
+    props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion'],
 
     data: function data() {
         return {
             rows: 3,
             cols: 4,
-            game: {
-                users: []
-            }
+            move: this.whoMoves,
+            game: this.gameData,
+            question: null
         };
     },
     mounted: function mounted() {
-        this.game = this.gameData;
-        console.log(this.boxes);
+        this.question = this.initialQuestion === 'empty' ? null : this.initialQuestion;
         this.boxes.forEach(function (e) {
-            $('.box-' + e.x + '-' + e.y).css('background-color', e.user_color.color);
+            $('.box-' + e.x + '-' + e.y).css('background-color', e.color);
         });
-        console.log(this.status);
         this.listenForClicks();
         //this.listenForGameStart()
     },
@@ -49432,31 +49442,50 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         clickBox: function clickBox(x, y) {
-            //console.log(x, y);
-            //$(`.box`).css('background-color', 'whitesmoke');
-            //$(`.box-${x}-${y}`).css('background-color', 'yellow');
-            // if (!(this.userColor == 'guest')) {
-            // axios.post('/games/' + this.userColor.id + '/box/clicked', { x, y })
-            //     .then((response) => {
+            //                console.log(x, y);
+            //                $(`.box`).css('background-color', 'whitesmoke');
+            //                $(`.box-${x}-${y}`).css('background-color', 'yellow');
+            if (!(this.player === 'guest')) {
+                var userColorId = this.player.id;
+                axios.post('/games/' + this.game.id + '/box/clicked', { x: x, y: y, userColorId: userColorId }).then(function (response) {});
+            }
+        },
+        answer: function answer(userAnswer) {
+            if (!(this.player === 'guest')) {
+                var userColorId = this.player.id;
+                var questionId = this.question.id;
 
-            //     });
-            // }
-
+                axios.post('/games/' + this.game.id + '/user/answered', { userAnswer: userAnswer, userColorId: userColorId, questionId: questionId }).then(function (response) {});
+            }
         },
         listenForClicks: function listenForClicks() {
             var _this = this;
 
             Echo.private('game.' + this.game.id).listen('BoxClicked', function (e) {
-                console.log(e);
+                console.log('box clicked', e);
                 $('.box-' + e.x + '-' + e.y).css('background-color', e.color);
+            }).listen('WhoMoves', function (e) {
+                console.log('who moves', e);
+                _this.move = e.who_moves;
+            }).listen('NewQuestion', function (e) {
+                console.log('new question', e);
+                _this.question = e;
+            }).listen('AnswersResults', function (e) {
+                console.log('answer results', e);
+                var boxes = e.boxes;
+                boxes.forEach(function (e) {
+                    $('.box-' + e.x + '-' + e.y).css('background-color', 'white');
+                });
+
+                _this.question = null;
             }).listen('UserIsReady', function (e) {
-                console.log(e);
-                _this.game.in_progress = e.in_progress;
-                _this.game.users = e.users;
-                //$(`.box-${e.x}-${e.y}`).css('background-color', 'yellow');
+                console.log('user ready', e);
+                var index = _this.game.user_colors.findIndex(function (uc) {
+                    return uc.user_id === e.user.id;
+                });
+                _this.game.user_colors[index] = e.user;
             }).listen('GameStarted', function (e) {
                 console.log(e, _this.user);
-                //$(`.box-${e.x}-${e.y}`).css('background-color', 'yellow');
             });
         },
         ready: function ready() {
@@ -49483,37 +49512,93 @@ var render = function() {
     "div",
     { staticClass: "container" },
     [
-      _vm._v("\n    " + _vm._s(_vm.game.title) + "\n    "),
-      _vm._l(_vm.game.users, function(user, i) {
-        return _c("div", { key: i }, [
-          _vm._v(
-            "\n        " +
-              _vm._s(user.name) +
-              " - " +
-              _vm._s(user.game_id ? "готов" : "не готов") +
-              "\n    "
-          )
-        ])
+      _c("p", [_vm._v("Комната: " + _vm._s(_vm.game.title))]),
+      _vm._v(" "),
+      _c("p", [_vm._v("Участники:")]),
+      _vm._v(" "),
+      _vm._l(_vm.game.user_colors, function(u) {
+        return !_vm.question
+          ? _c("p", [
+              _vm._v("\n        " + _vm._s(u.user.name) + " -\n        "),
+              _c("span", { style: { "background-color": u.color } }, [
+                _vm._v(
+                  "\n            " +
+                    _vm._s(_vm.move.user_id === u.user_id ? "ходит" : "") +
+                    "\n        "
+                )
+              ])
+            ])
+          : _vm._e()
       }),
       _vm._v(" "),
-      _vm.game.in_progress
-        ? _c("p", [_vm._v("Игра началась!")])
-        : _c("button", { on: { click: _vm.ready } }, [
-            _vm._v("Присоединиться к игре")
-          ]),
-      _vm._v(" "),
-      _c("br"),
+      _vm.question
+        ? _c("div", [
+            _c("p", [_vm._v(_vm._s(_vm.question.title))]),
+            _vm._v(" "),
+            _c("p", [_vm._v("Варианты ответов:")]),
+            _vm._v(" "),
+            _c("div", [
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.answer(0)
+                    }
+                  }
+                },
+                [_vm._v(_vm._s(_vm.question.a))]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.answer(1)
+                    }
+                  }
+                },
+                [_vm._v(_vm._s(_vm.question.b))]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.answer(2)
+                    }
+                  }
+                },
+                [_vm._v(_vm._s(_vm.question.c))]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.answer(3)
+                    }
+                  }
+                },
+                [_vm._v(_vm._s(_vm.question.d))]
+              )
+            ])
+          ])
+        : _vm._e(),
       _vm._v(" "),
       _c(
         "div",
         { staticClass: "row main" },
-        _vm._l(_vm.rows, function(row, x) {
+        _vm._l(_vm.rows, function(row, y) {
           return _c(
             "div",
-            { key: x },
-            _vm._l(_vm.cols, function(col, y) {
+            { key: y },
+            _vm._l(_vm.cols, function(col, x) {
               return _c("div", {
-                key: y,
+                key: x,
                 staticClass: "box",
                 class: _vm.review(x, y),
                 on: {
@@ -49563,7 +49648,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources\\assets\\js\\components\\CreateGame.vue"
+Component.options.__file = "resources/assets/js/components/CreateGame.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] CreateGame.vue: functional components are not supported with templates, they should use render functions.")}
 

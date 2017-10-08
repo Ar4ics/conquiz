@@ -15,11 +15,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Route::auth();
 
 Route::get('/games', 'GameController@index');
 Route::post('/games', 'GameController@store');
 Route::get('/games/{id}', 'GameController@getGame');
-Route::post('/games/{userColorId}/box/clicked', 'GameController@boxClicked');
-Route::post('/games/{id}/user/ready', 'GameController@readyForGame');
+Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
+Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
 

@@ -1,15 +1,27 @@
 <template>
     <div class="container">
-        {{ game.title }}
-        <div v-for="(user, i) in game.users" :key="i">
-            {{ user.name }} - {{ user.game_id ? 'готов' : 'не готов' }}
+        <p>Комната: {{ game.title }}</p>
+        <p>Участники:</p>
+        <p v-if="!question" v-for="u in game.user_colors">
+            {{ u.user.name }} -
+            <span :style="{ 'background-color': u.color }">
+                {{ move.user_id === u.user_id ? 'ходит' : '' }}
+            </span>
+        </p>
+        <div v-if="question">
+            <p>{{ question.title }}</p>
+            <p>Варианты ответов:</p>
+            <div>
+                <button v-on:click="answer(0)">{{ question.a }}</button>
+                <button v-on:click="answer(1)">{{ question.b }}</button>
+                <button v-on:click="answer(2)">{{ question.c }}</button>
+                <button v-on:click="answer(3)">{{ question.d }}</button>
+            </div>
         </div>
-        <p v-if="game.in_progress">Игра началась!</p>
-        <button v-else @click="ready">Присоединиться к игре</button>
-        <br/>
+
         <div class="row main">
-            <div v-for="(row, x) in rows" :key="x">
-                <div class="box" :class="review(x, y)" v-for="(col, y) in cols" :key="y" @click="clickBox(x, y)">
+            <div v-for="(row, y) in rows" :key="y">
+                <div class="box" :class="review(x, y)" v-for="(col, x) in cols" :key="x" @click="clickBox(x, y)">
                 </div>
             </div>
         </div>
@@ -17,89 +29,112 @@
 </template>
 
 <style>
-.main {
-    border: 2px solid;
-}
+    .main {
+        border: 2px solid;
+    }
 
-.box {
-    border: 2px solid;
-    height: 150px;
-    background-color: whitesmoke;
-}
+    .box {
+        border: 2px solid;
+        height: 150px;
+        background-color: white;
+    }
 </style>
 
 <script>
-export default {
-    props: ['gameData', 'user', 'userColor', 'boxes'],
+    export default {
+        props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion'],
 
-    data () {
-        return {
-            rows: 3,
-            cols: 4,
-            game: {
-                users: []
+        data() {
+            return {
+                rows: 3,
+                cols: 4,
+                move: this.whoMoves,
+                game: this.gameData,
+                question: null
             }
-        }
-    },
-    mounted () {
-        this.game = this.gameData
-        console.log(this.boxes)
-        this.boxes.forEach(e => {
-           $(`.box-${e.x}-${e.y}`).css('background-color', e.user_color.color);
+        },
+        mounted() {
+            this.question = (this.initialQuestion === 'empty') ? null : this.initialQuestion;
+            this.boxes.forEach(e => {
+                $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
 
-        })
-        console.log(this.status)
-        this.listenForClicks()
-        //this.listenForGameStart()
-    },
-
-    methods: {
-        clickBox (x, y) {
-            //console.log(x, y);
-            //$(`.box`).css('background-color', 'whitesmoke');
-            //$(`.box-${x}-${y}`).css('background-color', 'yellow');
-            // if (!(this.userColor == 'guest')) {
-            // axios.post('/games/' + this.userColor.id + '/box/clicked', { x, y })
-            //     .then((response) => {
-
-            //     });
-            // }
-
+            });
+            this.listenForClicks();
+            //this.listenForGameStart()
         },
 
-        listenForClicks () {
-            Echo.private('game.' + this.game.id)
-                .listen('BoxClicked', (e) => {
-                    console.log(e);
-                    $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
+        methods: {
+            clickBox(x, y) {
+//                console.log(x, y);
+//                $(`.box`).css('background-color', 'whitesmoke');
+//                $(`.box-${x}-${y}`).css('background-color', 'yellow');
+                if (!(this.player === 'guest')) {
+                    const userColorId = this.player.id;
+                    axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
+                        .then((response) => {
 
-                })
-                .listen('UserIsReady', (e) => {
-                    console.log(e);
-                    this.game.in_progress = e.in_progress;
-                    this.game.users = e.users;
-                    //$(`.box-${e.x}-${e.y}`).css('background-color', 'yellow');
+                        });
+                }
 
-                })
-                .listen('GameStarted', (e) => {
-                    console.log(e, this.user);
-                    //$(`.box-${e.x}-${e.y}`).css('background-color', 'yellow');
+            },
 
-                });
+            answer(userAnswer) {
+                if (!(this.player === 'guest')) {
+                    const userColorId = this.player.id;
+                    const questionId = this.question.id;
+
+                    axios.post('/games/' + this.game.id + '/user/answered', {userAnswer, userColorId, questionId})
+                        .then((response) => {
+
+                        });
+                }
+            },
+
+            listenForClicks() {
+                Echo.private('game.' + this.game.id)
+                    .listen('BoxClicked', (e) => {
+                        console.log('box clicked', e);
+                        $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
+
+                    })
+                    .listen('WhoMoves', (e) => {
+                        console.log('who moves', e);
+                        this.move = e.who_moves;
+                    })
+                    .listen('NewQuestion', (e) => {
+                        console.log('new question', e);
+                        this.question = e;
+                    })
+                    .listen('AnswersResults', (e) => {
+                        console.log('answer results', e);
+                        const boxes = e.boxes;
+                        boxes.forEach(e => {
+                            $(`.box-${e.x}-${e.y}`).css('background-color', 'white');
+                        });
+
+                        this.question = null;
+
+                    })
+                    .listen('UserIsReady', (e) => {
+                        console.log('user ready', e);
+                        let index = this.game.user_colors.findIndex((uc) => uc.user_id === e.user.id);
+                        this.game.user_colors[index] = e.user;
+                    })
+                    .listen('GameStarted', (e) => {
+                        console.log(e, this.user);
+                    });
+            },
+
+
+            ready() {
+                axios.post('/games/' + this.game.id + '/user/ready')
+            },
+            review(x, y) {
+                let n = 12 / this.cols
+                return 'col-lg-' + n + ' col-xs-' + n + ' box-' + x + '-' + y
+            }
         },
 
-
-        ready () {
-            axios.post('/games/' + this.game.id + '/user/ready')
-        },
-        review (x, y) {
-            let n = 12 / this.cols
-            return 'col-lg-' + n + ' col-xs-' + n + ' box-' + x + '-' + y
-        }
-    },
-
-    computed: {
-
+        computed: {}
     }
-}
 </script>

@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Box;
+use App\UserColor;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -17,26 +18,14 @@ class BoxClicked implements ShouldBroadcast
 
     public $box;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
     public function __construct(Box $box)
     {
         $this->box = $box;
-        
-        
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->box->user_color->game->id);
+        return new PrivateChannel('game.' . $this->box->user_color->game_id);
     }
 
     public function broadcastWith()
@@ -44,7 +33,7 @@ class BoxClicked implements ShouldBroadcast
         return [
             'x' => $this->box->x,
             'y' => $this->box->y,
-            'color' => $this->box->user_color->color
+            'color' => $this->box->user_color->color,
         ];
     }
 }

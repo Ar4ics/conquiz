@@ -7,10 +7,10 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-6">
-            <create-game :initial-users="{{ $users }}"></create-group>
+            <create-game :initial-users="{{ $users }}"></create-game>
         </div>
         <div class="col-sm-6">
-            <games :initial-games="{{ $games }}" :user="{{ $user }}"></games>
+            <games :initial-games="{{ $games }}" :user="{{ Auth::user() }}"></games>
         </div>
     </div>
 </div>

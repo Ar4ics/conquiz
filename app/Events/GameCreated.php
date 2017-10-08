@@ -45,7 +45,7 @@ class GameCreated implements ShouldBroadcast
             'game' => [
                 'id' => $this->game->id,
                 'title' => $this->game->title,
-                'users_count' => $this->users_count
+                'user_colors_count' => $this->users_count
             ]
         ];
     }

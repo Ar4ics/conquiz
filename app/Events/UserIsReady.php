@@ -17,19 +17,14 @@ class UserIsReady implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $user;
-    public $game;
-    public $users;
+    public $game_id;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
-    public function __construct(Game $game)
+
+    public function __construct(User $user, $game_id)
     {
         // $this->user = $user;
-        $this->game = $game;
-        // $this->users = $users;
+        $this->user = $user;
+        $this->game_id = $game_id;
         
     }
 
@@ -40,13 +35,13 @@ class UserIsReady implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game->id);
+        return new PrivateChannel('game.' . $this->game_id);
     }
 
     public function broadcastWith()
     {
         return [
-            'users' => $this->game->users,
+            'user' => $this->user,
         ];
     }
 }

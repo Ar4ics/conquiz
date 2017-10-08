@@ -2,7 +2,7 @@
     <div>
         <div v-for="game in games" :key="game.id">
             <h4>{{ game.title }}</h4>
-            <p>Игроков: {{ game.users_count }}</p>
+            <p>Игроков: {{ game.user_colors_count }}</p>
             <button @click="watchGame(game.id)">Посмотреть игру</button>
         </div>
     </div>

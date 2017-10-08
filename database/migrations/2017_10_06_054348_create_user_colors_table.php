@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGameUserTable extends Migration
+class CreateUserColorsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +12,13 @@ class CreateGameUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('game_user', function (Blueprint $table) {
+        Schema::create('user_colors', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('game_id');
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('game_id');
+            $table->string('color');
+            $table->boolean('has_moved')->default(false);
+            $table->boolean('has_answered')->default(false);
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateGameUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('game_user');
+        Schema::dropIfExists('user_colors');
     }
 }
