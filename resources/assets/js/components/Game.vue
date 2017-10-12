@@ -17,8 +17,8 @@
             <p v-for="u in game.user_colors">
                 {{ u.user.name }} -
                 <span :style="{ 'background-color': u.color }">
-                {{ move.user_id === u.user_id ? 'ходит' : '' }}
-            </span>
+                    {{ move.user_id === u.user_id ? 'ходит' : '' }}
+                </span>
             </p>
         </div>
 
@@ -57,45 +57,71 @@
                 game: {
                     user_colors: []
                 },
-                question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion
+                squares: this.boxes,
+                question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion,
+                gamer: Array.isArray(this.player) ? null : this.player
             }
         },
         mounted() {
             this.move = this.whoMoves;
             this.game = this.gameData;
-            this.boxes.forEach(e => {
+            this.squares.forEach(e => {
                 $(`.box-${e.x}-${e.y}`).css('background-color', e.color);
 
             });
-            this.listenForClicks();
-            //this.listenForGameStart()
+            this.listenForEvents();
+
+            if (!this.gamer) {
+                this.$notify({
+                    text: 'Вы зашли как гость'
+                });
+            }
         },
 
         methods: {
             clickBox(x, y) {
-                if (!(this.player === 'guest')) {
-                    const userColorId = this.player.id;
-                    axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
-                        .then((response) => {
-
-                        });
+                if (!this.gamer) {
+                    this.$notify({
+                        text: 'Вы зашли как гость'
+                    });
+                    return;
                 }
+                if (this.move.id !== this.gamer.id) {
+                    this.$notify({
+                        text: 'Сейчас ходит ' + this.move.user.name
+                    });
+                    return;
+                }
+                if (this.squares.filter(e => (e.x === x) && (e.y === y)).length > 0) {
+                    this.$notify({
+                        text: 'Это поле занято'
+                    });
+                    return;
+                }
+                const userColorId = this.gamer.id;
+                axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
+                    .then((response) => {
+
+                    });
 
             },
 
             answer(userAnswer) {
-                if (!(this.player === 'guest')) {
-                    const userColorId = this.player.id;
-                    const questionId = this.question.id;
-
-                    axios.post('/games/' + this.game.id + '/user/answered', {userAnswer, userColorId, questionId})
-                        .then((response) => {
-
-                        });
+                if (!this.gamer) {
+                    this.$notify({
+                        text: 'Вы зашли как гость'
+                    });
+                    return;
                 }
-            },
+                const userColorId = this.gamer.id;
+                const questionId = this.question.id;
 
-            listenForClicks() {
+                axios.post('/games/' + this.game.id + '/user/answered', {userAnswer, userColorId, questionId})
+                    .then((response) => {
+
+                    });
+            },
+            listenForEvents() {
                 Echo.private('game.' + this.game.id)
                     .listen('BoxClicked', (e) => {
                         console.log('box clicked', e);
@@ -116,30 +142,14 @@
                         boxes.forEach(e => {
                             $(`.box-${e.x}-${e.y}`).css('background-color', 'white');
                         });
-
                         this.question = null;
-
-                    })
-                    .listen('UserIsReady', (e) => {
-                        console.log('user ready', e);
-                        let index = this.game.user_colors.findIndex((uc) => uc.user_id === e.user.id);
-                        this.game.user_colors[index] = e.user;
-                    })
-                    .listen('GameStarted', (e) => {
-                        console.log(e, this.user);
                     });
             },
 
-
-            ready() {
-                axios.post('/games/' + this.game.id + '/user/ready')
-            },
             review(x, y) {
-                let n = 12 / this.cols
+                let n = 12 / this.cols;
                 return 'col-lg-' + n + ' col-xs-' + n + ' box-' + x + '-' + y
             }
-        },
-
-        computed: {}
+        }
     }
 </script>

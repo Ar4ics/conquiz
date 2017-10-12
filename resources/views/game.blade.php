@@ -4,6 +4,7 @@
 
 
 @section('content')
+    <notifications></notifications>
     <game :game-data="{{ $game }}"
           :player="{{ $player }}"
           :boxes="{{ $boxes }}"

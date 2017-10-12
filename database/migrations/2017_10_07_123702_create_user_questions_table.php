@@ -18,6 +18,7 @@ class CreateUserQuestionsTable extends Migration
             $table->unsignedInteger('user_color_id');
             $table->unsignedInteger('answer');
             $table->boolean('is_correct')->nullable();
+            $table->unique(['question_id', 'user_color_id']);
             $table->timestamps();
         });
     }

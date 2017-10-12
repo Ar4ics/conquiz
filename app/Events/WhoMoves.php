@@ -30,7 +30,9 @@ class WhoMoves implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'who_moves' => $this->whoMoves
+            'id' => $this->whoMoves->id,
+            'username' => $this->whoMoves->user->name,
+            'color' => $this->whoMoves->color,
         ];
     }
 }

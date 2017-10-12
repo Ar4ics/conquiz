@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Box;
 use App\Events\AnswersResults;
 use App\Events\BoxClicked;
 use App\Events\GameCreated;
-use App\Events\GameStarted;
 use App\Events\NewQuestion;
-use App\Events\UserIsReady;
 use App\Events\WhoMoves;
 use App\Game;
 use App\Question;
@@ -16,8 +15,6 @@ use App\User;
 use App\UserColor;
 use App\UserQuestion;
 use Auth;
-use App;
-use Eloquent;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -41,7 +38,9 @@ class GameController extends Controller
 
     public function store()
     {
-        $game = Game::create(['title' => request('title')]);
+
+        $nextQuestionId = rand(1, intdiv(Question::count(), 2));
+        $game = Game::create(['title' => request('title'), 'next_question_id' => $nextQuestionId]);
 
         $colors = ["green", "red", "blue"];
         $users = collect(request('users'));
@@ -66,13 +65,13 @@ class GameController extends Controller
                 $q->select(['id', 'game_id', 'user_id', 'color']);
             }, 'user_colors.user' => function (BelongsTo $q) {
                 $q->select(['id', 'name']);
-            }])->find($id, ['id', 'title']) ?? App::abort(404);
+            }])->find($id, ['id', 'title', 'current_question_id']) ?? App::abort(404);
 
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('user_colors.game_id', '=', $id)->get(['x', 'y', 'color']);
 
-        $player = $game->getUserColor(Auth::user()->id) ?? "'guest'";
-        $who_moves = UserColor::where('game_id', $game->id)
+        $player = $game->getUserColor(Auth::user()->id) ?? collect();
+        $who_moves = UserColor::with('user')->where('game_id', $game->id)
                 ->where('has_moved', '=', 'false')
                 ->first() ?? collect();
 
@@ -97,15 +96,16 @@ class GameController extends Controller
         $box = Box::create(['x' => $x, 'y' => $y, 'user_color_id' => $userColor->id]);
         broadcast(new BoxClicked($box));
 
-        $who_moves = UserColor::where('game_id', $id)
+        $who_moves = UserColor::with('user')->where('game_id', $id)
             ->where('has_moved', '=', 'false')
             ->first();
         if ($who_moves) {
             broadcast(new WhoMoves($who_moves));
         } else {
-            $question = Question::inRandomOrder()->first();
             $game = Game::find($id);
+            $question = Question::find($game->next_question_id);
             $game->current_question_id = $question->id;
+            $game->next_question_id++;
             $game->save();
             broadcast(new NewQuestion($question, $id));
         }

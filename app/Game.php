@@ -12,16 +12,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $title
  * @property bool $in_progress
  * @property int|null $current_question_id
+ * @property int $next_question_id
  * @property int|null $winner_user_id
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Question[] $current_question
+ * @property-read \App\Question|null $current_question
+ * @property-read \App\Question $next_question
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\UserColor[] $user_colors
  * @property-read \App\User|null $winner
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCurrentQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereInProgress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereNextQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereWinnerUserId($value)
@@ -29,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Game extends Model
 {
-    protected $fillable = ['title', 'user_id', 'in_progress'];
+    protected $fillable = ['title', 'next_question_id', 'in_progress'];
     protected $hidden = ['created_at', 'updated_at'];
 
 
@@ -40,7 +43,12 @@ class Game extends Model
 
     public function current_question()
     {
-        return $this->hasMany(Question::class, 'current_question_id');
+        return $this->belongsTo(Question::class, 'current_question_id');
+    }
+
+    public function next_question()
+    {
+        return $this->belongsTo(Question::class, 'next_question_id');
     }
 
     public function winner()

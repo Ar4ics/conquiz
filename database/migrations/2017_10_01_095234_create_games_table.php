@@ -18,6 +18,7 @@ class CreateGamesTable extends Migration
             $table->string('title'); 
             $table->boolean('in_progress')->default(false);
             $table->unsignedInteger('current_question_id')->nullable();
+            $table->unsignedInteger('next_question_id');
             $table->unsignedInteger('winner_user_id')->nullable();      
             $table->timestamps();
         });
