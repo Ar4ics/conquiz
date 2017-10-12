@@ -71,9 +71,10 @@ class GameController extends Controller
             ->where('user_colors.game_id', '=', $id)->get(['x', 'y', 'color']);
 
         $player = $game->getUserColor(Auth::user()->id) ?? collect();
-        $who_moves = UserColor::with('user')->where('game_id', $game->id)
+        $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
+                ->where('game_id', $game->id)
                 ->where('has_moved', '=', 'false')
-                ->first() ?? collect();
+                ->first(['user_colors.id', 'users.name']) ?? collect();
 
         $question = Question::find($game->current_question_id,
                 ['id', 'title', 'a', 'b', 'c', 'd']) ?? collect();
@@ -88,19 +89,29 @@ class GameController extends Controller
 
     public function boxClicked($id)
     {
+        $x = request('x');
+        $y = request('y');
+        if (Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
+            ->where('user_colors.game_id', '=', $id)
+            ->where('x', '=', $x)
+            ->where('y', '=', $y)->first()) {
+            return [
+                'error' => 'Это поле занято',
+                'code' => 0
+            ];
+        }
         $userColor = UserColor::find(request('userColorId'));
         $userColor->has_moved = true;
         $userColor->save();
-        $x = request('x');
-        $y = request('y');
         $box = Box::create(['x' => $x, 'y' => $y, 'user_color_id' => $userColor->id]);
         broadcast(new BoxClicked($box));
 
-        $who_moves = UserColor::with('user')->where('game_id', $id)
+        $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
+            ->where('game_id', $id)
             ->where('has_moved', '=', 'false')
-            ->first();
+            ->first(['user_colors.id', 'users.name']);
         if ($who_moves) {
-            broadcast(new WhoMoves($who_moves));
+            broadcast(new WhoMoves($who_moves->id, $who_moves->name, $id));
         } else {
             $game = Game::find($id);
             $question = Question::find($game->next_question_id);
@@ -153,10 +164,11 @@ class GameController extends Controller
             $game->current_question_id = null;
             $game->save();
             broadcast(new AnswersResults($results, $deleted, $id));
-            $who_moves = UserColor::where('game_id', $id)
+            $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
+                ->where('game_id', $id)
                 ->where('has_moved', '=', 'false')
-                ->first();
-            broadcast(new WhoMoves($who_moves));
+                ->first(['user_colors.id', 'users.name']);
+            broadcast(new WhoMoves($who_moves->id, $who_moves->name, $id));
 
         }
 

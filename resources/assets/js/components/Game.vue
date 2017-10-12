@@ -14,10 +14,10 @@
         </div>
         <div v-else>
             <p>Участники:</p>
-            <p v-for="u in game.user_colors">
+            <p v-for="(u, i) in game.user_colors" v-bind:key="i.id">
                 {{ u.user.name }} -
                 <span :style="{ 'background-color': u.color }">
-                    {{ move.user_id === u.user_id ? 'ходит' : '' }}
+                    {{ move.id === u.id ? 'ходит' : '' }}
                 </span>
             </p>
         </div>
@@ -52,7 +52,8 @@
                 rows: 3,
                 cols: 4,
                 move: {
-                    user_id: ''
+                    id: '',
+                    name: ''
                 },
                 game: {
                     user_colors: []
@@ -88,19 +89,19 @@
                 }
                 if (this.move.id !== this.gamer.id) {
                     this.$notify({
-                        text: 'Сейчас ходит ' + this.move.user.name
-                    });
-                    return;
-                }
-                if (this.squares.filter(e => (e.x === x) && (e.y === y)).length > 0) {
-                    this.$notify({
-                        text: 'Это поле занято'
+                        text: 'Сейчас ходит ' + this.move.name
                     });
                     return;
                 }
                 const userColorId = this.gamer.id;
                 axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
                     .then((response) => {
+                        console.log(response);
+                        if (response.data.error && (response.data.code === 0)) {
+                            this.$notify({
+                                text: 'Это поле занято'
+                            });
+                        }
 
                     });
 
@@ -130,7 +131,7 @@
                     })
                     .listen('WhoMoves', (e) => {
                         console.log('who moves', e);
-                        this.move = e.who_moves;
+                        this.move = e;
                     })
                     .listen('NewQuestion', (e) => {
                         console.log('new question', e);

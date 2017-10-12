@@ -15,24 +15,27 @@ class WhoMoves implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $whoMoves;
+    public $id;
+    public $name;
+    public $game_id;
 
-    public function __construct(UserColor $whoMoves)
+    public function __construct($id, $name, $game_id)
     {
-        $this->whoMoves = $whoMoves;
+        $this->id = $id;
+        $this->name = $name;
+        $this->game_id = $game_id;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->whoMoves->game_id);
+        return new PrivateChannel('game.' . $this->game_id);
     }
 
     public function broadcastWith()
     {
         return [
-            'id' => $this->whoMoves->id,
-            'username' => $this->whoMoves->user->name,
-            'color' => $this->whoMoves->color,
+            'id' => $this->id,
+            'name' => $this->name
         ];
     }
 }
