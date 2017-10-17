@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -15,8 +14,11 @@ class CreateGamesTable extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title'); 
-            $table->boolean('in_progress')->default(false);
+            $table->string('title');
+            $table->unsignedInteger('count_x');
+            $table->unsignedInteger('count_y');
+            $table->boolean('stage1_has_finished')->default(false);
+            $table->boolean('stage2_has_finished')->default(false);
             $table->unsignedInteger('current_question_id')->nullable();
             $table->unsignedInteger('next_question_id');
             $table->unsignedInteger('winner_user_id')->nullable();      

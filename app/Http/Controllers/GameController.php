@@ -40,7 +40,12 @@ class GameController extends Controller
     {
 
         $nextQuestionId = rand(1, intdiv(Question::count(), 2));
-        $game = Game::create(['title' => request('title'), 'next_question_id' => $nextQuestionId]);
+        $game = Game::create([
+            'title' => request('title'),
+            'next_question_id' => $nextQuestionId,
+            'count_x' => request('count_x'),
+            'count_y' => request('count_y'),
+        ]);
 
         $colors = ["green", "red", "blue"];
         $users = collect(request('users'));
@@ -62,10 +67,10 @@ class GameController extends Controller
     public function getGame($id)
     {
         $game = Game::with(['user_colors' => function (HasMany $q) {
-                $q->select(['id', 'game_id', 'user_id', 'color']);
+                $q->select(['id', 'game_id', 'user_id', 'color', 'score']);
             }, 'user_colors.user' => function (BelongsTo $q) {
                 $q->select(['id', 'name']);
-            }])->find($id, ['id', 'title', 'current_question_id']) ?? App::abort(404);
+            }])->find($id, ['id', 'title', 'current_question_id', 'count_x', 'count_y']) ?? App::abort(404);
 
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('user_colors.game_id', '=', $id)->get(['x', 'y', 'color']);
@@ -74,7 +79,7 @@ class GameController extends Controller
         $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
                 ->where('game_id', $game->id)
                 ->where('has_moved', '=', 'false')
-                ->first(['user_colors.id', 'users.name']) ?? collect();
+                ->first(['user_colors.id', 'user_colors.score', 'users.name']) ?? collect();
 
         $question = Question::find($game->current_question_id,
                 ['id', 'title', 'a', 'b', 'c', 'd']) ?? collect();

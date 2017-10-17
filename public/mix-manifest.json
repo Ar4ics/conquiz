@@ -1,4 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css"
+    "/css/app.css": "/css/app.css",
+    "/js/bootstrap-native-v4.min.js": "/js/bootstrap-native-v4.min.js",
+    "/js/polyfill.min.js": "/js/polyfill.min.js"
 }

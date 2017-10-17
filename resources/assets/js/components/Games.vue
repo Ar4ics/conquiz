@@ -31,7 +31,7 @@ export default {
         listenForNewGroups () {
             Echo.private('games')
                 .listen('GameCreated', (e) => {
-                    console.log(e)
+                    console.log(e);
                     this.games.push(e.game);
                 });
         },

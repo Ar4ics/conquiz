@@ -17,6 +17,7 @@ class CreateUserColorsTable extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('game_id');
             $table->string('color');
+            $table->integer('score')->default(0);
             $table->boolean('has_moved')->default(false);
             $table->boolean('has_answered')->default(false);
             $table->timestamps();

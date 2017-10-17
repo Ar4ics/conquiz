@@ -1,22 +1,10 @@
-
 window._ = require('lodash');
 
 /**
- * We'll load jQuery and the Bootstrap jQuery plugin which provides support
- * for JavaScript based Bootstrap features such as modals and tabs. This
- * code may be modified to fit the specific needs of your application.
+ * JQuery is nice but if the only reason to get it is bootstrap, better to have vanilla JS
+ * More info here http://thednp.github.io/bootstrap.native/
+ * added to the main layout as there is no version to build with npm yet
  */
-
-try {
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap-select');
-
-
-    require('bootstrap-sass');
-} catch (e) {
-    console.log('error loading jquery', e);
-}
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -25,7 +13,6 @@ try {
  */
 
 window.axios = require('axios');
-
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**
@@ -48,7 +35,6 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-
 import Echo from 'laravel-echo'
 
 window.Pusher = require('pusher-js');
@@ -58,9 +44,3 @@ window.Echo = new Echo({
     cluster: 'eu',
     encrypted: true
 });
-
-// window.io = require('socket.io-client');
-// window.Echo = new Echo({
-//     broadcaster: 'socket.io',
-//     host: window.location.hostname + ':6001'
-// });

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property int $game_id
  * @property string $color
+ * @property int $score
  * @property bool $has_moved
  * @property bool $has_answered
  * @property \Carbon\Carbon|null $created_at
@@ -24,13 +25,14 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereHasAnswered($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereHasMoved($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereScore($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUserId($value)
  * @mixin \Eloquent
  */
 class UserColor extends Model
 {
-    protected $fillable = ['user_id', 'game_id', 'color', 'has_moved'];
+    protected $fillable = ['user_id', 'game_id', 'color'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function game()

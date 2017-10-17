@@ -1,47 +1,57 @@
 <template>
-    <div class="panel panel-default">
-        <div class="panel-heading">Создание комнаты</div>
-        <div class="panel-body">
-            <form>
-                <div class="form-group">
-                    <input class="form-control" type="text" v-model="title" placeholder="Имя комнаты">
-                </div>
-                <div class="form-group">
-                    <select class="selectpicker" title="Выберите пользователей..." v-model="users" multiple id="friends">
-                        <option v-for="user in initialUsers" :key="user.id" :value="user.id">
-                            {{ user.name }}
-                        </option>
-                    </select>
-                </div>
-            </form>
-        </div>
-        <div class="panel-footer text-center">
+    <div>
+        <p>Создание игровой комнаты</p>
+        <form>
+            <div class="form-group">
+                <label for="title">Название игры</label>
+                <input id="title" class="form-control" type="text" v-model="title">
+            </div>
+            <div class="form-group">
+                <label for="x">Длина поля по x</label>
+                <input id="x" class="form-control" min="2" max="5" type="number" v-model="count_x"/>
+            </div>
+            <div class="form-group">
+                <label for="y">Длина поля по y</label>
+                <input id="y" class="form-control" min="2" max="5" type="number" v-model="count_y"/>
+            </div>
+            <div class="form-group">
+                <label for="users">Выберите пользователей...</label>
+                <select class="form-control" v-model="users" multiple
+                        id="users">
+                    <option v-for="user in initialUsers" :key="user.id" :value="user.id">
+                        {{ user.name }}
+                    </option>
+                </select>
+            </div>
             <button type="submit" @click.prevent="createGroup" class="btn btn-primary">Создать</button>
-        </div>
+        </form>
     </div>
 </template>
 
 <script>
-export default {
-    props: ['initialUsers'],
+    export default {
+        props: ['initialUsers'],
 
-    data () {
-        return {
-            title: '',
-            users: []
-        }
-    },
+        data() {
+            return {
+                title: '',
+                count_x: 2,
+                count_y: 2,
+                users: []
+            }
+        },
 
-    methods: {
-        createGroup () {
-            axios.post('/games', { title: this.title, users: this.users })
-                .then((response) => {
-                    this.title = '';
-                    this.users = [];
-                    $('.selectpicker').selectpicker('deselectAll');
-                    //Bus.$emit('gameCreated', response.data);
-                });
+        methods: {
+            createGroup() {
+                axios.post('/games',
+                    {title: this.title, users: this.users, count_x: this.count_x, count_y: this.count_y})
+                    .then((response) => {
+                        this.title = '';
+                        this.users = [];
+                        //$('.selectpicker').selectpicker('deselectAll');
+                        //Bus.$emit('gameCreated', response.data);
+                    });
+            }
         }
     }
-}
 </script>

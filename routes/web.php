@@ -23,3 +23,9 @@ Route::get('/games/{id}', 'GameController@getGame');
 Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
 Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
 
+Route::get('/', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+

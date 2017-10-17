@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $title
- * @property bool $in_progress
+ * @property int $count_x
+ * @property int $count_y
+ * @property bool $stage1_has_finished
+ * @property bool $stage2_has_finished
  * @property int|null $current_question_id
  * @property int $next_question_id
  * @property int|null $winner_user_id
@@ -20,11 +23,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Question $next_question
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\UserColor[] $user_colors
  * @property-read \App\User|null $winner
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCountX($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCountY($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCurrentQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereInProgress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereNextQuestionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereStage1HasFinished($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereStage2HasFinished($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereWinnerUserId($value)
@@ -32,7 +38,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Game extends Model
 {
-    protected $fillable = ['title', 'next_question_id', 'in_progress'];
+    protected $fillable = [
+        'title',
+        'next_question_id',
+        'count_x',
+        'count_y',
+    ];
     protected $hidden = ['created_at', 'updated_at'];
 
 
