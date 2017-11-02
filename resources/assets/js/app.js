@@ -7,11 +7,10 @@
 
 require('./bootstrap');
 
-import Vue           from 'vue'
 import Notifications from 'vue-notification'
-
+window.Vue = require('vue');
 Vue.use(Notifications);
-//window.Bus = new Vue();
+window.Bus = new Vue();
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -22,7 +21,7 @@ Vue.component('games', require('./components/Games.vue'));
 Vue.component('game', require('./components/Game.vue'));
 Vue.component('create-game', require('./components/CreateGame.vue'));
 
-new Vue({
+const app = new Vue({
     el: '#app'
 });
 

@@ -11,7 +11,7 @@
                     </div>
                 @endif
 
-                <button><a href="/games">Игровой зал</a></button>
+                <a href="/games" class="btn btn-primary">Игровой зал</a>
             </div>
         </div>
     </div>

@@ -1,10 +1,22 @@
 <template>
     <div>
-        <div v-for="game in games" :key="game.id">
-            <h4>{{ game.title }}</h4>
-            <p>Игроков: {{ game.user_colors_count }}</p>
-            <button @click="watchGame(game.id)">Посмотреть игру</button>
-        </div>
+        <h5 class="text-center">Текущие игры</h5>
+        <table class="table table-hover table-bordered">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Название комнаты</th>
+                <th scope="col">Кол-во игроков</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr @click="watchGame(game.id)" v-for="(game, i) in games" :key="game.id">
+                <th scope="row">{{ i + 1}}</th>
+                <td>{{ game.title }}</td>
+                <td>{{ game.user_colors_count }}</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 

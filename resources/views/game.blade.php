@@ -4,7 +4,7 @@
 
 
 @section('content')
-    <notifications></notifications>
+    <notifications position="top center"></notifications>
     <game :game-data="{{ $game }}"
           :player="{{ $player }}"
           :boxes="{{ $boxes }}"

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p>Создание игровой комнаты</p>
+        <h5 class="text-center">Создание игровой комнаты</h5>
         <form>
             <div class="form-group">
                 <label for="title">Название игры</label>

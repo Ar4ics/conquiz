@@ -17,13 +17,15 @@ class AnswersResults implements ShouldBroadcast
     public $results;
     public $boxes;
     public $game_id;
+    public $correct;
 
 
-    public function __construct($results, $boxes, $game_id)
+    public function __construct($results, $boxes, $correct, $game_id)
     {
         $this->results = $results;
         $this->boxes = $boxes;
         $this->game_id = $game_id;
+        $this->correct = $correct;
     }
 
 
@@ -36,7 +38,8 @@ class AnswersResults implements ShouldBroadcast
     {
         return [
             'results' => $this->results,
-            'boxes' => $this->boxes
+            'boxes' => $this->boxes,
+            'correct' => $this->correct,
         ];
     }
 }
