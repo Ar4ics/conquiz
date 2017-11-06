@@ -12,14 +12,11 @@ use Illuminate\Notifications\Notifiable;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property int|null $current_game_id
  * @property string|null $remember_token
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \App\Game|null $current_game
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereCurrentGameId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereName($value)
@@ -38,7 +35,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'game_id'
+        'name', 'email', 'password'
     ];
 
     /**
@@ -50,8 +47,4 @@ class User extends Authenticatable
         'password', 'remember_token', 'created_at', 'updated_at', 'email'
     ];
 
-
-    public function current_game() {
-        return $this->belongsTo(Game::class, 'current_game_id');
-    }
 }

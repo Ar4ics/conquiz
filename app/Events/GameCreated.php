@@ -18,11 +18,6 @@ class GameCreated implements ShouldBroadcast
     public $game;
     public $users_count;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
     public function __construct(Game $game, $users_count)
     {
         $this->game = $game;

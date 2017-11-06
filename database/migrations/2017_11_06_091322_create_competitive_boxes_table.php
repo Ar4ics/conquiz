@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBoxesTable extends Migration
+class CreateCompetitiveBoxesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +12,11 @@ class CreateBoxesTable extends Migration
      */
     public function up()
     {
-        Schema::create('boxes', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('competitive_boxes', function (Blueprint $table) {
+            $table->unsignedInteger('game_id')->primary();
             $table->unsignedInteger('x');
             $table->unsignedInteger('y');
-            $table->unsignedInteger('user_color_id');
-            $table->unsignedInteger('game_id');
-            $table->unique(['x', 'y', 'game_id']);
+            $table->json('competitors');
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ class CreateBoxesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('boxes');
+        Schema::dropIfExists('competitive_boxes');
     }
 }

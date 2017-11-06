@@ -8,11 +8,11 @@
             </div>
             <div class="form-group">
                 <label for="x">Длина поля по x</label>
-                <input id="x" class="form-control" min="2" max="5" type="number" v-model="count_x"/>
+                <input id="x" class="form-control" min="1" max="5" type="number" v-model="count_x"/>
             </div>
             <div class="form-group">
                 <label for="y">Длина поля по y</label>
-                <input id="y" class="form-control" min="2" max="5" type="number" v-model="count_y"/>
+                <input id="y" class="form-control" min="1" max="5" type="number" v-model="count_y"/>
             </div>
             <div class="form-group">
                 <label for="users">Выберите пользователей...</label>

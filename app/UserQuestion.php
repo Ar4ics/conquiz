@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserQuestion extends Model
 {
     protected $fillable = ['question_id', 'user_color_id', 'answer'];
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
 
     public function question()
     {

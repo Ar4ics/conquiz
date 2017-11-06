@@ -2,7 +2,8 @@
 
 namespace App\Events;
 
-use App\Game;
+use App\Box;
+use App\UserColor;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,36 +12,32 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameStarted implements ShouldBroadcast
+class ShowCompetitiveBox implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $game;
+    public $x;
+    public $y;
+    public $id;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
-    public function __construct(Game $game)
+    public function __construct($x, $y, $id)
     {
-        $this->game = $game;
+        $this->x = $x;
+        $this->y = $y;
+        $this->id = $id;
+
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game->id);
+        return new PrivateChannel('game.' . $this->id);
     }
 
     public function broadcastWith()
     {
         return [
-            'who_moves' => $game->move_user_id
+            'x' => $this->x,
+            'y' => $this->y,
         ];
     }
 }

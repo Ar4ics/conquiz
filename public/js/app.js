@@ -52744,17 +52744,47 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['initialGames', 'user'],
 
     data: function data() {
         return {
-            games: []
+            current_games: [],
+            finished_games: []
         };
     },
     mounted: function mounted() {
-        this.games = this.initialGames;
+        this.current_games = this.initialGames.filter(function (u) {
+            return !u.stage3_has_finished;
+        });
+        this.finished_games = this.initialGames.filter(function (u) {
+            return u.stage3_has_finished;
+        });
+
         // Bus.$on('groupCreated', (group) => {
         //     this.groups.push(group);
         // });
@@ -52794,7 +52824,7 @@ var render = function() {
       _vm._v(" "),
       _c(
         "tbody",
-        _vm._l(_vm.games, function(game, i) {
+        _vm._l(_vm.current_games, function(game, i) {
           return _c(
             "tr",
             {
@@ -52815,6 +52845,40 @@ var render = function() {
           )
         })
       )
+    ]),
+    _vm._v(" "),
+    _c("h5", { staticClass: "text-center" }, [_vm._v("Завершенные игры")]),
+    _vm._v(" "),
+    _c("table", { staticClass: "table table-hover table-bordered" }, [
+      _vm._m(1),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.finished_games, function(game, i) {
+          return _c(
+            "tr",
+            {
+              key: game.id,
+              on: {
+                click: function($event) {
+                  _vm.watchGame(game.id)
+                }
+              }
+            },
+            [
+              _c("th", { attrs: { scope: "row" } }, [_vm._v(_vm._s(i + 1))]),
+              _vm._v(" "),
+              _c("td", [_vm._v(_vm._s(game.title))]),
+              _vm._v(" "),
+              _c("td", [_vm._v(_vm._s(game.user_colors_count))]),
+              _vm._v(" "),
+              _c("td", [_vm._v(_vm._s(game.winner.user.name))]),
+              _vm._v(" "),
+              _c("td", [_vm._v(_vm._s(game.winner.score))])
+            ]
+          )
+        })
+      )
     ])
   ])
 }
@@ -52830,6 +52894,24 @@ var staticRenderFns = [
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Название комнаты")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Кол-во игроков")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", { staticClass: "thead-light" }, [
+      _c("tr", [
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("#")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Название комнаты")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Кол-во игроков")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Победитель")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Счет")])
       ])
     ])
   }
@@ -53342,9 +53424,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion'],
+    props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion', 'competitiveBox'],
 
     data: function data() {
         return {
@@ -53355,17 +53442,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             game: {
                 count_x: 0,
                 count_y: 0,
+                winner_user_color_id: 0,
                 user_colors: []
             },
             answers: [],
             count_col: 0,
             question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion,
-            gamer: Array.isArray(this.player) ? null : this.player
+            common_box: Array.isArray(this.competitiveBox) ? null : this.competitiveBox,
+            gamer: Array.isArray(this.player) ? null : this.player,
+            winnerPlayer: null
         };
     },
     created: function created() {
+        var _this = this;
+
         this.move = this.whoMoves;
         this.game = this.gameData;
+        if (this.game.winner_user_color_id) {
+            var userColor = this.game.user_colors.filter(function (u) {
+                return u.id === _this.game.winner_user_color_id;
+            })[0];
+            this.winnerPlayer = userColor.user;
+        }
         this.count_col = 12 / this.game.count_y;
     },
     mounted: function mounted() {
@@ -53379,6 +53477,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.boxes.forEach(function (e) {
             $('.b-' + e.x + '-' + e.y).css('background-color', e.color);
         });
+        if (this.common_box) {
+            $('.b-' + this.common_box.x + '-' + this.common_box.y).css('background-color', 'grey');
+        }
     },
 
 
@@ -53387,7 +53488,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return 'col-' + this.count_col + ' b-' + x + '-' + y;
         },
         clickBox: function clickBox(x, y) {
-            var _this = this;
+            var _this2 = this;
 
             if (!this.gamer) {
                 this.$notify({
@@ -53404,9 +53505,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var userColorId = this.gamer.id;
             axios.post('/games/' + this.game.id + '/box/clicked', { x: x, y: y, userColorId: userColorId }).then(function (response) {
                 console.log(response);
-                if (response.data.error && response.data.code === 0) {
-                    _this.$notify({
-                        text: 'Это поле занято'
+
+                if (response.data.error) {
+                    _this2.$notify({
+                        text: response.data.error
                     });
                 }
             });
@@ -53424,33 +53526,42 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.post('/games/' + this.game.id + '/user/answered', { userAnswer: userAnswer, userColorId: userColorId, questionId: questionId }).then(function (response) {});
         },
         listenForEvents: function listenForEvents() {
-            var _this2 = this;
+            var _this3 = this;
 
             Echo.private('game.' + this.game.id).listen('BoxClicked', function (e) {
                 console.log('box clicked', e);
                 $('.b-' + e.x + '-' + e.y).css('background-color', e.color);
+            }).listen('ShowCompetitiveBox', function (e) {
+                console.log('box clicked', e);
+                $('.b-' + e.x + '-' + e.y).css('background-color', 'grey');
             }).listen('WhoMoves', function (e) {
                 console.log('who moves', e);
-                _this2.move = e;
+                _this3.move = e;
+            }).listen('WinnerFound', function (e) {
+                console.log('winner', e);
+                var userColor = _this3.game.user_colors.filter(function (u) {
+                    return u.id === e.winner.id;
+                })[0];
+                _this3.winnerPlayer = userColor.user;
             }).listen('NewQuestion', function (e) {
                 console.log('new question', e);
-                _this2.question = e;
+                _this3.question = e;
             }).listen('AnswersResults', function (e) {
                 console.log('answer results', e);
                 e.results.forEach(function (r) {
-                    var userColor = _this2.game.user_colors.filter(function (u) {
+                    var userColor = _this3.game.user_colors.filter(function (u) {
                         return u.id === r.user_color_id;
                     })[0];
                     userColor.score = r.score;
-                    _this2.answers.push({ name: userColor.user.name, ans: r.answer + 1, is_correct: r.is_correct });
+                    _this3.answers.push({ name: userColor.user.name, ans: r.answer + 1, is_correct: r.is_correct });
                 });
                 $('#a-' + e.correct).attr('class', 'btn btn-success');
                 e.boxes.forEach(function (e) {
                     $('.b-' + e.x + '-' + e.y).css('background-color', 'white');
                 });
                 setTimeout(function () {
-                    _this2.answers = [];
-                    _this2.question = null;
+                    _this3.answers = [];
+                    _this3.question = null;
                     $('.a > .btn').attr('class', 'btn btn-info');
                 }, 5000);
             });
@@ -53586,9 +53697,20 @@ var render = function() {
           ])
         ])
       : _c("div", [
-          _c("p", { staticClass: "alert alert-primary" }, [
-            _vm._v("Ждем пока сходит " + _vm._s(_vm.move.name))
-          ])
+          _vm.winnerPlayer
+            ? _c("div", [
+                _c("p", { staticClass: "alert alert-success" }, [
+                  _vm._v(
+                    "Игра завершена. Победитель " +
+                      _vm._s(_vm.winnerPlayer.name)
+                  )
+                ])
+              ])
+            : _c("div", [
+                _c("p", { staticClass: "alert alert-primary" }, [
+                  _vm._v("Ждем пока сходит " + _vm._s(_vm.move.name))
+                ])
+              ])
         ]),
     _vm._v(" "),
     _c(
@@ -53790,7 +53912,7 @@ var render = function() {
             }
           ],
           staticClass: "form-control",
-          attrs: { id: "x", min: "2", max: "5", type: "number" },
+          attrs: { id: "x", min: "1", max: "5", type: "number" },
           domProps: { value: _vm.count_x },
           on: {
             input: function($event) {
@@ -53816,7 +53938,7 @@ var render = function() {
             }
           ],
           staticClass: "form-control",
-          attrs: { id: "y", min: "2", max: "5", type: "number" },
+          attrs: { id: "y", min: "1", max: "5", type: "number" },
           domProps: { value: _vm.count_y },
           on: {
             input: function($event) {

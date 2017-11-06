@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $x
  * @property int $y
  * @property int $user_color_id
+ * @property int $game_id
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
+ * @property-read \App\Game $game
  * @property-read \App\UserColor $user_color
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereGameId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereUserColorId($value)
@@ -25,11 +28,16 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Box extends Model
 {
-    protected $fillable = ['x', 'y', 'user_color_id'];
+    protected $fillable = ['x', 'y', 'user_color_id', 'game_id'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function user_color()
     {
         return $this->belongsTo(UserColor::class, 'user_color_id');
+    }
+
+    public function game()
+    {
+        return $this->belongsTo(Game::class, 'game_id');
     }
 }

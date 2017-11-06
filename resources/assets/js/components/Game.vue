@@ -33,7 +33,12 @@
             </div>
         </div>
         <div v-else>
-            <p class="alert alert-primary">Ждем пока сходит {{ move.name }}</p>
+            <div v-if="winnerPlayer">
+                <p class="alert alert-success">Игра завершена. Победитель {{ winnerPlayer.name }}</p>
+            </div>
+            <div v-else>
+                <p class="alert alert-primary">Ждем пока сходит {{ move.name }}</p>
+            </div>
         </div>
 
         <div class="main">
@@ -65,7 +70,7 @@
 
 <script>
     export default {
-        props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion'],
+        props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion', 'competitiveBox'],
 
         data() {
             return {
@@ -76,18 +81,25 @@
                 game: {
                     count_x: 0,
                     count_y: 0,
+                    winner_user_color_id: 0,
                     user_colors: []
                 },
                 answers: [],
                 count_col: 0,
                 question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion,
-                gamer: Array.isArray(this.player) ? null : this.player
+                common_box: Array.isArray(this.competitiveBox) ? null : this.competitiveBox,
+                gamer: Array.isArray(this.player) ? null : this.player,
+                winnerPlayer: null
             }
         },
 
         created() {
             this.move = this.whoMoves;
             this.game = this.gameData;
+            if (this.game.winner_user_color_id) {
+                let userColor = this.game.user_colors.filter(u => u.id === this.game.winner_user_color_id)[0];
+                this.winnerPlayer = userColor.user;
+            }
             this.count_col = 12 / this.game.count_y;
         },
 
@@ -102,6 +114,9 @@
             this.boxes.forEach(e => {
                 $(`.b-${e.x}-${e.y}`).css('background-color', e.color);
             });
+            if (this.common_box) {
+                $(`.b-${this.common_box.x}-${this.common_box.y}`).css('background-color', 'grey');
+            }
 
         },
 
@@ -128,12 +143,12 @@
                 axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
                     .then((response) => {
                         console.log(response);
-                        if (response.data.error && (response.data.code === 0)) {
+
+                        if (response.data.error) {
                             this.$notify({
-                                text: 'Это поле занято'
+                                text: response.data.error
                             });
                         }
-
                     });
 
             },
@@ -158,11 +173,19 @@
                     .listen('BoxClicked', (e) => {
                         console.log('box clicked', e);
                         $(`.b-${e.x}-${e.y}`).css('background-color', e.color);
-
+                    })
+                    .listen('ShowCompetitiveBox', (e) => {
+                        console.log('box clicked', e);
+                        $(`.b-${e.x}-${e.y}`).css('background-color', 'grey');
                     })
                     .listen('WhoMoves', (e) => {
                         console.log('who moves', e);
                         this.move = e;
+                    })
+                    .listen('WinnerFound', (e) => {
+                        console.log('winner', e);
+                        let userColor = this.game.user_colors.filter(u => u.id === e.winner.id)[0];
+                        this.winnerPlayer = userColor.user;
                     })
                     .listen('NewQuestion', (e) => {
                         console.log('new question', e);

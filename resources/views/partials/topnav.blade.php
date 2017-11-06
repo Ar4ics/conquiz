@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md bg-light navbar-light fixed-top">
     <!-- Branding Image -->
-    <a class="navbar-brand" href="{{ url('/') }}">
+    <a class="navbar-brand" href="{{ url('/home') }}">
         {{ config('app.name', 'Laravel') }}
     </a>
 

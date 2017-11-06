@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $user_id
  * @property int $game_id
+ * @property int $seq
  * @property string $color
  * @property int $score
  * @property bool $has_moved
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \App\Game $game
  * @property-read \App\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor sequenced($direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereColor($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereGameId($value)
@@ -26,12 +28,24 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereHasMoved($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereScore($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereSeq($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUserId($value)
  * @mixin \Eloquent
  */
 class UserColor extends Model
 {
+
+    use Sequence;
+
+    public function sequence()
+    {
+        return [
+            'group' => 'game_id',
+            'fieldName' => 'seq',
+        ];
+    }
+
     protected $fillable = ['user_id', 'game_id', 'color'];
     protected $hidden = ['created_at', 'updated_at'];
 

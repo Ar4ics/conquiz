@@ -10,6 +10,8 @@
           :boxes="{{ $boxes }}"
           :who-moves="{{ $who_moves }}"
           :initial-question="{{ $question }}"
+          :competitive-box="{{ $competitive_box }}"
+
     >
     </game>
 @endsection

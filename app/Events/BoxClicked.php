@@ -25,7 +25,7 @@ class BoxClicked implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->box->user_color->game_id);
+        return new PrivateChannel('game.' . $this->box->game_id);
     }
 
     public function broadcastWith()
