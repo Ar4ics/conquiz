@@ -19,10 +19,14 @@
                 <div class="card-body">
                     <p>{{ question.title }}</p>
                     <div class="a">
-                        <button id="a-0" class="btn btn-info" v-on:click="answer(0)">{{ question.a }}</button>
-                        <button id="a-1" class="btn btn-info" v-on:click="answer(1)">{{ question.b }}</button>
-                        <button id="a-2" class="btn btn-info" v-on:click="answer(2)">{{ question.c }}</button>
-                        <button id="a-3" class="btn btn-info" v-on:click="answer(3)">{{ question.d }}</button>
+                        <button v-bind:id="'a-' + i"
+                                class="btn btn-light"
+                                v-for="(a, i) in question.answers"
+                                v-bind:key="i"
+                                v-on:click="answer(i)"
+                        >
+                            {{ a }}
+                        </button>
                     </div>
                     <div v-if="answers.length > 0">
                         <div v-for="(a, i) in answers" :key="i">
@@ -133,16 +137,10 @@
                     });
                     return;
                 }
-                if (this.move.id !== this.gamer.id) {
-                    this.$notify({
-                        text: 'Сейчас ходит ' + this.move.name
-                    });
-                    return;
-                }
                 const userColorId = this.gamer.id;
                 axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
                     .then((response) => {
-                        console.log(response);
+                        //console.log(response);
 
                         if (response.data.error) {
                             this.$notify({
@@ -154,6 +152,7 @@
             },
 
             answer(userAnswer) {
+                console.log('answer', userAnswer);
                 if (!this.gamer) {
                     this.$notify({
                         text: 'Вы зашли как гость'
@@ -165,7 +164,11 @@
 
                 axios.post('/games/' + this.game.id + '/user/answered', {userAnswer, userColorId, questionId})
                     .then((response) => {
-
+                        if (response.data.error) {
+                            this.$notify({
+                                text: response.data.error
+                            });
+                        }
                     });
             },
             listenForEvents() {

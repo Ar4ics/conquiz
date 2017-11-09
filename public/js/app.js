@@ -52799,7 +52799,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             Echo.private('games').listen('GameCreated', function (e) {
                 console.log(e);
-                _this.games.push(e.game);
+                _this.current_games.push(e);
             });
         },
         watchGame: function watchGame(game) {
@@ -53429,6 +53429,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['gameData', 'player', 'boxes', 'whoMoves', 'initialQuestion', 'competitiveBox'],
@@ -53496,15 +53500,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 });
                 return;
             }
-            if (this.move.id !== this.gamer.id) {
-                this.$notify({
-                    text: 'Сейчас ходит ' + this.move.name
-                });
-                return;
-            }
             var userColorId = this.gamer.id;
             axios.post('/games/' + this.game.id + '/box/clicked', { x: x, y: y, userColorId: userColorId }).then(function (response) {
-                console.log(response);
+                //console.log(response);
 
                 if (response.data.error) {
                     _this2.$notify({
@@ -53514,6 +53512,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         answer: function answer(userAnswer) {
+            var _this3 = this;
+
+            console.log('answer', userAnswer);
             if (!this.gamer) {
                 this.$notify({
                     text: 'Вы зашли как гость'
@@ -53523,10 +53524,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var userColorId = this.gamer.id;
             var questionId = this.question.id;
 
-            axios.post('/games/' + this.game.id + '/user/answered', { userAnswer: userAnswer, userColorId: userColorId, questionId: questionId }).then(function (response) {});
+            axios.post('/games/' + this.game.id + '/user/answered', { userAnswer: userAnswer, userColorId: userColorId, questionId: questionId }).then(function (response) {
+                if (response.data.error) {
+                    _this3.$notify({
+                        text: response.data.error
+                    });
+                }
+            });
         },
         listenForEvents: function listenForEvents() {
-            var _this3 = this;
+            var _this4 = this;
 
             Echo.private('game.' + this.game.id).listen('BoxClicked', function (e) {
                 console.log('box clicked', e);
@@ -53536,32 +53543,32 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 $('.b-' + e.x + '-' + e.y).css('background-color', 'grey');
             }).listen('WhoMoves', function (e) {
                 console.log('who moves', e);
-                _this3.move = e;
+                _this4.move = e;
             }).listen('WinnerFound', function (e) {
                 console.log('winner', e);
-                var userColor = _this3.game.user_colors.filter(function (u) {
+                var userColor = _this4.game.user_colors.filter(function (u) {
                     return u.id === e.winner.id;
                 })[0];
-                _this3.winnerPlayer = userColor.user;
+                _this4.winnerPlayer = userColor.user;
             }).listen('NewQuestion', function (e) {
                 console.log('new question', e);
-                _this3.question = e;
+                _this4.question = e;
             }).listen('AnswersResults', function (e) {
                 console.log('answer results', e);
                 e.results.forEach(function (r) {
-                    var userColor = _this3.game.user_colors.filter(function (u) {
+                    var userColor = _this4.game.user_colors.filter(function (u) {
                         return u.id === r.user_color_id;
                     })[0];
                     userColor.score = r.score;
-                    _this3.answers.push({ name: userColor.user.name, ans: r.answer + 1, is_correct: r.is_correct });
+                    _this4.answers.push({ name: userColor.user.name, ans: r.answer + 1, is_correct: r.is_correct });
                 });
                 $('#a-' + e.correct).attr('class', 'btn btn-success');
                 e.boxes.forEach(function (e) {
                     $('.b-' + e.x + '-' + e.y).css('background-color', 'white');
                 });
                 setTimeout(function () {
-                    _this3.answers = [];
-                    _this3.question = null;
+                    _this4.answers = [];
+                    _this4.question = null;
                     $('.a > .btn').attr('class', 'btn btn-info');
                 }, 5000);
             });
@@ -53615,63 +53622,32 @@ var render = function() {
             _c("div", { staticClass: "card-body" }, [
               _c("p", [_vm._v(_vm._s(_vm.question.title))]),
               _vm._v(" "),
-              _c("div", { staticClass: "a" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: { id: "a-0" },
-                    on: {
-                      click: function($event) {
-                        _vm.answer(0)
+              _c(
+                "div",
+                { staticClass: "a" },
+                _vm._l(_vm.question.answers, function(a, i) {
+                  return _c(
+                    "button",
+                    {
+                      key: i,
+                      staticClass: "btn btn-light",
+                      attrs: { id: "a-" + i },
+                      on: {
+                        click: function($event) {
+                          _vm.answer(i)
+                        }
                       }
-                    }
-                  },
-                  [_vm._v(_vm._s(_vm.question.a))]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: { id: "a-1" },
-                    on: {
-                      click: function($event) {
-                        _vm.answer(1)
-                      }
-                    }
-                  },
-                  [_vm._v(_vm._s(_vm.question.b))]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: { id: "a-2" },
-                    on: {
-                      click: function($event) {
-                        _vm.answer(2)
-                      }
-                    }
-                  },
-                  [_vm._v(_vm._s(_vm.question.c))]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: { id: "a-3" },
-                    on: {
-                      click: function($event) {
-                        _vm.answer(3)
-                      }
-                    }
-                  },
-                  [_vm._v(_vm._s(_vm.question.d))]
-                )
-              ]),
+                    },
+                    [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(a) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+                })
+              ),
               _vm._v(" "),
               _vm.answers.length > 0
                 ? _c(

@@ -37,11 +37,9 @@ class GameCreated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'game' => [
-                'id' => $this->game->id,
-                'title' => $this->game->title,
-                'user_colors_count' => $this->users_count
-            ]
+            'id' => $this->game->id,
+            'title' => $this->game->title,
+            'user_colors_count' => $this->users_count
         ];
     }
 }

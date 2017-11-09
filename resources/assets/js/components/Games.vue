@@ -70,7 +70,7 @@
                 Echo.private('games')
                     .listen('GameCreated', (e) => {
                         console.log(e);
-                        this.games.push(e.game);
+                        this.current_games.push(e);
                     });
             },
             watchGame(game) {

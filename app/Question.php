@@ -9,19 +9,13 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $title
- * @property string $a
- * @property string $b
- * @property string $c
- * @property string $d
+ * @property array $answers
  * @property int $correct
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereA($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereB($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereC($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereAnswers($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereCorrect($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereD($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Question whereUpdatedAt($value)
@@ -29,6 +23,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Question extends Model
 {
+    protected $casts = [
+        'answers' => 'array'
+    ];
     protected $fillable = ['title', 'a', 'b', 'c', 'd', 'correct'];
     protected $hidden = ['created_at', 'updated_at'];
 }

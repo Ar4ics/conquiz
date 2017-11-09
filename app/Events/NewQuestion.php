@@ -35,10 +35,7 @@ class NewQuestion implements ShouldBroadcast
         return [
             'id' => $this->question->id,
             'title' => $this->question->title,
-            'a' => $this->question->a,
-            'b' => $this->question->b,
-            'c' => $this->question->c,
-            'd' => $this->question->d,
+            'answers' => $this->question->answers,
         ];
     }
 }
