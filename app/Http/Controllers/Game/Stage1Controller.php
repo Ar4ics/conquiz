@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Game;
 
 use App;
 use App\Box;
+use App\Events\AnswersResults;
 use App\Events\BoxClicked;
 use App\Events\NewQuestion;
 use App\Events\WhoMoves;
+use App\Events\WinnerFound;
 use App\Game;
 use App\Question;
 use App\UserQuestion;
@@ -31,7 +33,6 @@ class Stage1Controller
         } else {
             $question = Question::find($game->next_question_id);
             $game->current_question_id = $question->id;
-            $game->next_question_id++;
             $game->save();
             broadcast(new NewQuestion($question, $game->id));
         }
@@ -88,11 +89,23 @@ class Stage1Controller
                 $game->save();
             }
 
-            $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-                ->where('game_id', $game->id)
-                ->sequenced()
-                ->first(['user_colors.id', 'users.name']);
-            broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+            $ids = UserQuestion::join('user_colors', 'user_questions.user_color_id', '=', 'user_colors.id')
+                ->where('user_colors.game_id', $game->id)
+                ->get()->pluck('question_id')->unique()->values();
+            $nextQuestions = Question::whereNotIn('id', $ids)->get();
+            if ($nextQuestions->isEmpty()) {
+                $game->noQuestionsLeft();
+                broadcast(new WinnerFound($game->winner, $game->id));
+            } else {
+                $game->next_question_id = $nextQuestions->random()->id;
+                $game->save();
+
+                $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
+                    ->where('game_id', $game->id)
+                    ->sequenced()
+                    ->first(['user_colors.id', 'users.name']);
+                broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+            }
 
         }
         return response()->json([]);

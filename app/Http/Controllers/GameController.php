@@ -37,7 +37,7 @@ class GameController extends Controller
 
     public function store()
     {
-        $nextQuestionId = Question::first()->id; // rand(1, intdiv(Question::count(), 3));
+        $nextQuestionId = Question::inRandomOrder()->first()->id; // rand(1, intdiv(Question::count(), 3));
         $game = Game::create([
             'title' => request('title'),
             'next_question_id' => $nextQuestionId,
@@ -96,6 +96,11 @@ class GameController extends Controller
     public function boxClicked($id)
     {
         $game = Game::find($id);
+        if ($game->stage3_has_finished) {
+            return [
+                'error' => 'Игра завершена',
+            ];
+        }
         if ($game->current_question_id) {
             return [
                 'error' => 'Задан вопрос',
@@ -138,6 +143,12 @@ class GameController extends Controller
     public function userAnswered($id)
     {
         $game = Game::find($id);
+        if ($game->stage3_has_finished) {
+            return [
+                'error' => 'Игра завершена',
+            ];
+        }
+
         $userAnswer = request('userAnswer');
         $userColorId = request('userColorId');
         $questionId = request('questionId');

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md bg-light navbar-light fixed-top">
     <!-- Branding Image -->
-    <a class="navbar-brand" href="{{ url('/home') }}">
+    <a class="navbar-brand" href="{{ url('/games') }}">
         {{ config('app.name', 'Laravel') }}
     </a>
 
@@ -31,13 +31,11 @@
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{ Auth::user()->name }} <span class="caret"></span>
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="#">My profile</a>
-                        <a class="dropdown-item" href="#">My Account</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ route('logout') }}"
                            onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
-                            Logout
+                            Выйти
                         </a>
 
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

@@ -1,45 +1,48 @@
 <template>
     <div>
-        <h5 class="text-center">Текущие игры</h5>
-        <table class="table table-hover table-bordered">
-            <thead class="thead-light">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Название комнаты</th>
-                <th scope="col">Кол-во игроков</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr @click="watchGame(game.id)" v-for="(game, i) in current_games" :key="game.id">
-                <th scope="row">{{ i + 1}}</th>
-                <td>{{ game.title }}</td>
-                <td>{{ game.user_colors_count }}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="card">
+            <div class="card-header text-center">Текущие игры</div>
+            <div class="card-body">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Комната</th>
+                        <th scope="col">Игроков</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr @click="watchGame(game.id)" v-for="(game, i) in current_games" :key="game.id">
+                        <th scope="row">{{ i + 1}}</th>
+                        <td>{{ game.title }}</td>
+                        <td>{{ game.user_colors_count }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <h5 class="text-center">Завершенные игры</h5>
-        <table class="table table-hover table-bordered">
-            <thead class="thead-light">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Название комнаты</th>
-                <th scope="col">Кол-во игроков</th>
-                <th scope="col">Победитель</th>
-                <th scope="col">Счет</th>
-
-            </tr>
-            </thead>
-            <tbody>
-            <tr @click="watchGame(game.id)" v-for="(game, i) in finished_games" :key="game.id">
-                <th scope="row">{{ i + 1}}</th>
-                <td>{{ game.title }}</td>
-                <td>{{ game.user_colors_count }}</td>
-                <td>{{ game.winner.user.name }}</td>
-                <td>{{ game.winner.score }}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="card">
+            <div class="card-header text-center">Завершенные игры</div>
+            <div class="card-body">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Комната</th>
+                        <th scope="col">Победитель</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr @click="watchGame(game.id)" v-for="(game, i) in finished_games" :key="game.id">
+                        <th scope="row">{{ i + 1}}</th>
+                        <td>{{ game.title }}</td>
+                        <td>{{ game.winner.user.name }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </template>
 

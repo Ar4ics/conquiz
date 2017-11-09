@@ -1,13 +1,12 @@
 <template>
     <div class="container">
-        <h5 class="text-center">Комната: {{ game.title }}</h5>
         <div class="card bg-light">
-            <div class="card-header">Участники</div>
+            <h5 class="card-header text-center">{{ game.title }}</h5>
             <div class="card-body">
 
                 <div class="row no-gutters" v-for="(u, i) in game.user_colors" :key="i.id">
-                    <div class="col-10">{{ u.user.name }}</div>
-                    <div class="col-2 player-square" :style="{ 'background-color': u.color }">Счет: {{ u.score }}</div>
+                    <div class="col-8 col-md-10">{{ u.user.name }}</div>
+                    <div class="col-4 col-md-2 player-square" :style="{ 'background-color': u.color }">{{ u.score }} баллов</div>
                 </div>
             </div>
         </div>
@@ -41,7 +40,7 @@
                 <p class="alert alert-success">Игра завершена. Победитель {{ winnerPlayer.name }}</p>
             </div>
             <div v-else>
-                <p class="alert alert-primary">Ждем пока сходит {{ move.name }}</p>
+                <p class="alert alert-primary">Ждем хода игрока {{ move.name }}</p>
             </div>
         </div>
 
@@ -58,16 +57,16 @@
 
 <style>
     .main {
-        border: 2px solid;
+        border: 0.05rem solid;
     }
 
     .player-square {
-        height: 3px;
+        height: 0.05rem;
     }
 
     .box {
-        border: 2px solid;
-        height: 150px;
+        border: 0.05rem solid;
+        height: 10rem;
         background-color: white;
     }
 </style>
@@ -141,14 +140,12 @@
                 axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
                     .then((response) => {
                         //console.log(response);
-
                         if (response.data.error) {
                             this.$notify({
                                 text: response.data.error
                             });
                         }
                     });
-
             },
 
             answer(userAnswer) {
@@ -208,7 +205,7 @@
                         setTimeout(() => {
                             this.answers = [];
                             this.question = null;
-                            $(`.a > .btn`).attr('class', 'btn btn-info');
+                            //$(`.a > .btn`).attr('class', 'btn btn-info');
                         }, 5000);
                     });
             }

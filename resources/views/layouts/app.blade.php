@@ -21,13 +21,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}"></script>
-    <!-- {{--<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap.native@2.0.14/dist/bootstrap-native-v4.min.js"></script>--}} -->
-    {{--<script type="text/javascript" src="{{ asset('js/bootstrap-native-v4.min.js') }}"></script>--}}
-    {{--<script type="text/javascript" src="{{ asset('js/polyfill.min.js') }}"></script>--}}
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <![endif]-->
+    <script src="{{ mix('js/manifest.js') }}"></script>
+    <script src="{{ mix('js/vendor.js') }}"></script>
+    <script src="{{ mix('js/app.js') }}"></script>
 
 </body>
 </html>

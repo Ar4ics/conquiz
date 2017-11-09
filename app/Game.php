@@ -88,12 +88,22 @@ class Game extends Model
             if ($ids->count() === 1) {
                 $winner = UserColor::find($ids->get(0));
                 $this->winner_user_color_id = $winner->id;
+                $this->current_question_id = null;
                 $this->stage3_has_finished = true;
                 $this->save();
                 return true;
             }
         }
         return false;
+    }
+
+    public function noQuestionsLeft()
+    {
+        $winner = $this->user_colors()->orderBy('score', 'desc')->first();
+        $this->winner_user_color_id = $winner->id;
+        $this->current_question_id = null;
+        $this->stage3_has_finished = true;
+        $this->save();
     }
 
     public function allUserColorsAnswered()

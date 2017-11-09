@@ -11,13 +11,14 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/assets/js/app.js', 'public/js')
-    // .copy('node_modules/bootstrap.native/dist/bootstrap-native-v4.min.js', 'public/js/bootstrap-native-v4.min.js')
-    // .copy('node_modules/bootstrap.native/dist/polyfill.min.js', 'public/js/polyfill.min.js')
+mix.autoload({
+    jquery: ['jquery', 'jQuery', '$', 'window.jQuery'],
+    'popper.js': ['Popper', 'window.Popper'],
+}).js('resources/assets/js/app.js', 'public/js').extract([
+    'jquery', 'popper.js', 'bootstrap', 'axios', 'lodash', 'vue', 'vue-notification', 'laravel-echo', 'pusher-js'
+])
     .sass('resources/assets/sass/app.scss', 'public/css');
 
 if (mix.inProduction()) {
     mix.version();
-}else{
-
 }
