@@ -13,6 +13,8 @@ class CrawlController extends Controller
         $client = new Client();
         $guzzleClient = new GuzzleClient(array(
             'timeout' => 60,
+            'allow_redirects' => false,
+            'cookies' => true
         ));
         $client->setClient($guzzleClient);
 
@@ -22,7 +24,7 @@ class CrawlController extends Controller
             'https://baza-otvetov.ru/categories/view/1'
         );
         $res = [];
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $data = $crawler->filter('table.q-list__table > tr.tooltip')->each(function (Crawler $node) {
                 $q = $node->filter('td a')->text();
                 $answers = trim($node->filter('td div')->text());
