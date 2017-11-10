@@ -5,15 +5,15 @@
             <form>
                 <div class="form-group">
                     <label for="title">Название игры</label>
-                    <input id="title" class="form-control" type="text" v-model="title">
+                    <input id="title" class="form-control" type="text" v-model="title" required>
                 </div>
                 <div class="form-group">
                     <label for="x">Длина поля по x</label>
-                    <input id="x" class="form-control" min="1" max="5" type="number" v-model="count_x"/>
+                    <input id="x" class="form-control" min="2" max="5" type="number" v-model="count_x"/>
                 </div>
                 <div class="form-group">
                     <label for="y">Длина поля по y</label>
-                    <input id="y" class="form-control" min="1" max="5" type="number" v-model="count_y"/>
+                    <input id="y" class="form-control" min="2" max="5" type="number" v-model="count_y"/>
                 </div>
                 <div class="form-group">
                     <label for="users">Выберите пользователей...</label>
@@ -47,6 +47,18 @@
 
         methods: {
             createGroup() {
+                if (this.users.length < 1 || this.users.length > 2) {
+                    this.$notify({
+                        text: 'Выберите одного или двух игроков'
+                    });
+                    return;
+                }
+                if (this.title.trim() === '') {
+                    this.$notify({
+                        text: 'Введите название игры'
+                    });
+                    return;
+                }
                 axios.post('/games',
                     {title: this.title, users: this.users, count_x: this.count_x, count_y: this.count_y})
                     .then((response) => {

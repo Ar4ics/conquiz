@@ -36,10 +36,10 @@
             </div>
         </div>
         <div v-else>
-            <div v-if="winnerPlayer">
+            <div v-if="winnerPlayer" class="text-center">
                 <p class="alert alert-success">Игра завершена. Победитель {{ winnerPlayer.name }}</p>
             </div>
-            <div v-else>
+            <div class="text-center" v-else>
                 <p class="alert alert-primary">Ждем хода игрока {{ move.name }}</p>
             </div>
         </div>

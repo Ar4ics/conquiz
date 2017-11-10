@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Конквистадор')
+
 @section('content')
     <div class="container pt-5">
         <div class="row">
