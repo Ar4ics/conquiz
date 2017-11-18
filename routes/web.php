@@ -11,9 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-});
 //Route::get('/crawl', 'CrawlController@parse');
 Route::auth();
 
@@ -23,4 +20,5 @@ Route::get('/games/{id}', 'GameController@getGame');
 Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
 Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', 'HomeController@index')->name('home');
 
