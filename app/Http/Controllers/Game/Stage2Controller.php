@@ -18,9 +18,8 @@ use App\UserQuestion;
 
 class Stage2Controller
 {
-    public static function boxClicked(Game $game, $x, $y, UserColor $userColor)
+    public static function boxClicked(Game $game, $x, $y)
     {
-        $userColor->down();
         $competitiveBox = new CompetitiveBox(['x' => $x, 'y' => $y, 'competitors' => $game->user_colors->pluck('id')]);
         $game->competitive_box()->save($competitiveBox);
         broadcast(new ShowCompetitiveBox($competitiveBox->x, $competitiveBox->y, $game->id));
@@ -83,6 +82,10 @@ class Stage2Controller
             if ($boxesLeft == 0) {
                 $game->stage2_has_finished = true;
                 $game->save();
+
+                if ($game->winnerUserColorWasFound()) {
+                    broadcast(new WinnerFound($game->winner, $game->id));
+                }
             }
 
             $ids = UserQuestion::join('user_colors', 'user_questions.user_color_id', '=', 'user_colors.id')
@@ -94,17 +97,15 @@ class Stage2Controller
                 broadcast(new WinnerFound($game->winner, $game->id));
             } else {
                 $game->next_question_id = $nextQuestions->random()->id;
+                $game->move_index++;
                 $game->save();
-
-                if ($game->winnerFound()) {
-                    broadcast(new WinnerFound($game->winner, $game->id));
-                } else {
-                    $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-                        ->where('game_id', $game->id)
-                        ->sequenced()
-                        ->first(['user_colors.id', 'users.name']);
-                    broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+                $who_moves = $game->getMovingUserColor();
+                if (!$who_moves) {
+                    $game->shuffleUserColors();
+                    $who_moves = $game->getMovingUserColor();
                 }
+                broadcast(new WhoMoves($who_moves->id, $who_moves->user->name, $game->id));
+
             }
         }
         return response()->json([]);

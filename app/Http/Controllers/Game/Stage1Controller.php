@@ -18,18 +18,16 @@ class Stage1Controller
 {
     public static function boxClicked(Game $game, $x, $y, UserColor $userColor)
     {
-        $userColor->has_moved = true;
-        $userColor->down();
-        $userColor->save();
         $box = Box::create(['x' => $x, 'y' => $y, 'user_color_id' => $userColor->id, 'game_id' => $game->id]);
         broadcast(new BoxClicked($box));
 
-        $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-            ->where('game_id', $game->id)
-            ->where('has_moved', '=', 'false')
-            ->first(['user_colors.id', 'users.name']);
+        $game->move_index++;
+        $game->save();
+
+        $who_moves = $game->getMovingUserColor();
+
         if ($who_moves) {
-            broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+            broadcast(new WhoMoves($who_moves->id, $who_moves->user->name, $game->id));
         } else {
             $question = Question::find($game->next_question_id);
             $game->current_question_id = $question->id;
@@ -68,10 +66,11 @@ class Stage1Controller
                     'score' => $userColor->score
                 ]);
                 $userColor->has_answered = false;
-                $userColor->has_moved = false;
                 $userColor->save();
 
             }
+
+            $game->shuffleUserColors();
             $quest = Question::find($game->current_question_id);
             $game->current_question_id = null;
             $game->save();
@@ -99,12 +98,9 @@ class Stage1Controller
             } else {
                 $game->next_question_id = $nextQuestions->random()->id;
                 $game->save();
-
-                $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-                    ->where('game_id', $game->id)
-                    ->sequenced()
-                    ->first(['user_colors.id', 'users.name']);
-                broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+                $game->shuffleUserColors();
+                $who_moves = $game->getMovingUserColor();
+                broadcast(new WhoMoves($who_moves->id, $who_moves->user->name, $game->id));
             }
 
         }

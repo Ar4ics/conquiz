@@ -6,7 +6,9 @@
 
                 <div class="row no-gutters" v-for="(u, i) in game.user_colors" :key="i.id">
                     <div class="col-8 col-md-10">{{ u.user.name }}</div>
-                    <div class="col-4 col-md-2 player-square" :style="{ 'background-color': u.color }">{{ u.score }} баллов</div>
+                    <div class="col-4 col-md-2 player-square" :style="{ 'background-color': u.color }">{{ u.score }}
+                        баллов
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,11 +38,13 @@
             </div>
         </div>
         <div v-else>
-            <div v-if="winnerPlayer" class="text-center">
-                <p class="alert alert-success">Игра завершена. Победитель {{ winnerPlayer.name }}</p>
+            <div v-if="winner" class="text-center">
+                <p class="alert alert-success">Игра завершена. Победитель {{ winner.name }}</p>
             </div>
-            <div class="text-center" v-else>
-                <p class="alert alert-primary">Ждем хода игрока {{ move.name }}</p>
+            <div v-else>
+                <div v-if="move" class="text-center">
+                    <p class="alert alert-primary">Ждем хода игрока {{ move.name }}</p>
+                </div>
             </div>
         </div>
 
@@ -89,27 +93,25 @@
                 },
                 answers: [],
                 count_col: 0,
-                question: Array.isArray(this.initialQuestion) ? null : this.initialQuestion,
-                common_box: Array.isArray(this.competitiveBox) ? null : this.competitiveBox,
-                gamer: Array.isArray(this.player) ? null : this.player,
-                winnerPlayer: null
+                question: this.initialQuestion,
+                common_box: this.competitiveBox,
+                winner: null
             }
         },
 
         created() {
-            this.move = this.whoMoves;
             this.game = this.gameData;
+            this.move = this.whoMoves;
             if (this.game.winner_user_color_id) {
                 let userColor = this.game.user_colors.filter(u => u.id === this.game.winner_user_color_id)[0];
-                this.winnerPlayer = userColor.user;
+                this.winner = userColor.user;
             }
-            this.count_col = 12 / this.game.count_y;
+            this.count_col = 12 / this.game.count_x;
         },
 
         mounted() {
-
             this.listenForEvents();
-            if (!this.gamer) {
+            if (!this.player) {
                 this.$notify({
                     text: 'Вы зашли как гость'
                 });
@@ -130,13 +132,13 @@
             },
 
             clickBox(x, y) {
-                if (!this.gamer) {
+                if (!this.player) {
                     this.$notify({
                         text: 'Вы зашли как гость'
                     });
                     return;
                 }
-                const userColorId = this.gamer.id;
+                const userColorId = this.player.id;
                 axios.post('/games/' + this.game.id + '/box/clicked', {x, y, userColorId})
                     .then((response) => {
                         //console.log(response);
@@ -150,13 +152,13 @@
 
             answer(userAnswer) {
                 console.log('answer', userAnswer);
-                if (!this.gamer) {
+                if (!this.player) {
                     this.$notify({
                         text: 'Вы зашли как гость'
                     });
                     return;
                 }
-                const userColorId = this.gamer.id;
+                const userColorId = this.player.id;
                 const questionId = this.question.id;
 
                 axios.post('/games/' + this.game.id + '/user/answered', {userAnswer, userColorId, questionId})
@@ -185,7 +187,7 @@
                     .listen('WinnerFound', (e) => {
                         console.log('winner', e);
                         let userColor = this.game.user_colors.filter(u => u.id === e.winner.id)[0];
-                        this.winnerPlayer = userColor.user;
+                        this.winner = userColor.user;
                     })
                     .listen('NewQuestion', (e) => {
                         console.log('new question', e);

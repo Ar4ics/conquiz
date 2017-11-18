@@ -18,11 +18,8 @@ use App\UserQuestion;
 
 class Stage3Controller
 {
-    public static function boxClicked(Game $game, $x, $y, UserColor $userColor)
+    public static function boxClicked(Game $game, $x, $y, UserColor $userColor, Box $box)
     {
-        $box = Box::where('game_id', '=', $game->id)
-            ->where('x', '=', $x)
-            ->where('y', '=', $y)->first();
         if ($box->user_color_id === $userColor->id) {
             return [
                 'error' => 'Это поле вашего цвета',
@@ -52,8 +49,6 @@ class Stage3Controller
                 'error' => 'Вы не можете сходить на это поле',
             ];
         }
-
-        $userColor->down();
         $competitors = collect();
         $competitors->push($userColor->id);
         $competitors->push($box->user_color_id);
@@ -134,14 +129,17 @@ class Stage3Controller
                 $game->next_question_id = $nextQuestions->random()->id;
                 $game->save();
 
-                if ($game->winnerFound()) {
+                if ($game->winnerUserColorWasFound()) {
                     broadcast(new WinnerFound($game->winner, $game->id));
                 } else {
-                    $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-                        ->where('game_id', $game->id)
-                        ->sequenced()
-                        ->first(['user_colors.id', 'users.name']);
-                    broadcast(new WhoMoves($who_moves->id, $who_moves->name, $game->id));
+                    $game->move_index++;
+                    $game->save();
+                    $who_moves = $game->getMovingUserColor();
+                    if (!$who_moves) {
+                        $game->shuffleUserColors();
+                        $who_moves = $game->getMovingUserColor();
+                    }
+                    broadcast(new WhoMoves($who_moves->id, $who_moves->user->name, $game->id));
                 }
             }
         }

@@ -27,7 +27,7 @@ class GameController extends Controller
 
     public function index()
     {
-        $games = Game::withCount('user_colors')->with('winner.user')->get();
+        $games = Game::withCount('user_colors')->with('winner.user')->orderBy('updated_at', 'desc')->get();
 
         $users = User::where('id', '<>', Auth::user()->id)->get();
 
@@ -57,6 +57,8 @@ class GameController extends Controller
             ]);
         }
 
+        $game->shuffleUserColors();
+
         broadcast(new GameCreated($game, $game->user_colors()->count()));
 
         return $game;
@@ -65,31 +67,32 @@ class GameController extends Controller
     public function getGame($id)
     {
         $game = Game::with(['user_colors' => function (HasMany $q) {
-                $q->select(['id', 'game_id', 'user_id', 'color', 'score']);
+                $q->select(['id', 'game_id', 'user_id', 'color', 'score'])->orderBy('score', 'desc');
             }, 'user_colors.user' => function (BelongsTo $q) {
                 $q->select(['id', 'name']);
-            }])->find($id, ['id', 'title', 'current_question_id', 'count_x', 'count_y', 'stage3_has_finished', 'winner_user_color_id'])
+            }])->find($id, [
+                'id', 'title', 'current_question_id',
+                'count_x', 'count_y', 'stage3_has_finished', 'winner_user_color_id', 'move_order', 'move_index'])
             ?? App::abort(404);
 
-        $competitive_box = $game->competitive_box ?? collect();
+        $competitive_box = $game->competitive_box;
 
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color']);
 
-        $player = $game->getUserColor(Auth::user()->id) ?? collect();
-        $who_moves = (!($game->current_question_id) && !($game->stage3_has_finished)) ? UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-            ->where('game_id', $game->id)
-            ->sequenced()
-            ->first(['user_colors.id', 'user_colors.score', 'users.name']) : collect();
-        $question = Question::find($game->current_question_id,
-                ['id', 'title', 'answers']) ?? collect();
+        $player = $game->getUserColor(Auth::user()->id);
+        $who_moves = $game->getMovingUserColor();
+        if ($who_moves) {
+            $who_moves = $who_moves->user;
+        }
+        $question = Question::find($game->current_question_id, ['id', 'title', 'answers']);
         return view('game', [
-            'game' => $game,
-            'player' => $player,
-            'boxes' => $boxes,
-            'who_moves' => $who_moves,
-            'question' => $question,
-            'competitive_box' => $competitive_box,
+            'game' => json_encode($game),
+            'player' => json_encode($player),
+            'boxes' => json_encode($boxes),
+            'who_moves' => json_encode($who_moves),
+            'question' => json_encode($question),
+            'competitive_box' => json_encode($competitive_box),
         ]);
     }
 
@@ -110,31 +113,29 @@ class GameController extends Controller
         $y = request('y');
         $userColor = UserColor::find(request('userColorId'));
 
-        $who_moves = UserColor::join('users', 'user_colors.user_id', '=', 'users.id')
-            ->where('game_id', $game->id)
-            ->sequenced()
-            ->first(['user_colors.id', 'users.name']);
-
+        $who_moves = $game->getMovingUserColor();
         if ($userColor->id !== $who_moves->id) {
             return [
-                'error' => 'Сейчас ходит ' . $who_moves->name,
+                'error' => 'Сейчас ходит ' . $who_moves->user->name,
             ];
         }
 
+        $box = Box::where('game_id', '=', $game->id)
+            ->where('x', '=', $x)
+            ->where('y', '=', $y)->first();
+
         if ($game->stage2_has_finished) {
-            return Stage3Controller::boxClicked($game, $x, $y, $userColor);
+            return Stage3Controller::boxClicked($game, $x, $y, $userColor, $box);
         }
 
-        if (Box::where('game_id', '=', $game->id)
-            ->where('x', '=', $x)
-            ->where('y', '=', $y)->first()) {
+        if ($box) {
             return [
                 'error' => 'Это поле занято',
             ];
         }
 
         if ($game->stage1_has_finished) {
-            return Stage2Controller::boxClicked($game, $x, $y, $userColor);
+            return Stage2Controller::boxClicked($game, $x, $y);
         }
 
         return Stage1Controller::boxClicked($game, $x, $y, $userColor);
@@ -152,6 +153,13 @@ class GameController extends Controller
         $userAnswer = request('userAnswer');
         $userColorId = request('userColorId');
         $questionId = request('questionId');
+        $userColor = UserColor::find(request('userColorId'));
+
+        if ($game->stage2_has_finished && (!in_array($userColor->id, $game->competitive_box->competitors))) {
+            return [
+                'error' => 'Вы не должны отвечать на этот вопрос',
+            ];
+        }
 
         if (UserQuestion::where('question_id', '=', $questionId)
             ->where('user_color_id', '=', $userColorId)->first()) {
@@ -165,12 +173,12 @@ class GameController extends Controller
             'user_color_id' => $userColorId,
             'answer' => $userAnswer
         ]);
-        $userColor = UserColor::find(request('userColorId'));
         $userColor->has_answered = true;
         $userColor->save();
         if ($game->stage2_has_finished) {
             return Stage3Controller::userAnswered($game);
         }
+
         if ($game->stage1_has_finished) {
             return Stage2Controller::userAnswered($game);
         }

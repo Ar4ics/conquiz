@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\WinnerFound;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -20,6 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $winner_user_color_id
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
+ * @property array $move_order
+ * @property int $move_index
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Box[] $boxes
  * @property-read \App\CompetitiveBox $competitive_box
  * @property-read \App\Question|null $current_question
@@ -31,6 +34,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereCurrentQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereMoveIndex($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereMoveOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereNextQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereStage1HasFinished($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Game whereStage2HasFinished($value)
@@ -42,6 +47,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Game extends Model
 {
+    protected $casts = [
+        'move_order' => 'array'
+    ];
+
     protected $fillable = [
         'title',
         'next_question_id',
@@ -81,21 +90,6 @@ class Game extends Model
         return $this->hasOne(CompetitiveBox::class, 'game_id', 'id');
     }
 
-    public function winnerFound()
-    {
-        if ($this->boxes->count() === ($this->count_x * $this->count_y)) {
-            $ids = $this->boxes->pluck('user_color_id')->unique();
-            if ($ids->count() === 1) {
-                $winner = UserColor::find($ids->get(0));
-                $this->winner_user_color_id = $winner->id;
-                $this->current_question_id = null;
-                $this->stage3_has_finished = true;
-                $this->save();
-                return true;
-            }
-        }
-        return false;
-    }
 
     public function noQuestionsLeft()
     {
@@ -135,5 +129,55 @@ class Game extends Model
             }
         }
         return null;
+    }
+
+    public function getMovingUserColor()
+    {
+        $index = $this->move_index;
+        if ($index < count($this->move_order)) {
+            return UserColor::find($this->move_order[$index]);
+        } else {
+            return null;
+        }
+    }
+
+    public function shuffleUserColors()
+    {
+        $players = $this->user_colors()->where('had_lost', false)->pluck('id')->shuffle();
+        $this->move_index = 0;
+        $this->move_order = $players;
+        $this->save();
+
+    }
+
+    public function winnerUserColorWasFound()
+    {
+        $losers = collect([]);
+        $players = $this->user_colors()->where('had_lost', false)->get();
+        foreach ($players as $userColor) {
+            $count = Box::where('user_color_id', '=', $userColor->id)->count();
+            if ($count === 0) {
+                $losers->push($userColor);
+                $userColor->had_lost = true;
+                $userColor->save();
+            }
+        }
+
+        if ($losers->isEmpty()) {
+            return false;
+        }
+
+        $diff = $players->diff($losers);
+        if ($diff->count() === 1) {
+            $winner = UserColor::find($diff->first()->id);
+            $this->winner_user_color_id = $winner->id;
+            $this->current_question_id = null;
+            $this->stage3_has_finished = true;
+            $this->save();
+            return true;
+        }
+
+        $this->shuffleUserColors();
+        return false;
     }
 }
