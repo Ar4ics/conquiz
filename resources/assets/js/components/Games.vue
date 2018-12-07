@@ -1,6 +1,13 @@
 <template>
     <div>
         <div class="card">
+            <div class="card-header text-center">Общий чат</div>
+            <div class="card-body">
+                <chat-messages :game_id="0"></chat-messages>
+            </div>
+        </div>
+
+        <div class="card">
             <div class="card-header text-center">Текущие игры</div>
             <div class="card-body">
                 <table class="table table-hover table-bordered">

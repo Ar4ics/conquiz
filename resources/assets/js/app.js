@@ -7,8 +7,16 @@
 
 require('./bootstrap');
 
+import Vue           from 'vue'
 import Notifications from 'vue-notification'
-window.Vue = require('vue');
+
+import Game from './components/Game'
+import Games from './components/Games'
+import CreateGame from './components/CreateGame'
+import ChatMessage from './components/ChatMessage'
+import ChatMessages from './components/ChatMessages'
+
+window.Vue = Vue;
 Vue.use(Notifications);
 window.Bus = new Vue();
 /**
@@ -17,9 +25,11 @@ window.Bus = new Vue();
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('games', require('./components/Games.vue'));
-Vue.component('game', require('./components/Game.vue'));
-Vue.component('create-game', require('./components/CreateGame.vue'));
+Vue.component('games', Games);
+Vue.component('game', Game);
+Vue.component('create-game', CreateGame);
+Vue.component('chat-message', ChatMessage);
+Vue.component('chat-messages', ChatMessages);
 
 const app = new Vue({
     el: '#app'

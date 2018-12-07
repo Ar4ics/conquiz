@@ -69,7 +69,7 @@ class GameController extends Controller
         $game = Game::with(['user_colors' => function (HasMany $q) {
                 $q->select(['id', 'game_id', 'user_id', 'color', 'score'])->orderBy('score', 'desc');
             }, 'user_colors.user' => function (BelongsTo $q) {
-                $q->select(['id', 'name']);
+                $q->select(['id', 'name', 'status']);
             }])->find($id, [
                 'id', 'title', 'current_question_id',
                 'count_x', 'count_y', 'stage3_has_finished', 'winner_user_color_id', 'move_order', 'move_index'])

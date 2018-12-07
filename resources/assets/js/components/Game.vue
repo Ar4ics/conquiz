@@ -12,6 +12,21 @@
                 </div>
             </div>
         </div>
+        <div class="card bg-white">
+            <h5 class="card-header text-center">Online-пользователи</h5>
+            <div class="card-body">
+                <span class="row no-gutters" v-for="(u, i) in online_users" :key="i.id">
+                    {{ u.name }}
+                </span>
+            </div>
+        </div>
+        <div class="card bg-white">
+            <h5 class="card-header text-center">Чат</h5>
+            <div class="card-body">
+                <chat-messages :game_id="game.id"/>
+            </div>
+        </div>
+
         <div v-if="question">
             <div class="card text-center">
                 <h6 class="card-header">
@@ -59,7 +74,7 @@
 
 </template>
 
-<style>
+<style scoped>
     .main {
         border: 0.05rem solid;
     }
@@ -95,7 +110,8 @@
                 count_col: 0,
                 question: this.initialQuestion,
                 common_box: this.competitiveBox,
-                winner: null
+                winner: null,
+                online_users: []
             }
         },
 
@@ -123,8 +139,30 @@
                 $(`.b-${this.common_box.x}-${this.common_box.y}`).css('background-color', 'grey');
             }
 
-        },
+            Echo.join('game_users.' + this.game.id)
+                .here((users) => {
+                    console.log('users', users);
+                    this.online_users = users;
+                    this.$notify({
+                        text: `В комнате ${users.length} человек`
+                    });
+                })
+                .joining((user) => {
+                    console.log('joining', user);
+                    this.online_users.push(user);
+                    this.$notify({
+                        text: `В комнату зашел ${user.name}`
+                    });
+                })
+                .leaving((user) => {
+                    console.log('leaving', user);
+                    this.online_users = this.online_users.filter(o => o.id !== user.id);
+                    this.$notify({
+                        text: `Из комнаты вышел ${user.name}`
+                    });
+                });
 
+        },
         methods: {
 
             review(x, y) {
@@ -149,6 +187,7 @@
                         }
                     });
             },
+
 
             answer(userAnswer) {
                 console.log('answer', userAnswer);

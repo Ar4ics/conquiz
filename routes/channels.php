@@ -26,3 +26,13 @@ Broadcast::channel('games', function ($user) {
     //return $group->hasUser($user->id);
     return true;
 });
+
+Broadcast::channel('game_users.{game}', function ($user, $game) {
+    Log::debug($user);
+    return $user;
+});
+
+Broadcast::channel('users', function ($user) {
+    Log::debug($user);
+    return $user;
+});

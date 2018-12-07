@@ -19,8 +19,8 @@
                     <label for="users">Выберите пользователей...</label>
                     <select class="form-control" v-model="users" multiple
                             id="users">
-                        <option v-for="user in initialUsers" :key="user.id" :value="user.id">
-                            {{ user.name }}
+                        <option v-for="user in online_sorted" :key="user.id" :value="user.id">
+                            {{ user.name }} - {{ user.status }}
                         </option>
                     </select>
                 </div>
@@ -41,11 +41,64 @@
                 title: '',
                 count_x: 2,
                 count_y: 2,
-                users: []
+                users: [],
+                online_users: this.initialUsers
+            }
+        },
+
+        mounted() {
+            Echo.join('users')
+                .here((users) => {
+                    console.log('users', users);
+                    users.forEach(u => {
+                       let us = this.online_users.find(o => o.id === u.id);
+                       if (us) {
+                           us.status = 'online';
+                       }
+                    });
+
+                    this.$notify({
+                        text: `В зале ${users.length} человек`
+                    });
+                })
+                .joining((user) => {
+                    console.log('joining', user);
+                    let us = this.online_users.find(o => o.id === user.id);
+                    if (us) {
+                        us.status = 'online';
+                    }
+                    this.$notify({
+                        text: `В зал зашел ${user.name}`
+                    });
+                })
+                .leaving((user) => {
+                    console.log('leaving', user);
+                    let us = this.online_users.find(o => o.id === user.id);
+                    if (us) {
+                        us.status = 'offline';
+                    }
+                    this.$notify({
+                        text: `Из зала вышел ${user.name}`
+                    });
+                });
+        },
+
+        computed: {
+            online_sorted: function () {
+                return this.online_users.sort(function (a, b) {
+                    if (a.status > b.status) {
+                        return -1;
+                    }
+                    if (a.status < b.status) {
+                        return 1;
+                    }
+                    return 0;
+                });
             }
         },
 
         methods: {
+
             createGroup() {
                 if (this.users.length < 1 || this.users.length > 2) {
                     this.$notify({

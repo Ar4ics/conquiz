@@ -13,7 +13,7 @@ let mix = require('laravel-mix');
 
 mix.autoload({
     jquery: ['jquery', 'jQuery', '$', 'window.jQuery'],
-    'popper.js': ['Popper', 'window.Popper'],
+    'popper.js': ['Popper'],
 }).js('resources/assets/js/app.js', 'public/js').extract([
     'jquery', 'popper.js', 'bootstrap', 'axios', 'lodash', 'vue', 'vue-notification', 'laravel-echo', 'pusher-js'
 ])
