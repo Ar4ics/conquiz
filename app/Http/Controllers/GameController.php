@@ -27,7 +27,7 @@ class GameController extends Controller
 
     public function index()
     {
-        $games = Game::withCount('user_colors')->with('winner.user')->orderBy('updated_at', 'desc')->get();
+        $games = Game::with('user_colors.user')->with('winner.user')->orderBy('updated_at', 'desc')->get();
 
         $users = User::where('id', '<>', Auth::user()->id)->get();
 

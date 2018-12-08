@@ -1,9 +1,15 @@
 <template>
-    <div class="chat-content">
-        <div v-for="(u, i) in messages" :key="i.id">
-            <chat-message :chatMessage="u"></chat-message>
+    <div class="card">
+        <h5 class="card-header text-center">{{ title }}</h5>
+        <div ref="chat" class="card-body chat-content">
+            <div v-for="(g, i) in grouped" :key="i">
+                <h5 class="card-title text-center">{{ i }}</h5>
+                <div v-for="m in g" :key="m.i">
+                    <chat-message :chatMessage="m"></chat-message>
+                </div>
+            </div>
         </div>
-        <div style="padding-top: 10px">
+        <div class="card-footer">
             <input v-model="chat_message" type="text" placeholder="Сообщение" class="form-control"
                    @keyup.enter="submitMessage"/>
         </div>
@@ -12,21 +18,28 @@
 
 <script>
     export default {
-        props: ['game_id'],
+        props: ['title', 'game_id'],
         data() {
             return {
                 chat_message: '',
-                messages: [],
+                messages: []
             }
         },
         mounted() {
             this.listenForEvents();
             this.loadMessages();
         },
+
         updated() {
-            // whenever data changes and the component re-renders, this is called.
             this.$nextTick(() => this.scrollToEnd());
         },
+
+        computed: {
+            grouped: function () {
+                return _.groupBy(this.messages, 'date');
+            }
+        },
+
         methods: {
 
             loadMessages() {
@@ -44,7 +57,7 @@
 
             submitMessage() {
                 console.log(this.chat_message);
-                axios.post('/games/' + this.game_id + '/message', { message: this.chat_message })
+                axios.post('/games/' + this.game_id + '/message', {message: this.chat_message})
                     .then((response) => {
                         console.log(response);
                         if (response.data.error) {
@@ -66,7 +79,7 @@
 
             scrollToEnd: function () {
                 // scroll to the start of the last message
-                this.$el.scrollTop = this.$el.lastElementChild.offsetTop;
+                this.$refs.chat.scrollTop = this.$refs.chat.scrollHeight;
             }
         }
     }
@@ -77,6 +90,7 @@
         overflow-y: scroll;
         max-height: 200px;
     }
+
     ::-webkit-scrollbar {
         width: 0px;
         background: transparent; /* make scrollbar transparent */

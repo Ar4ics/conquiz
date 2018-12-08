@@ -13,19 +13,14 @@
             </div>
         </div>
         <div class="card bg-white">
-            <h5 class="card-header text-center">Online-пользователи</h5>
+            <h5 class="card-header text-center">Кто здесь</h5>
             <div class="card-body">
                 <span class="row no-gutters" v-for="(u, i) in online_users" :key="i.id">
                     {{ u.name }}
                 </span>
             </div>
         </div>
-        <div class="card bg-white">
-            <h5 class="card-header text-center">Чат</h5>
-            <div class="card-body">
-                <chat-messages :game_id="game.id"/>
-            </div>
-        </div>
+        <chat-messages :game_id="game.id" :title="'Чат'"/>
 
         <div v-if="question">
             <div class="card text-center">

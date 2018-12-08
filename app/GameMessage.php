@@ -3,6 +3,7 @@
 namespace App;
 
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -30,13 +31,29 @@ use Illuminate\Database\Eloquent\Model;
 class GameMessage extends Model
 {
     protected $fillable = ['message', 'user_id', 'game_id'];
-    protected $hidden = ['updated_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public static $createRules = [
         'message' => 'required|string',
         'user_id' => 'required|integer',
         'game_id' => 'required|integer',
     ];
+
+    protected $appends = ['date', 'time'];
+
+    public function getDateAttribute()
+    {
+        return Carbon::createFromTimestamp(strtotime($this->created_at))
+            ->timezone('Asia/Yekaterinburg')
+            ->toDateString();
+    }
+
+    public function getTimeAttribute()
+    {
+        return Carbon::createFromTimestamp(strtotime($this->created_at))
+            ->timezone('Asia/Yekaterinburg')
+            ->toTimeString();
+    }
 
     public function user()
     {

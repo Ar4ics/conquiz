@@ -30,7 +30,8 @@ class GameMessageCreated implements ShouldBroadcast
         return [
             'message' => $this->gameMessage['message'],
             'user' => $this->gameMessage['user'],
-            'date' => $this->gameMessage['date']
+            'date' => $this->gameMessage['date'],
+            'time' => $this->gameMessage['time'],
         ];
     }
 }

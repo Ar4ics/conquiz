@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Events\WinnerFound;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -58,6 +59,24 @@ class Game extends Model
         'count_y',
     ];
     protected $hidden = ['created_at', 'updated_at'];
+
+    protected $appends = ['start', 'end'];
+
+    public function getStartAttribute()
+    {
+        return $this->getLocalTime($this->created_at);
+    }
+
+    public function getEndAttribute()
+    {
+        return $this->getLocalTime($this->updated_at);
+    }
+
+    private function getLocalTime($value) {
+        return Carbon::createFromTimestamp(strtotime($value))
+            ->timezone('Asia/Yekaterinburg')
+            ->toDateTimeString();
+    }
 
 
     public function user_colors()

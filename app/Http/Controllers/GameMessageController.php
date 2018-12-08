@@ -16,9 +16,6 @@ class GameMessageController extends Controller
     public function index($gameId) {
 
         $messages = GameMessage::whereGameId($gameId)->with('user')->get();
-        $messages->each(function (GameMessage $message) {
-            $message['date'] = $message->created_at->diffForHumans();
-        });
         return $messages;
     }
 
@@ -37,10 +34,12 @@ class GameMessageController extends Controller
         }
 
         $message = GameMessage::create($data);
+
         $mes = [];
         $mes['message'] = $message->message;
         $mes['game_id'] = $message->game_id;
-        $mes['date'] = $message->created_at->diffForHumans();
+        $mes['date'] = $message['date'];
+        $mes['time'] = $message['time'];
         $mes['user'] = ['name' => $user->name];
 
         event(new GameMessageCreated($mes));

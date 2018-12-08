@@ -1,12 +1,5 @@
 <template>
-    <div>
-        <div class="card">
-            <div class="card-header text-center">Общий чат</div>
-            <div class="card-body">
-                <chat-messages :game_id="0"></chat-messages>
-            </div>
-        </div>
-
+    <div class="container">
         <div class="card">
             <div class="card-header text-center">Текущие игры</div>
             <div class="card-body">
@@ -15,14 +8,20 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Комната</th>
-                        <th scope="col">Игроков</th>
+                        <th scope="col">Игроки</th>
+                        <th scope="col">Дата</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr @click="watchGame(game.id)" v-for="(game, i) in current_games" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
                         <td>{{ game.title }}</td>
-                        <td>{{ game.user_colors_count }}</td>
+                        <td>
+                            <span class="player-name" v-for="(uc, i) in game.user_colors" :key="i.id">
+                                {{ uc.user.name }}
+                            </span>
+                        </td>
+                        <td>{{ game.start }} - {{ game.end }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -38,6 +37,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Комната</th>
                         <th scope="col">Победитель</th>
+                        <th scope="col">Дата</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -45,6 +45,7 @@
                         <th scope="row">{{ i + 1}}</th>
                         <td>{{ game.title }}</td>
                         <td>{{ game.winner.user.name }}</td>
+                        <td>{{ game.start }} - {{ game.end }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -52,6 +53,14 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+    .player-name {
+        padding: 1px;
+        border-style: groove;
+        border-width: 1px;
+    }
+</style>
 
 <script>
     export default {

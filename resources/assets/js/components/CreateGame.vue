@@ -1,33 +1,35 @@
 <template>
-    <div class="card">
-        <div class="card-header text-center">Создание игровой комнаты</div>
-        <div class="card-body">
-            <form>
-                <div class="form-group">
-                    <label for="title">Название игры</label>
-                    <input id="title" class="form-control" type="text" v-model="title" required>
-                </div>
-                <div class="form-group">
-                    <label for="x">Длина поля по x</label>
-                    <input id="x" class="form-control" min="2" max="4" type="number" v-model="count_x"/>
-                </div>
-                <div class="form-group">
-                    <label for="y">Длина поля по y</label>
-                    <input id="y" class="form-control" min="2" max="4" type="number" v-model="count_y"/>
-                </div>
-                <div class="form-group">
-                    <label for="users">Выберите пользователей...</label>
-                    <select class="form-control" v-model="users" multiple
-                            id="users">
-                        <option v-for="user in online_sorted" :key="user.id" :value="user.id">
-                            {{ user.name }} - {{ user.status }}
-                        </option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <button type="submit" @click.prevent="createGroup" class="btn btn-primary">Создать</button>
-                </div>
-            </form>
+    <div>
+        <div class="card">
+            <div class="card-header text-center">Создание игровой комнаты</div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+                        <label for="title">Название игры</label>
+                        <input class="form-control" id="title" required type="text" v-model="title">
+                    </div>
+                    <div class="form-group">
+                        <label for="x">Длина поля по x</label>
+                        <input class="form-control" id="x" max="4" min="2" type="number" v-model="count_x"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="y">Длина поля по y</label>
+                        <input class="form-control" id="y" max="4" min="2" type="number" v-model="count_y"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="users">Выберите пользователей...</label>
+                        <select class="form-control" id="users" multiple
+                                v-model="users">
+                            <option :key="user.id" :value="user.id" v-for="user in online_sorted">
+                                {{ user.name }} - {{ user.status }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group text-center">
+                        <button @click.prevent="createGroup" class="btn btn-primary" type="submit">Создать</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </template>
@@ -51,10 +53,10 @@
                 .here((users) => {
                     console.log('users', users);
                     users.forEach(u => {
-                       let us = this.online_users.find(o => o.id === u.id);
-                       if (us) {
-                           us.status = 'online';
-                       }
+                        let us = this.online_users.find(o => o.id === u.id);
+                        if (us) {
+                            us.status = 'online';
+                        }
                     });
 
                     this.$notify({
