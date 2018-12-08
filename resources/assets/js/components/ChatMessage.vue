@@ -13,14 +13,15 @@
 <script>
     export default {
         props: ['chatMessage'],
+
         data() {
             return {
                 message: this.chatMessage.message
             };
         },
-        methods: {
 
-        },
+        methods: {},
+
         computed: {
             messageEmoji: function () {
                 let emoji = this.message;
