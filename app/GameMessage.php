@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Game $game
+ * @property-read mixed $date
+ * @property-read mixed $time
  * @property-read \App\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|\App\GameMessage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\GameMessage newQuery()
@@ -43,14 +45,14 @@ class GameMessage extends Model
 
     public function getDateAttribute()
     {
-        return Carbon::createFromTimestamp(strtotime($this->created_at))
+        return Carbon::createFromTimestamp($this->created_at->timestamp)
             ->timezone('Asia/Yekaterinburg')
             ->toDateString();
     }
 
     public function getTimeAttribute()
     {
-        return Carbon::createFromTimestamp(strtotime($this->created_at))
+        return Carbon::createFromTimestamp($this->created_at->timestamp)
             ->timezone('Asia/Yekaterinburg')
             ->toTimeString();
     }

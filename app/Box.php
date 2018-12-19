@@ -13,10 +13,15 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $y
  * @property int $user_color_id
  * @property int $game_id
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $cost
  * @property-read \App\Game $game
  * @property-read \App\UserColor $user_color
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Box newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Box newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Box query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereCost($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereGameId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Box whereId($value)
@@ -28,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Box extends Model
 {
-    protected $fillable = ['x', 'y', 'user_color_id', 'game_id'];
+    protected $fillable = ['x', 'y', 'user_color_id', 'cost', 'game_id'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function user_color()

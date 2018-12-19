@@ -3,16 +3,13 @@
 namespace App\Events;
 
 use App\Box;
-use App\UserColor;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BoxClicked implements ShouldBroadcast
+class BaseCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -34,7 +31,7 @@ class BoxClicked implements ShouldBroadcast
             'x' => $this->box->x,
             'y' => $this->box->y,
             'color' => $this->box->user_color->color,
-            'base_guards_count' => 0,
+            'base_guards_count' => $this->box->user_color->base_guards_count,
             'cost' => $this->box->cost,
             'user_color_id' => $this->box->user_color_id,
         ];

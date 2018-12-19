@@ -6,20 +6,20 @@ namespace App\Http\Controllers;
 use App\Events\GameMessageCreated;
 use App\GameMessage;
 use Auth;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Log;
 use Validator;
 
 class GameMessageController extends Controller
 {
-    public function index($gameId) {
+    public function index($gameId)
+    {
 
         $messages = GameMessage::whereGameId($gameId)->with('user')->get();
         return $messages;
     }
 
-    public function store(Request $request, $gameId) {
+    public function store(Request $request, $gameId)
+    {
 
         $user = Auth::user();
         $data = $request->all();
@@ -42,7 +42,7 @@ class GameMessageController extends Controller
         $mes['time'] = $message['time'];
         $mes['user'] = ['name' => $user->name];
 
-        event(new GameMessageCreated($mes));
+        broadcast(new GameMessageCreated($mes));
         return $message;
     }
 }

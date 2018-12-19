@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\UserColor;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -10,24 +11,18 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class AnswersResults implements ShouldBroadcast
+class WhoAttack implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $results;
-    public $boxes;
+    public $competitive_box;
     public $game_id;
-    public $correct;
 
-
-    public function __construct($results, $boxes, $correct, $game_id)
+    public function __construct($competitive_box, $game_id)
     {
-        $this->results = $results;
-        $this->boxes = $boxes;
+        $this->competitive_box = $competitive_box;
         $this->game_id = $game_id;
-        $this->correct = $correct;
     }
-
 
     public function broadcastOn()
     {
@@ -37,9 +32,7 @@ class AnswersResults implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'results' => $this->results,
-            'correct' => $this->correct,
-            'deleted_boxes' => $this->boxes,
+            'competitive_box' => $this->competitive_box,
         ];
     }
 }

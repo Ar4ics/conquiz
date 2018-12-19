@@ -17,6 +17,16 @@
                         <input class="form-control" id="y" max="4" min="2" type="number" v-model="count_y"/>
                     </div>
                     <div class="form-group">
+                        <label>Игровой режим</label><br>
+                        <label>
+                            <input disabled type="radio" value="classic" v-model="mode">Классический
+                        </label>
+
+                        <label>
+                            <input type="radio" value="base_mode" v-model="mode">Захват базы
+                        </label>
+                    </div>
+                    <div class="form-group">
                         <label for="users">Выберите пользователей...</label>
                         <select class="form-control" id="users" multiple
                                 v-model="users">
@@ -26,7 +36,7 @@
                         </select>
                     </div>
                     <div class="form-group text-center">
-                        <button @click.prevent="createGroup" class="btn btn-primary" type="submit">Создать</button>
+                        <button @click.prevent="createGame" class="btn btn-primary" type="submit">Создать</button>
                     </div>
                 </form>
             </div>
@@ -43,6 +53,7 @@
                 title: '',
                 count_x: 2,
                 count_y: 2,
+                mode: 'base_mode',
                 users: [],
                 online_users: this.initialUsers
             }
@@ -101,7 +112,7 @@
 
         methods: {
 
-            createGroup() {
+            createGame() {
                 if (this.users.length < 1 || this.users.length > 2) {
                     this.$notify({
                         text: 'Выберите одного или двух игроков'
@@ -114,15 +125,25 @@
                     });
                     return;
                 }
+                if (this.count_x < 2 || this.count_x > 12 || this.count_y < 2 || this.count_y > 12) {
+                    this.$notify({
+                        text: 'Неверные размеры поля'
+                    });
+                    return;
+                }
+                console.log('mode', this.mode);
                 axios.post('/games',
-                    {title: this.title, users: this.users, count_x: this.count_x, count_y: this.count_y})
+                    {
+                        title: this.title,
+                        users: this.users,
+                        mode: this.mode,
+                        count_x: this.count_x,
+                        count_y: this.count_y
+                    })
                     .then((response) => {
                         this.title = '';
                         this.users = [];
 
-                        this.$notify({
-                            text: 'Игра создана'
-                        });
                         //$('.selectpicker').selectpicker('deselectAll');
                         //Bus.$emit('gameCreated', response.data);
                     });

@@ -25,6 +25,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
     Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
 
+    Route::post('/games/{id}/base/box/clicked', 'Game\BaseMode\GameController@boxClicked');
+    Route::post('/games/{id}/base/user/answered', 'Game\BaseMode\GameController@userAnswered');
+
     Route::resource('/games/{id}/message', 'GameMessageController');
 });
 

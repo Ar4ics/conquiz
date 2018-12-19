@@ -6,6 +6,7 @@
     "type": "project",
     "require": {
         "php": ">=7.2.0",
+        "ext-json": "*",
         "HighSolutions/eloquent-sequence": "^1.0",
         "barryvdh/laravel-ide-helper": "^2.4",
         "doctrine/dbal": "^2.6",
@@ -14,11 +15,12 @@
         "fzaninotto/faker": "^1.4",
         "laravel/framework": "^5.7",
         "laravel/tinker": "^1.0",
+        "predis/predis": "^1.1",
         "pusher/pusher-php-server": "^3.0",
-        "spatie/laravel-migrate-fresh": "^1.5",
-        "ext-json": "*"
+        "spatie/laravel-migrate-fresh": "^1.5"
     },
     "require-dev": {
+        "laravel/tinker": "^1.0",
         "barryvdh/laravel-debugbar": "^3.1",
         "filp/whoops": "^2.0",
         "mockery/mockery": "^1.2",

@@ -19,12 +19,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GameController extends Controller
 {
-
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $games = Game::with('user_colors.user')->with('winner.user')->orderBy('updated_at', 'desc')->get();
@@ -37,17 +31,32 @@ class GameController extends Controller
 
     public function store()
     {
-        $nextQuestionId = Question::inRandomOrder()->first()->id; // rand(1, intdiv(Question::count(), 3));
+        if (request('mode') === 'classic') {
+            $nextQuestionId = Question::whereIsHidden(false)
+                ->whereIsExactAnswer(false)
+                ->inRandomOrder()
+                ->first()->id;
+        } else {
+            $nextQuestionId = null;
+        }
         $game = Game::create([
             'title' => request('title'),
             'next_question_id' => $nextQuestionId,
             'count_x' => request('count_x'),
             'count_y' => request('count_y'),
+            'mode' => request('mode'),
+            'duration' => request('duration'),
         ]);
 
         $colors = ["green", "red", "blue"];
         $users = collect(request('users'));
         $users->prepend(Auth::user()->id);
+
+        if ($users->count() > count($colors) || $users->count() < 2) {
+            return [
+                'error' => 'Неверное количество игроков',
+            ];
+        }
 
         for ($i = 0; $i < $users->count(); $i++) {
             UserColor::create([
@@ -59,40 +68,81 @@ class GameController extends Controller
 
         $game->shuffleUserColors();
 
-        broadcast(new GameCreated($game, $game->user_colors()->count()));
+        broadcast(new GameCreated($game));
 
         return $game;
     }
 
     public function getGame($id)
     {
-        $game = Game::with(['user_colors' => function (HasMany $q) {
-                $q->select(['id', 'game_id', 'user_id', 'color', 'score'])->orderBy('score', 'desc');
-            }, 'user_colors.user' => function (BelongsTo $q) {
-                $q->select(['id', 'name', 'status']);
-            }])->find($id, [
-                'id', 'title', 'current_question_id',
-                'count_x', 'count_y', 'stage3_has_finished', 'winner_user_color_id', 'move_order', 'move_index'])
-            ?? App::abort(404);
+        $game = Game::find($id);
+        if (!$game) {
+            App:abort(404);
+        }
+        $userColors = UserColor::whereGameId($game->id)->with([
+            'user' => function (BelongsTo $q) {
+                $q->select(['id', 'name']);
+            },
+            'base' => function (BelongsTo $q) {
+                $q->select(['id', 'x', 'y']);
+            }])->get();
 
         $competitive_box = $game->competitive_box;
 
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
-            ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color']);
+            ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color', 'user_color_id', 'cost']);
 
         $player = $game->getUserColor(Auth::user()->id);
-        $who_moves = $game->getMovingUserColor();
-        if ($who_moves) {
-            $who_moves = $who_moves->user;
+        $whoMoves = $game->getMovingUserColor();
+
+        $field = [];
+
+        for ($y = 0; $y < $game->count_y; $y++) {
+            $field[$y] = [];
+            for ($x = 0; $x < $game->count_x; $x++) {
+                $field[$y][] = [
+                    'x' => $x,
+                    'y' => $y,
+                    'color'=> 'white',
+                    'cost'=> 0,
+                    'user_color_id'=> 0,
+                    'base_guards_count'=> 0
+                ];
+            }
         }
-        $question = Question::find($game->current_question_id, ['id', 'title', 'answers']);
+
+        $boxes->each(function ($box) use (&$field) {
+            $b = &$field[$box->y][$box->x];
+            $b['cost'] = $box->cost;
+            $b['user_color_id'] = $box->user_color_id;
+            $b['color'] = $box->color;
+        });
+
+        $userColors->each(function ($uc) use (&$field) {
+            if ($uc->base) {
+                $b = &$field[$uc->base->y][$uc->base->x];
+                $b['base_guards_count'] = $uc->base_guards_count;
+            }
+        });
+
+        $winner = UserColor::with('user')->find($game->winner_user_color_id);
+        $competitors = [];
+        if ($competitive_box) {
+            $target = &$field[$competitive_box->y][$competitive_box->x];
+            $target['color'] = 'grey';
+            $competitors = $competitive_box->competitors;
+        }
+
+        $question = Question::find($game->current_question_id, ['id', 'title', 'answers', 'is_exact_answer']);
         return view('game', [
             'game' => json_encode($game),
             'player' => json_encode($player),
-            'boxes' => json_encode($boxes),
-            'who_moves' => json_encode($who_moves),
+            'field' => json_encode($field),
+            'who_moves' => json_encode($whoMoves),
             'question' => json_encode($question),
-            'competitive_box' => json_encode($competitive_box),
+            'user_colors' => json_encode($userColors),
+            'competitors' => json_encode($competitors),
+            'winner' => json_encode($winner),
         ]);
     }
 
@@ -147,6 +197,12 @@ class GameController extends Controller
         if ($game->stage3_has_finished) {
             return [
                 'error' => 'Игра завершена',
+            ];
+        }
+
+        if (!$game->current_question_id) {
+            return [
+                'error' => 'Вопрос не задан',
             ];
         }
 

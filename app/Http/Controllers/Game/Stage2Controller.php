@@ -91,7 +91,7 @@ class Stage2Controller
             $ids = UserQuestion::join('user_colors', 'user_questions.user_color_id', '=', 'user_colors.id')
                 ->where('user_colors.game_id', $game->id)
                 ->get()->pluck('question_id')->unique()->values();
-            $nextQuestions = Question::whereNotIn('id', $ids)->get();
+            $nextQuestions = Question::whereIsHidden(false)->whereIsExactAnswer(false)->whereNotIn('id', $ids)->get();
             if ($nextQuestions->isEmpty()) {
                 $game->noQuestionsLeft();
                 broadcast(new WinnerFound($game->winner, $game->id));

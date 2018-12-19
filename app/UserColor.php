@@ -14,11 +14,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $color
  * @property int $score
  * @property bool $has_answered
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property bool $had_lost
+ * @property int|null $base_box_id
+ * @property int|null $base_guards_count
+ * @property-read \App\Box|null $base
  * @property-read \App\Game $game
  * @property-read \App\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereBaseBoxId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereBaseGuardsCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereColor($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereGameId($value)
@@ -32,12 +40,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UserColor extends Model
 {
-    protected $fillable = ['user_id', 'game_id', 'color'];
+    protected $fillable = ['user_id', 'game_id', 'color', 'base_box_id', 'base_guards_count'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function game()
     {
         return $this->belongsTo(Game::class, 'game_id');
+    }
+
+    public function base()
+    {
+        return $this->belongsTo(Box::class, 'base_box_id');
     }
 
     public function user()

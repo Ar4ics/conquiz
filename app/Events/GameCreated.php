@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Game;
+use App\UserColor;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -16,12 +17,12 @@ class GameCreated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $game;
-    public $users_count;
+    public $user_colors;
 
-    public function __construct(Game $game, $users_count)
+    public function __construct(Game $game)
     {
         $this->game = $game;
-        $this->users_count = $users_count;
+        $this->user_colors = UserColor::with('user')->whereGameId($game->id)->get()->toArray();
     }
 
     /**
@@ -37,9 +38,8 @@ class GameCreated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'id' => $this->game->id,
-            'title' => $this->game->title,
-            'user_colors_count' => $this->users_count
+            'game' => $this->game,
+            'user_colors' => $this->user_colors
         ];
     }
 }

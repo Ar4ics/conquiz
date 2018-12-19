@@ -10,22 +10,22 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class AnswersResults implements ShouldBroadcast
+class CorrectAnswers implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $results;
-    public $boxes;
+    public $competitive_box;
     public $game_id;
     public $correct;
+    public $winner;
 
 
-    public function __construct($results, $boxes, $correct, $game_id)
+    public function __construct($results, $correct, $game_id)
     {
         $this->results = $results;
-        $this->boxes = $boxes;
-        $this->game_id = $game_id;
         $this->correct = $correct;
+        $this->game_id = $game_id;
     }
 
 
@@ -38,8 +38,7 @@ class AnswersResults implements ShouldBroadcast
     {
         return [
             'results' => $this->results,
-            'correct' => $this->correct,
-            'deleted_boxes' => $this->boxes,
+            'correct' => $this->correct
         ];
     }
 }

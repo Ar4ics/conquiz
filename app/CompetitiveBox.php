@@ -11,9 +11,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $x
  * @property int $y
  * @property array $competitors
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Game $game
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox whereCompetitors($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\CompetitiveBox whereGameId($value)

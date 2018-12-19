@@ -7,14 +7,16 @@
                     <thead class="thead-light">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Комната</th>
+                        <th scope="col">Игра</th>
+                        <th scope="col">Название</th>
                         <th scope="col">Игроки</th>
                         <th scope="col">Дата</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="watchGame(game.id)" v-for="(game, i) in current_games" :key="game.id">
+                    <tr @click="watchGame(game.id)" v-for="(game, i) in orderedCurrentGames" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
+                        <td>{{ game.id }}</td>
                         <td>{{ game.title }}</td>
                         <td>
                             <span class="player-name" v-for="(uc, i) in game.user_colors" :key="i.id">
@@ -73,6 +75,12 @@
             }
         },
 
+        computed: {
+            orderedCurrentGames: function () {
+                return _.orderBy(this.current_games, ['end'], ['desc'])
+            }
+        },
+
         mounted() {
             this.current_games = this.initialGames.filter(u => !u.stage3_has_finished);
             this.finished_games = this.initialGames.filter(u => u.stage3_has_finished);
@@ -81,15 +89,19 @@
             //     this.groups.push(group);
             // });
 
-            this.listenForNewGroups();
+            this.listenForNewGames();
         },
 
         methods: {
-            listenForNewGroups() {
+            listenForNewGames() {
                 Echo.private('games')
                     .listen('GameCreated', (e) => {
                         console.log(e);
-                        this.current_games.push(e);
+                        this.$notify({
+                            text: `Игра №${e.game.id} создана`
+                        });
+                        e.game.user_colors = e.user_colors;
+                        this.current_games.push(e.game);
                     });
             },
             watchGame(game) {

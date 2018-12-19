@@ -12,31 +12,29 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BoxClicked implements ShouldBroadcast
+class UserColorsChanged implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $box;
+    public $userColors;
+    public $game_id;
 
-    public function __construct(Box $box)
+    public function __construct($game_id)
     {
-        $this->box = $box;
+        $this->userColors = UserColor::with('user')->whereGameId($game_id)->get()->toArray();
+        $this->game_id = $game_id;
+
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->box->game_id);
+        return new PrivateChannel('game.' . $this->game_id);
     }
 
     public function broadcastWith()
     {
         return [
-            'x' => $this->box->x,
-            'y' => $this->box->y,
-            'color' => $this->box->user_color->color,
-            'base_guards_count' => 0,
-            'cost' => $this->box->cost,
-            'user_color_id' => $this->box->user_color_id,
+            'user_colors' => $this->userColors,
         ];
     }
 }

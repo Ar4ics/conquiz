@@ -5,12 +5,14 @@
 
 @section('content')
     <notifications position="top center"></notifications>
-    <game :game-data="{{ $game }}"
+    <game :game="{{ $game }}"
           :player="{{ $player }}"
-          :boxes="{{ $boxes }}"
+          :field="{{ $field }}"
           :who-moves="{{ $who_moves }}"
-          :initial-question="{{ $question }}"
-          :competitive-box="{{ $competitive_box }}"
+          :question="{{ $question }}"
+          :competitors="{{ $competitors }}"
+          :user-colors="{{ $user_colors }}"
+          :winner="{{ $winner }}"
 
     >
     </game>
