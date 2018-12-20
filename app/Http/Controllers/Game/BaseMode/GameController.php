@@ -85,7 +85,6 @@ class GameController extends Controller
         $userColor = UserColor::find(request('userColorId'));
 
 
-
         if ($game->stage2_has_finished) {
 
             if (!$game->competitive_box) {

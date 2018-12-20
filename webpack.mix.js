@@ -10,6 +10,8 @@ let mix = require('laravel-mix');
  | file for the application as well as bundling up all the JS files.
  |
  */
+mix.options({ uglify: { uglifyOptions: { compress: { drop_console: true, } } } });
+
 
 mix.autoload({
     jquery: ['jquery', 'jQuery', '$', 'window.jQuery'],

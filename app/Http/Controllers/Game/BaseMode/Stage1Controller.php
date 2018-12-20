@@ -58,13 +58,13 @@ class Stage1Controller
             }
         } else {
 
-//            $rearBox = Box::whereGameId($game->id)->whereIn('x', [$x, $x + 1, $x - 1])->whereIn('y', [$y, $y + 1, $y - 1])->first();
-//
-//            if ($rearBox) {
-//                return [
-//                    'error' => 'Этап 1. Вы не можете поставить базу на это поле'
-//                ];
-//            }
+            $rearBox = Box::whereGameId($game->id)->whereIn('x', [$x, $x + 1, $x - 1])->whereIn('y', [$y, $y + 1, $y - 1])->first();
+
+            if ($rearBox) {
+                return [
+                    'error' => 'Этап 1. Вы не можете поставить базу на это поле'
+                ];
+            }
 
             $box = Box::create(['x' => $x, 'y' => $y, 'user_color_id' => $userColor->id, 'cost' => 1000, 'game_id' => $game->id]);
             $userColor->base_box_id = $box->id;
