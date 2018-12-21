@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Game\BaseMode;
 use App;
 use App\Box;
 use App\Game;
+use App\Helpers\Constants;
+use App\Helpers\ErrorConstants;
 use App\Http\Controllers\Controller;
 use App\UserColor;
 use App\UserQuestion;
@@ -15,14 +17,14 @@ class GameController extends Controller
     public function boxClicked($id)
     {
         $game = Game::find($id);
-        if ($game->stage3_has_finished) {
+        if ($game->is_finished) {
             return [
-                'error' => 'Игра завершена',
+                'error' => ErrorConstants::GAME_HAS_FINISHED,
             ];
         }
         if ($game->current_question_id) {
             return [
-                'error' => 'Задан вопрос',
+                'error' => ErrorConstants::GAME_HAS_ACTIVE_QUESTION,
             ];
         }
         $x = request('x');
@@ -33,13 +35,13 @@ class GameController extends Controller
 
         if (!$who_moves) {
             return [
-                'error' => 'Нет хода игрока',
+                'error' => ErrorConstants::NO_USER_MOVE_EXISTS,
             ];
         }
 
         if ($userColor->id !== $who_moves->id) {
             return [
-                'error' => 'Сейчас ходит ' . $who_moves->user->name,
+                'error' => ErrorConstants::ANOTHER_USER_SHOULD_MOVE,
             ];
         }
 
@@ -47,35 +49,45 @@ class GameController extends Controller
             ->where('x', '=', $x)
             ->where('y', '=', $y)->first();
 
-        if ($game->stage2_has_finished) {
-            return Stage3Controller::boxClicked($game, $x, $y, $userColor, $box);
+        if ($game->stage === Constants::GAME_STAGE_4) {
+            return Stage4Controller::boxClicked($game, $x, $y, $userColor, $box);
         }
 
         if ($box) {
             return [
-                'error' => 'Это поле занято',
+                'error' => ErrorConstants::BOX_IS_OWNED,
             ];
         }
 
-        if ($game->stage1_has_finished) {
-            return Stage2Controller::boxClicked($game, $x, $y);
+        if ($game->stage === Constants::GAME_STAGE_3) {
+            return Stage3Controller::boxClicked($game, $x, $y);
         }
 
-        return Stage1Controller::boxClicked($game, $x, $y, $userColor);
+        if ($game->stage === Constants::GAME_STAGE_2) {
+            return Stage2Controller::boxClicked($game, $x, $y, $userColor);
+        }
+
+        if ($game->stage === Constants::GAME_STAGE_1) {
+            return Stage1Controller::boxClicked($game, $x, $y, $userColor);
+        } else {
+            return [
+                'error' => ErrorConstants::NO_GAME_STAGE_FOUND,
+            ];
+        }
     }
 
     public function userAnswered($id)
     {
         $game = Game::find($id);
-        if ($game->stage3_has_finished) {
+        if ($game->is_finished) {
             return [
-                'error' => 'Игра завершена',
+                'error' => ErrorConstants::GAME_HAS_FINISHED,
             ];
         }
 
         if (!$game->current_question_id) {
             return [
-                'error' => 'Вопрос не задан',
+                'error' => ErrorConstants::GAME_DONT_HAVE_ACTIVE_QUESTION,
             ];
         }
 
@@ -84,26 +96,10 @@ class GameController extends Controller
         $questionId = request('questionId');
         $userColor = UserColor::find(request('userColorId'));
 
-
-        if ($game->stage2_has_finished) {
-
-            if (!$game->competitive_box) {
-                return [
-                    'error' => 'Нет общего квадрата',
-                ];
-            }
-            if (!in_array($userColor->id, $game->competitive_box->competitors)) {
-                return [
-                    'error' => 'Вы не должны отвечать на этот вопрос',
-                ];
-            }
-
-        }
-
         if (UserQuestion::where('question_id', '=', $questionId)
             ->where('user_color_id', '=', $userColorId)->first()) {
             return [
-                'error' => 'Вы уже ответили на этот вопрос',
+                'error' => ErrorConstants::USER_ALREADY_ANSWERED_TO_QUESTION,
             ];
         }
 
@@ -115,14 +111,32 @@ class GameController extends Controller
         ]);
         $userColor->has_answered = true;
         $userColor->save();
-        if ($game->stage2_has_finished) {
-            return Stage3Controller::userAnswered($game);
-        }
 
-        if ($game->stage1_has_finished) {
+        if ($game->stage === Constants::GAME_STAGE_2) {
             return Stage2Controller::userAnswered($game);
         }
 
-        return Stage1Controller::userAnswered($game);
+        if (!$game->competitive_box || !$game->competitive_box->competitors) {
+            return [
+                'error' => ErrorConstants::NO_COMPETITIVE_BOX_EXISTS,
+            ];
+        }
+        if (!in_array($userColor->id, $game->competitive_box->competitors)) {
+            return [
+                'error' => ErrorConstants::ANOTHER_USER_SHOULD_ANSWER,
+            ];
+        }
+
+        if ($game->stage === Constants::GAME_STAGE_4) {
+            return Stage4Controller::userAnswered($game);
+        }
+
+        if ($game->stage === Constants::GAME_STAGE_3) {
+            return Stage3Controller::userAnswered($game);
+        } else {
+            return [
+                'error' => ErrorConstants::NO_GAME_STAGE_FOUND,
+            ];
+        }
     }
 }

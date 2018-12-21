@@ -1,6 +1,6 @@
 <?php
 
-if (env('APP_ENV') === 'local') {
+if (env('APP_ENV') === 'local' || env('APP_ENV') === 'testing') {
     $host = env('DB_HOST', '127.0.0.1');
     $database = env('DB_DATABASE', 'forge');    
     $username = env('DB_USERNAME', 'forge');

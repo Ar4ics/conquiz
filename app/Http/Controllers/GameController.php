@@ -6,6 +6,8 @@ use App;
 use App\Box;
 use App\Events\GameCreated;
 use App\Game;
+use App\Helpers\Constants;
+use App\Helpers\ErrorConstants;
 use App\Http\Controllers\Game\Stage1Controller;
 use App\Http\Controllers\Game\Stage2Controller;
 use App\Http\Controllers\Game\Stage3Controller;
@@ -15,7 +17,6 @@ use App\UserColor;
 use App\UserQuestion;
 use Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GameController extends Controller
 {
@@ -46,7 +47,9 @@ class GameController extends Controller
             'count_y' => request('count_y'),
             'mode' => request('mode'),
             'duration' => request('duration'),
+            'stage' => Constants::GAME_STAGE_1,
         ]);
+
 
         $colors = ["green", "red", "blue"];
         $users = collect(request('users'));
@@ -54,7 +57,7 @@ class GameController extends Controller
 
         if ($users->count() > count($colors) || $users->count() < 2) {
             return [
-                'error' => 'Неверное количество игроков',
+                'error' => ErrorConstants::GAME_USERS_COUNT_MISMATCH,
             ];
         }
 
@@ -68,9 +71,11 @@ class GameController extends Controller
 
         $game->shuffleUserColors();
 
+        $game->save();
+
         broadcast(new GameCreated($game));
 
-        return $game;
+        return response()->json(['game' => $game]);
     }
 
     public function getGame($id)
