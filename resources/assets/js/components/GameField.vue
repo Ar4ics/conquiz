@@ -1,15 +1,15 @@
 <template>
     <div class="main" v-if="game && field">
         <div class="row no-gutters" v-for="(col, y) in field" :key="y">
-            <div class="box" :class="'col-' + game.count_col" :style="{'background-color': box.color}"
+            <div class="box" :class="'col-' + game.count_col" :style="{'backgroundColor': box.color}"
                  v-for="(box, x) in col" :key="x"
                  @click="clickBox(box.x, box.y)">
                 <div v-if="game.mode === 'base_mode'">
-                    <span v-if="box.cost > 0">
+                    <span v-if="box.user_color_id">
                         <{{ box.cost }}>
                     </span>
-                    <span v-if="box.base_guards_count > 0">
-                        База<{{ box.base_guards_count }}>
+                    <span v-if="box.base">
+                        {{ box.base.user_name }}<{{ box.base.guards }}>
                     </span>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                 axios.post('/games/' + this.game.id + path, {x, y, userColorId: this.player.id})
                     .then((response) => {
                         //console.log(response);
-                        if (response.data.error) {
+                        if (response.data.hasOwnProperty('error')) {
                             this.$notify({
                                 text: response.data.error
                             });

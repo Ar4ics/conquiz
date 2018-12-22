@@ -8,28 +8,59 @@ use App\Game;
 use App\Helpers\Constants;
 use App\Helpers\ErrorConstants;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Game\Helpers;
+use App\Question;
 use App\UserColor;
 use App\UserQuestion;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Validator;
 
 class GameController extends Controller
 {
-    public function boxClicked($id)
+    public function boxClicked(Request $request, $id)
     {
         $game = Game::find($id);
+
+        if (!$game) {
+            return [
+                'error' => ErrorConstants::GAME_NOT_FOUND,
+            ];
+        }
+
         if ($game->is_finished) {
             return [
                 'error' => ErrorConstants::GAME_HAS_FINISHED,
             ];
         }
+
         if ($game->current_question_id) {
             return [
                 'error' => ErrorConstants::GAME_HAS_ACTIVE_QUESTION,
             ];
         }
-        $x = request('x');
-        $y = request('y');
-        $userColor = UserColor::find(request('userColorId'));
+
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'x' => 'required|integer',
+            'y' => 'required|integer',
+            'userColorId' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
+            ];
+        }
+
+        $userColor = UserColor::find($data['userColorId']);
+
+        if (!$userColor) {
+            return [
+                'error' => ErrorConstants::USER_NOT_FOUND,
+            ];
+        }
+
 
         $who_moves = $game->getMovingUserColor();
 
@@ -44,6 +75,9 @@ class GameController extends Controller
                 'error' => ErrorConstants::ANOTHER_USER_SHOULD_MOVE,
             ];
         }
+
+        $x = $data['x'];
+        $y = $data['y'];
 
         $box = Box::where('game_id', '=', $game->id)
             ->where('x', '=', $x)
@@ -76,9 +110,16 @@ class GameController extends Controller
         }
     }
 
-    public function userAnswered($id)
+    public function userAnswered(Request $request, $id)
     {
         $game = Game::find($id);
+
+        if (!$game) {
+            return [
+                'error' => ErrorConstants::GAME_NOT_FOUND,
+            ];
+        }
+
         if ($game->is_finished) {
             return [
                 'error' => ErrorConstants::GAME_HAS_FINISHED,
@@ -91,28 +132,47 @@ class GameController extends Controller
             ];
         }
 
-        $userAnswer = request('userAnswer');
-        $userColorId = request('userColorId');
-        $questionId = request('questionId');
-        $userColor = UserColor::find(request('userColorId'));
+        $data = $request->all();
 
-        if (UserQuestion::where('question_id', '=', $questionId)
-            ->where('user_color_id', '=', $userColorId)->first()) {
+        $validator = Validator::make($data, [
+            'userAnswer' => 'required|integer',
+            'userColorId' => 'required|integer',
+            'questionId' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
+            ];
+        }
+
+        $userColor = UserColor::find($data['userColorId']);
+        $question = Question::find($data['questionId']);
+
+        if (!$userColor) {
+            return [
+                'error' => ErrorConstants::USER_NOT_FOUND,
+            ];
+        }
+
+        if (!$question) {
+            return [
+                'error' => ErrorConstants::QUESTION_NOT_FOUND,
+            ];
+        }
+
+        if (UserQuestion::where('question_id', '=', $question->id)
+            ->where('user_color_id', '=', $userColor->id)->first()) {
             return [
                 'error' => ErrorConstants::USER_ALREADY_ANSWERED_TO_QUESTION,
             ];
         }
 
-        UserQuestion::create([
-            'question_id' => $questionId,
-            'user_color_id' => $userColorId,
-            'answer' => $userAnswer,
-            'answered_at' => Carbon::now()
-        ]);
-        $userColor->has_answered = true;
-        $userColor->save();
+        $userAnswer = $data['userAnswer'];
 
         if ($game->stage === Constants::GAME_STAGE_2) {
+            Helpers::createUserQuestion($userColor, $question, $userAnswer);
+
             return Stage2Controller::userAnswered($game);
         }
 
@@ -121,11 +181,14 @@ class GameController extends Controller
                 'error' => ErrorConstants::NO_COMPETITIVE_BOX_EXISTS,
             ];
         }
+
         if (!in_array($userColor->id, $game->competitive_box->competitors)) {
             return [
                 'error' => ErrorConstants::ANOTHER_USER_SHOULD_ANSWER,
             ];
         }
+
+        Helpers::createUserQuestion($userColor, $question, $userAnswer);
 
         if ($game->stage === Constants::GAME_STAGE_4) {
             return Stage4Controller::userAnswered($game);

@@ -70,7 +70,7 @@
                 }
                 axios.post('/games/' + this.game.id + path, {userAnswer, userColorId, questionId})
                     .then((response) => {
-                        if (response.data.error) {
+                        if (response.data.hasOwnProperty('error')) {
                             this.$notify({
                                 text: response.data.error
                             });

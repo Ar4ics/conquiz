@@ -31,9 +31,12 @@ class BaseCreated implements ShouldBroadcast
             'x' => $this->box->x,
             'y' => $this->box->y,
             'color' => $this->box->user_color->color,
-            'base_guards_count' => $this->box->user_color->base_guards_count,
             'cost' => $this->box->cost,
             'user_color_id' => $this->box->user_color_id,
+            'base' => [
+                'guards' => $this->box->user_color->base_guards_count,
+                'user_name' => $this->box->user_color->user->name
+            ]
         ];
     }
 }

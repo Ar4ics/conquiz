@@ -10,19 +10,21 @@ use App\Game;
 use App\Question;
 use App\UserColor;
 use App\UserQuestion;
+use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Log;
 
 class Helpers
 {
     /**
-     * @param  Game     $game
-     * @param  bool     $isExactQuestion
+     * @param  Game $game
+     * @param  bool $isExactQuestion
      * @return Question|null
      */
-    public static function getQuestion($game, $isExactQuestion) {
+    public static function getQuestion($game, $isExactQuestion)
+    {
         $ids = UserQuestion::join('user_colors', 'user_questions.user_color_id', '=', 'user_colors.id')
             ->where('user_colors.game_id', $game->id)
             ->get()->pluck('question_id')->unique()->values();
@@ -31,10 +33,29 @@ class Helpers
     }
 
     /**
-     * @param  Game     $game
+     * @param  UserColor $userColor
+     * @param  Question $question
+     * @param  integer $userAnswer
+     * @return void
+     */
+    public static function createUserQuestion($userColor, $question, $userAnswer)
+    {
+        UserQuestion::create([
+            'question_id' => $question->id,
+            'user_color_id' => $userColor->id,
+            'answer' => $userAnswer,
+            'answered_at' => Carbon::now()
+        ]);
+        $userColor->has_answered = true;
+        $userColor->save();
+    }
+
+    /**
+     * @param  Game $game
      * @return Collection|UserQuestion[]
      */
-    public static function getUserQuestions($game) {
+    public static function getUserQuestions($game)
+    {
         $userQuestions = UserQuestion::join('user_colors', 'user_questions.user_color_id', '=', 'user_colors.id')
             ->where('user_colors.game_id', $game->id)
             ->where('question_id', $game->current_question_id)
@@ -45,12 +66,13 @@ class Helpers
     }
 
     /**
-     * @param  UserColor    $userColor
-     * @param  integer      $x
-     * @param  integer      $y
+     * @param  UserColor $userColor
+     * @param  integer $x
+     * @param  integer $y
      * @return Box|null
      */
-    public static function getNearOwnBox($userColor, $x, $y) {
+    public static function getNearOwnBox($userColor, $x, $y)
+    {
         $rearBox = Box::where(function (Builder $query) use ($userColor, $x, $y) {
             $query->where('user_color_id', $userColor->id)
                 ->where('x', '=', $x - 1)
@@ -71,13 +93,45 @@ class Helpers
         return $rearBox;
     }
 
+
     /**
-     * @param  Game      $game
-     * @param  integer      $x
-     * @param  integer      $y
+     * @param  Game $game
+     * @param  integer $x
+     * @param  integer $y
+     * @return Box|null
+     */
+    public static function getNearBox($game, $x, $y)
+    {
+        $rearBox = Box::whereGameId($game->id)->where(function (Builder $query) use ($x, $y) {
+            $query->where(function (Builder $query) use ($x, $y) {
+                $query
+                    ->where('x', '=', $x - 1)
+                    ->where('y', '=', $y);
+            })->orWhere(function (Builder $query) use ($x, $y) {
+                $query
+                    ->where('x', '=', $x)
+                    ->where('y', '=', $y - 1);
+            })->orWhere(function (Builder $query) use ($x, $y) {
+                $query
+                    ->where('x', '=', $x + 1)
+                    ->where('y', '=', $y);
+            })->orWhere(function (Builder $query) use ($x, $y) {
+                $query
+                    ->where('x', '=', $x)
+                    ->where('y', '=', $y + 1);
+            });
+        })->first();
+        return $rearBox;
+    }
+
+    /**
+     * @param  Game $game
+     * @param  integer $x
+     * @param  integer $y
      * @return boolean
      */
-    public static function nearEmptyBoxExists($game, $x, $y) {
+    public static function nearEmptyBoxExists($game, $x, $y)
+    {
         if ($x - 1 >= 0) {
             $box = Box::whereGameId($game->id)->where('x', '=', $x - 1)->where('y', '=', $y)->first();
             if (!$box) {
@@ -114,7 +168,8 @@ class Helpers
      * @return Box|null
      * @throws Exception
      */
-    public static function findCompetitiveWinnerBox($winnerUserColor, $cb, $game) {
+    public static function findCompetitiveWinnerBox($winnerUserColor, $cb, $game)
+    {
         $targetBox = Box::where('x', $cb->x)->where('y', $cb->y)
             ->where('game_id', $game->id)->first();
         if ($winnerUserColor->id === $cb->competitors[0]) {
@@ -127,23 +182,26 @@ class Helpers
                 if ($lossUserColor->base_guards_count === 0) {
                     $lossUserColor->had_lost = true;
 
-                    $targetBox->delete();
-                    $lossUserColor->score -= $targetBox->cost;
-                    $targetBox = Box::create([
-                        'x' => $cb->x,
-                        'y' => $cb->y,
-                        'cost' => $targetBox->cost,
-                        'user_color_id' => $winnerUserColor->id,
-                        'game_id' => $game->id
-                    ]);
-                    $winnerUserColor->score += $targetBox->cost;
 
-                    $targetBox['base_guards_count'] = 0;
+                    $lostUserBoxes = Box::whereUserColorId($lossUserColor->id)->get();
+
+                    foreach ($lostUserBoxes as $lostUserBox) {
+                        $lossUserColor->score -= $lostUserBox->cost;
+                        $winnerUserColor->score += $lostUserBox->cost;
+                        $lostUserBox->user_color_id = $winnerUserColor->id;
+                        $lostUserBox->save();
+                    }
+
                     $targetBox['color'] = $winnerUserColor->color;
+                    $targetBox['loss_user_color_id'] = $lossUserColor->id;
                 } else {
-                    $targetBox['base_guards_count'] = $lossUserColor->base_guards_count;
                     $targetBox['color'] = $lossUserColor->color;
                 }
+
+                $targetBox['base'] = [
+                    'guards' => $lossUserColor->base_guards_count,
+                    'user_name' => $lossUserColor->user->name
+                ];
 
             } else {
                 $targetBox->delete();
@@ -156,7 +214,7 @@ class Helpers
                     'game_id' => $game->id
                 ]);
                 $winnerUserColor->score += 400;
-                $targetBox['base_guards_count'] = 0;
+                $targetBox['base'] = null;
                 $targetBox['color'] = $winnerUserColor->color;
             }
             $lossUserColor->save();
@@ -166,9 +224,12 @@ class Helpers
                 $targetBox->cost += 100;
                 $targetBox->save();
                 $winnerUserColor->score += 100;
-                $targetBox['base_guards_count'] = 0;
+                $targetBox['base'] = null;
             } else {
-                $targetBox['base_guards_count'] = $winnerUserColor->base_guards_count;
+                $targetBox['base'] = [
+                    'guards' => $winnerUserColor->base_guards_count,
+                    'user_name' => $winnerUserColor->user->name
+                ];
             }
             $targetBox['color'] = $winnerUserColor->color;
         }

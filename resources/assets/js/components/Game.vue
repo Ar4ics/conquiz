@@ -122,7 +122,7 @@
                     })
                     .listen('ShowCompetitiveBox', (e) => {
                         console.log('box clicked', e);
-                        this.replaceBox({x: e.x, y: e.y, color: 'grey'});
+                        this.replaceBox({x: e.x, y: e.y, color: 'LightGrey'});
                     })
                     .listen('NewQuestion', (e) => {
                         console.log('new question', e);
@@ -155,7 +155,7 @@
                                 this.clearQuestion();
                                 this.clearExactQuestion();
                                 this.clearResults();
-                            }, 5000);
+                            }, 7000);
                         })
                         .listen('CorrectAnswers', (e) => {
                             console.log('correct answers', e);
@@ -163,7 +163,7 @@
                             setTimeout(() => {
                                 this.clearQuestion();
                                 this.clearResults();
-                            }, 5000);
+                            }, 7000);
                         })
                         .listen('NewExactQuestion', (e) => {
                             console.log('exact question', e);

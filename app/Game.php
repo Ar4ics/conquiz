@@ -202,6 +202,11 @@ class Game extends Model
             $this->is_finished = true;
             return true;
         }
+
+        if ($winners->count() === 2) {
+            $this->shuffleUserColors();
+        }
+
         return false;
     }
 

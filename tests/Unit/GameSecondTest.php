@@ -7,23 +7,24 @@ use App\Helpers\Constants;
 use App\Helpers\ErrorConstants;
 use App\User;
 use App\UserColor;
+use Exception;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
-class GameTest extends TestCase
+class GameSecondTest extends TestCase
 {
     private $players;
-    private $count_x = 3;
-    private $count_y = 3;
+    private $count_x = 4;
+    private $count_y = 4;
 
     private $x;
     private $y;
     private $failsCount = 0;
 
-    public function testTwoUsersGame()
+    public function testThreeUsersGame()
     {
-        $this->players = [User::find(1), User::find(2)];
-        $response = $this->createGame($this->players[0], [$this->players[1]['id']]);
+        $this->players = [User::find(1), User::find(2), User::find(3)];
+        $response = $this->createGame($this->players[0], [$this->players[1]['id'], $this->players[2]['id']]);
 
         if (array_key_exists('error', $response)) {
             print_r($response['error']);
@@ -35,6 +36,7 @@ class GameTest extends TestCase
         $userColors = [];
         $userColors[$game->move_order[0]] = UserColor::with('user')->find($game->move_order[0]);
         $userColors[$game->move_order[1]] = UserColor::with('user')->find($game->move_order[1]);
+        $userColors[$game->move_order[2]] = UserColor::with('user')->find($game->move_order[2]);
         $currentUserColor = $userColors[$game->move_order[$game->move_index]];
 
         $question = null;
@@ -42,7 +44,7 @@ class GameTest extends TestCase
         $needAnswer = false;
         $winner = null;
 
-        while (!$winner && $this->failsCount < 500) {
+        while (!$winner && $this->failsCount < 1000) {
 
             if ($needClick) {
                 $this->setRandomBox();
@@ -95,12 +97,10 @@ class GameTest extends TestCase
                         }
                     }
                 } else {
-                    print_r('no question');
-                    break;
+                    throw new Exception('no question');
                 }
             } else {
-                print_r('no click or answer');
-                break;
+                throw new Exception('no click or answer');
             }
         }
         if ($winner) {
@@ -274,8 +274,12 @@ class GameTest extends TestCase
     {
         if ($userColor->user->id === $this->players[0]->id) {
             $answer = $this->getRandomX(3);
-        } else {
+        } elseif ($userColor->user->id === $this->players[1]->id) {
             $answer = $this->getRandomX(3);
+        } elseif ($userColor->user->id === $this->players[2]->id) {
+            $answer = $this->getRandomX(3);
+        } else {
+            throw new Exception('user not found');
         }
 
         return $this->actingAs($userColor->user)->json(

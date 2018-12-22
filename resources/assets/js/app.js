@@ -82,7 +82,7 @@ const store = new Vuex.Store({
 
         setCompetitiveBoxColor(state, payload) {
             const cb = payload.competitive_box;
-            state.field[cb.y][cb.x].color = 'grey';
+            state.field[cb.y][cb.x].color = 'LightGrey';
         },
 
         setBase(state, base) {
@@ -121,7 +121,7 @@ const store = new Vuex.Store({
             state.results.correct = payload.correct;
             payload.deleted_boxes.forEach(b => {
                 state.field[b.y].splice(b.x, 1,
-                    {x: b.x, y: b.y, cost: 0, base_guards_count: 0, color: 'white', user_color_id: 0});
+                    {x: b.x, y: b.y, cost: 0, base: null, color: 'white', user_color_id: null});
             });
         },
 
@@ -134,6 +134,7 @@ const store = new Vuex.Store({
             state.results = {};
             state.results.user_answers = user_answers;
             state.results.correct = payload.correct;
+            state.results.is_exact = false;
         },
 
         setCompetitiveAnswers(state, payload) {
@@ -145,12 +146,23 @@ const store = new Vuex.Store({
             state.results = {};
             state.results.user_answers = user_answers;
             state.results.correct = payload.correct;
+            state.results.is_exact = payload.is_exact;
             Vue.set(state, 'competitors', []);
             const cb = payload.result_box;
             state.field[cb.y].splice(cb.x, 1, cb);
             const winner = payload.winner;
             if (winner) {
                 state.results.winner = winner;
+                if (cb.hasOwnProperty('loss_user_color_id')) {
+                    for (let i = 0; i < state.game.count_y; i++) {
+                        for (let k = 0; k < state.game.count_x; k++) {
+                            let box = state.field[i][k];
+                            if (box.user_color_id === cb.loss_user_color_id) {
+                                box.color = winner.color;
+                            }
+                        }
+                    }
+                }
             }
         },
 
@@ -176,7 +188,7 @@ const store = new Vuex.Store({
 });
 
 window.Vue = Vue;
-window.Bus = new Vue();
+window.Store = store;
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

@@ -20,15 +20,17 @@ class CompetitiveAnswerResults implements ShouldBroadcast
     public $result_box;
     public $game_id;
     public $correct;
+    public $is_exact;
     public $winner;
 
 
-    public function __construct($results, Box $result_box, $correct, $winner, $game_id)
+    public function __construct($results, Box $result_box, $correct, $is_exact, $winner, $game_id)
     {
         $this->results = $results;
         $this->result_box = $result_box->toArray();
         $this->game_id = $game_id;
         $this->correct = $correct;
+        $this->is_exact = $is_exact;
         $this->winner = UserColor::with('user')->find($winner['id']);
     }
 
@@ -44,6 +46,7 @@ class CompetitiveAnswerResults implements ShouldBroadcast
             'results' => $this->results,
             'result_box' => $this->result_box,
             'correct' => $this->correct,
+            'is_exact' => $this->is_exact,
             'winner' => $this->winner,
         ];
     }

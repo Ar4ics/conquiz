@@ -1,5 +1,5 @@
 <template>
-    <div class="card text-center" v-if="game">
+    <div class="text-center" v-if="game">
         <h6 class="card-header" v-if="competition">
             {{competition}}
         </h6>

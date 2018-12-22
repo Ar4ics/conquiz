@@ -17,6 +17,8 @@ use App\UserColor;
 use App\UserQuestion;
 use Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\Request;
+use Validator;
 
 class GameController extends Controller
 {
@@ -30,34 +32,43 @@ class GameController extends Controller
     }
 
 
-    public function store()
+    public function store(Request $request)
     {
-        if (request('mode') === 'classic') {
-            $nextQuestionId = Question::whereIsHidden(false)
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'title' => 'required|string',
+            'count_x' => 'required|integer',
+            'count_y' => 'required|integer',
+            'mode' => 'required|string|in:classic,base_mode',
+            'duration' => 'nullable|integer',
+            'users' => 'required|array',
+            'users.*' => 'integer'
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
+            ];
+        }
+
+        if ($data['mode'] === 'classic') {
+            $data['next_question_id'] = Question::whereIsHidden(false)
                 ->whereIsExactAnswer(false)
                 ->inRandomOrder()
                 ->first()->id;
-        } else {
-            $nextQuestionId = null;
         }
-        $game = Game::create([
-            'title' => request('title'),
-            'next_question_id' => $nextQuestionId,
-            'count_x' => request('count_x'),
-            'count_y' => request('count_y'),
-            'mode' => request('mode'),
-            'duration' => request('duration'),
-            'stage' => Constants::GAME_STAGE_1,
-        ]);
 
+        $data['stage'] = Constants::GAME_STAGE_1;
+        $game = Game::create($data);
 
-        $colors = ["green", "red", "blue"];
-        $users = collect(request('users'));
+        $colors = ['LightPink', 'LightGreen', 'LightBlue'];
+        $users = collect($data['users']);
         $users->prepend(Auth::user()->id);
 
         if ($users->count() > count($colors) || $users->count() < 2) {
             return [
-                'error' => ErrorConstants::GAME_USERS_COUNT_MISMATCH,
+                'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
             ];
         }
 
@@ -90,7 +101,7 @@ class GameController extends Controller
             },
             'base' => function (BelongsTo $q) {
                 $q->select(['id', 'x', 'y']);
-            }])->get();
+            }])->orderBy('score', 'desc')->get();
 
         $competitive_box = $game->competitive_box;
 
@@ -110,31 +121,31 @@ class GameController extends Controller
                     'y' => $y,
                     'color'=> 'white',
                     'cost'=> 0,
-                    'user_color_id'=> 0,
-                    'base_guards_count'=> 0
+                    'user_color_id'=> null,
+                    'base'=> null
                 ];
             }
         }
 
-        $boxes->each(function ($box) use (&$field) {
+        foreach ($boxes as $box) {
             $b = &$field[$box->y][$box->x];
             $b['cost'] = $box->cost;
             $b['user_color_id'] = $box->user_color_id;
             $b['color'] = $box->color;
-        });
+        }
 
-        $userColors->each(function ($uc) use (&$field) {
-            if ($uc->base) {
-                $b = &$field[$uc->base->y][$uc->base->x];
-                $b['base_guards_count'] = $uc->base_guards_count;
+        foreach ($userColors as $userColor) {
+            if ($userColor->base) {
+                $b = &$field[$userColor->base->y][$userColor->base->x];
+                $b['base'] = ['guards' => $userColor->base_guards_count, 'user_name' => $userColor->user->name];
             }
-        });
+        }
 
         $winner = UserColor::with('user')->find($game->winner_user_color_id);
         $competitors = [];
         if ($competitive_box) {
             $target = &$field[$competitive_box->y][$competitive_box->x];
-            $target['color'] = 'grey';
+            $target['color'] = 'LightGrey';
             $competitors = $competitive_box->competitors;
         }
 

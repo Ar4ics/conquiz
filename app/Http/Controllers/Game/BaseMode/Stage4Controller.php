@@ -57,6 +57,7 @@ class Stage4Controller
             UserColor::whereGameId($game->id)->update(['has_answered' => false]);
 
             $game->current_question_id = $question->id;
+            $game->move_index++;
             $game->questioned_at = Carbon::now();
             $game->save();
 
@@ -153,9 +154,9 @@ class Stage4Controller
                     $uc = UserColor::find($targetBox->user_color_id);
                     $targetBox['color'] = $uc->color;
                     if ($uc->base_box_id === $targetBox->id) {
-                        $targetBox['base_guards_count'] = $uc->base_guards_count;
+                        $targetBox['base'] = ['guards' => $uc->base_guards_count, 'user_name' => $uc->user->name];
                     } else {
-                        $targetBox['base_guards_count'] = 0;
+                        $targetBox['base'] = null;
                     }
                 }
             }
@@ -209,7 +210,7 @@ class Stage4Controller
             ];
         }
 
-        broadcast(new CompetitiveAnswerResults($results, $targetBox, $question->correct, $winnerUserColor, $game->id));
+        broadcast(new CompetitiveAnswerResults($results, $targetBox, $question->correct, $question->is_exact_answer, $winnerUserColor, $game->id));
         broadcast(new UserColorsChanged($game->id));
         if ($game->baseModeWinnerFound()) {
             $game->save();
@@ -220,7 +221,6 @@ class Stage4Controller
 
         } else {
             $game->current_question_id = null;
-            $game->move_index++;
 
             $who_moves = $game->getMovingUserColor();
             if (!$who_moves) {

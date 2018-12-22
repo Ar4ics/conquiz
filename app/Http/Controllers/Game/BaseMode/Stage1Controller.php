@@ -10,6 +10,7 @@ use App\Events\WhoMoves;
 use App\Game;
 use App\Helpers\Constants;
 use App\Helpers\ErrorConstants;
+use App\Http\Controllers\Game\Helpers;
 use App\UserColor;
 
 class Stage1Controller
@@ -18,9 +19,9 @@ class Stage1Controller
     {
         if (!($userColor->base_box_id)) {
 
-            $rearBox = Box::whereGameId($game->id)->whereIn('x', [$x, $x + 1, $x - 1])->whereIn('y', [$y, $y + 1, $y - 1])->first();
+            $nearBox = Helpers::getNearBox($game, $x, $y);
 
-            if ($rearBox) {
+            if ($nearBox) {
                 return [
                     'error' => Constants::GAME_STAGE_1 . ':' . ErrorConstants::USER_CANNOT_SET_BASE
                 ];

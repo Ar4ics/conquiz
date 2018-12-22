@@ -27,7 +27,6 @@ class Stage3Controller
         $competitiveBox = new CompetitiveBox(['x' => $x, 'y' => $y, 'competitors' => $userColorsIds]);
         $game->competitive_box()->save($competitiveBox);
 
-
         $question = Helpers::getQuestion($game, true);
 
         if (!$question) {
@@ -38,6 +37,7 @@ class Stage3Controller
             UserColor::whereGameId($game->id)->update(['has_answered' => false]);
 
             $game->current_question_id = $question->id;
+            $game->move_index++;
             $game->questioned_at = Carbon::now();
             $game->save();
 
@@ -105,7 +105,7 @@ class Stage3Controller
             'game_id' => $game->id
         ]);
         $targetBox['color'] = $winnerUserColor->color;
-        $targetBox['base_guards_count'] = 0;
+        $targetBox['base'] = null;
 
         try {
             $competitiveBox->delete();
@@ -123,7 +123,6 @@ class Stage3Controller
         }
 
         $game->current_question_id = null;
-        $game->move_index++;
 
         $who_moves = $game->getMovingUserColor();
         if (!$who_moves) {
@@ -138,7 +137,7 @@ class Stage3Controller
         }
         $game->save();
 
-        broadcast(new CompetitiveAnswerResults($results, $targetBox, $question->correct, $winnerUserColor, $game->id));
+        broadcast(new CompetitiveAnswerResults($results, $targetBox, $question->correct, $question->is_exact_answer, $winnerUserColor, $game->id));
         broadcast(new WhoMoves($who_moves, $game->id));
         broadcast(new UserColorsChanged($game->id));
 
