@@ -1,7 +1,7 @@
 <template>
     <div class="main" v-if="game && field">
         <div class="row no-gutters" v-for="(col, y) in field" :key="y">
-            <div class="box" :class="'col-' + game.count_col" :style="{'backgroundColor': box.color}"
+            <div class="box" :class="'col-' + game.count_col" :style="{backgroundColor: box.color}"
                  v-for="(box, x) in col" :key="x"
                  @click="clickBox(box.x, box.y)">
                 <div v-if="game.mode === 'base_mode'">

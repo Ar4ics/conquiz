@@ -1,8 +1,5 @@
 <template>
     <div class="card text-center" v-if="question && game">
-        <h6 class="card-header">
-            Вопрос c вариантами ответов
-        </h6>
         <div class="card-body">
             <p>{{ question.title }}</p>
             <div class="a" v-if="question.answers">

@@ -12,8 +12,6 @@ class QuestionsTableSeeder extends Seeder
      */
     public function run()
     {
-        //factory(Question::class, 100)->create();
-        DB::statement('TRUNCATE questions CASCADE');
         $json_file = file_get_contents("storage/questions.json");
         $json_content = json_decode($json_file,true);
 

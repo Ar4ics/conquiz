@@ -1,13 +1,10 @@
 <template>
     <div>
-        <div class="card text-center" v-if="exact_question && game">
-            <h6 class="card-header">
-                Вопрос с точным ответом
-            </h6>
-            <div class="card-body">
+        <div class="card" v-if="exact_question && game && (!results || results.is_exact)">
+            <div class="card-body text-center">
                 <p>{{ exact_question.title }}</p>
                 <div>
-                    <input v-model="exact_answer" type="text" placeholder="Ответ" class="form-control text-center"
+                    <input v-model.number="exact_answer" type="number" placeholder="Ответ" class="form-control text-center"
                            @keyup.enter="answer(exact_answer)"/>
                 </div>
             </div>
@@ -54,6 +51,7 @@
                 const questionId = this.exact_question.id;
 
                 let path  = '/base/user/answered';
+                this.exact_answer = '';
 
                 axios.post('/games/' + this.game.id + path, {userAnswer, userColorId, questionId})
                     .then((response) => {
@@ -64,7 +62,6 @@
                         }
                     });
 
-                this.exact_answer = '';
             },
         }
     }

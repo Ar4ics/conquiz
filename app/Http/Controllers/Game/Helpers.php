@@ -172,6 +172,7 @@ class Helpers
     {
         $targetBox = Box::where('x', $cb->x)->where('y', $cb->y)
             ->where('game_id', $game->id)->first();
+
         if ($winnerUserColor->id === $cb->competitors[0]) {
 
             $lossUserColor = UserColor::find($cb->competitors[1]);
@@ -194,8 +195,15 @@ class Helpers
 
                     $targetBox['color'] = $winnerUserColor->color;
                     $targetBox['loss_user_color_id'] = $lossUserColor->id;
+
+                    $lossUserColor->save();
+
+                    $game->shuffleUserColors();
+
                 } else {
                     $targetBox['color'] = $lossUserColor->color;
+
+                    $lossUserColor->save();
                 }
 
                 $targetBox['base'] = [
@@ -204,36 +212,59 @@ class Helpers
                 ];
 
             } else {
-                $targetBox->delete();
                 $lossUserColor->score -= $targetBox->cost;
-                $targetBox = Box::create([
-                    'x' => $cb->x,
-                    'y' => $cb->y,
-                    'cost' => 400,
-                    'user_color_id' => $winnerUserColor->id,
-                    'game_id' => $game->id
-                ]);
-                $winnerUserColor->score += 400;
-                $targetBox['base'] = null;
-                $targetBox['color'] = $winnerUserColor->color;
-            }
-            $lossUserColor->save();
 
+                $userBase = UserColor::whereGameId($game->id)->whereBaseBoxId($targetBox->id)->first();
+                if ($userBase) {
+                    $targetBox->user_color_id = $winnerUserColor->id;
+                    $targetBox->save();
+
+                    if ($targetBox->cost !== 1000) {
+                        throw new Exception('wrong base cost');
+                    }
+
+                    $winnerUserColor->score += $targetBox->cost;
+                    $targetBox['base'] = [
+                        'guards' => $userBase->base_guards_count,
+                        'user_name' => $userBase->user->name
+                    ];
+                } else {
+
+                    $targetBox->delete();
+                    $targetBox = Box::create([
+                        'x' => $cb->x,
+                        'y' => $cb->y,
+                        'cost' => 400,
+                        'user_color_id' => $winnerUserColor->id,
+                        'game_id' => $game->id
+                    ]);
+                    $winnerUserColor->score += 400;
+                    $targetBox['base'] = null;
+                    $targetBox['color'] = $winnerUserColor->color;
+                }
+
+                $lossUserColor->save();
+            }
         } else {
-            if (!($winnerUserColor->base_box_id === $targetBox->id)) {
-                $targetBox->cost += 100;
-                $targetBox->save();
-                $winnerUserColor->score += 100;
-                $targetBox['base'] = null;
-            } else {
+            $userBase = UserColor::whereGameId($game->id)->whereBaseBoxId($targetBox->id)->first();
+            if ($userBase) {
+
+                if ($targetBox->cost !== 1000) {
+                    throw new Exception('wrong base cost');
+                }
+
                 $targetBox['base'] = [
-                    'guards' => $winnerUserColor->base_guards_count,
-                    'user_name' => $winnerUserColor->user->name
+                    'guards' => $userBase->base_guards_count,
+                    'user_name' => $userBase->user->name
                 ];
+            } else {
+                $targetBox['base'] = null;
             }
             $targetBox['color'] = $winnerUserColor->color;
         }
+
         $winnerUserColor->save();
+
         return $targetBox;
     }
 }

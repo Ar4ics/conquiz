@@ -10,7 +10,7 @@
           :field="{{ $field }}"
           :who-moves="{{ $who_moves }}"
           :question="{{ $question }}"
-          :competitors="{{ $competitors }}"
+          :competitive_box="{{ $competitive_box }}"
           :user-colors="{{ $user_colors }}"
           :winner="{{ $winner }}"
 

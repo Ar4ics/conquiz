@@ -28,8 +28,8 @@ Vue.use(Notifications);
 const store = new Vuex.Store({
     state: {
         user_colors: [],
-        competitors: [],
         online_users: [],
+        competitive_box: null,
         game: null,
         player: null,
         winner: null,
@@ -41,8 +41,13 @@ const store = new Vuex.Store({
     },
     getters: {
         competition: state => {
-            if (state.game && state.competitors && state.competitors.length > 0) {
-                const cs = state.competitors;
+            if (state.game && state.competitive_box) {
+                const cs = state.competitive_box.competitors;
+
+                if (cs.length === 0) {
+                    return 'Разделение территории';
+                }
+
                 let c1 = state.user_colors.find(u => u.id === cs[0]);
                 let c2 = state.user_colors.find(u => u.id === cs[1]);
                 if (c1 && c2) {
@@ -72,17 +77,15 @@ const store = new Vuex.Store({
             state.field = field;
         },
 
-        setCompetitors(state, competitors) {
-            Vue.set(state, 'competitors', competitors);
+        setCompetitiveBox(state, cb) {
+            Vue.set(state, 'competitive_box', cb);
+            if (cb) {
+                state.field[cb.y][cb.x].color = 'LightGrey';
+            }
         },
 
         setUserColors(state, user_colors) {
             Vue.set(state, 'user_colors', user_colors);
-        },
-
-        setCompetitiveBoxColor(state, payload) {
-            const cb = payload.competitive_box;
-            state.field[cb.y][cb.x].color = 'LightGrey';
         },
 
         setBase(state, base) {
@@ -147,7 +150,7 @@ const store = new Vuex.Store({
             state.results.user_answers = user_answers;
             state.results.correct = payload.correct;
             state.results.is_exact = payload.is_exact;
-            Vue.set(state, 'competitors', []);
+            Vue.set(state, 'competitive_box', null);
             const cb = payload.result_box;
             state.field[cb.y].splice(cb.x, 1, cb);
             const winner = payload.winner;

@@ -64,7 +64,7 @@ class Stage4Controller
             broadcast(new WhoAttack($competitiveBox, $game->id));
             broadcast(new NewQuestion($question, $game->id));
 
-            return response()->json(['question' => $question]);
+            return response()->json(['question' => $question, 'who_moved' => $userColor]);
         }
     }
 
@@ -152,12 +152,15 @@ class Stage4Controller
                     $targetBox = Box::where('x', $cb->x)->where('y', $cb->y)
                         ->where('game_id', $game->id)->first();
                     $uc = UserColor::find($targetBox->user_color_id);
-                    $targetBox['color'] = $uc->color;
                     if ($uc->base_box_id === $targetBox->id) {
-                        $targetBox['base'] = ['guards' => $uc->base_guards_count, 'user_name' => $uc->user->name];
+                        $targetBox['base'] = [
+                            'guards' => $uc->base_guards_count,
+                            'user_name' => $uc->user->name
+                        ];
                     } else {
                         $targetBox['base'] = null;
                     }
+                    $targetBox['color'] = $uc->color;
                 }
             }
 

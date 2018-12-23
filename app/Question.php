@@ -30,18 +30,22 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Question extends Model
 {
+    protected $connection = 'sqlite';
+
     protected $casts = [
-        'answers' => 'array'
+        'answers' => 'array',
+        'is_hidden' => 'boolean',
+        'is_exact_answer' => 'boolean',
+        'correct' => 'integer'
     ];
 
     protected $fillable = [
         'title',
-        'a', 'b', 'c', 'd',
         'correct',
         'is_hidden',
         'is_exact_answer',
         'answers',
     ];
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'is_hidden'];
 }

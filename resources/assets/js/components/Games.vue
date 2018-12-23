@@ -82,8 +82,8 @@
         },
 
         mounted() {
-            this.current_games = this.initialGames.filter(u => !u.stage3_has_finished);
-            this.finished_games = this.initialGames.filter(u => u.stage3_has_finished);
+            this.current_games = this.initialGames.filter(g => !g.winner_user_color_id);
+            this.finished_games = this.initialGames.filter(g => g.winner_user_color_id);
 
             // Bus.$on('groupCreated', (group) => {
             //     this.groups.push(group);

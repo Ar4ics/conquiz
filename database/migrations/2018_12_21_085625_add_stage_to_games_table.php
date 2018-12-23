@@ -27,8 +27,7 @@ class AddStageToGamesTable extends Migration
     public function down()
     {
         Schema::table('games', function (Blueprint $table) {
-            $table->dropColumn('stage');
-            $table->dropColumn('is_finished');
+            $table->dropColumn(['stage', 'is_finished']);
         });
     }
 }

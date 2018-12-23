@@ -203,10 +203,6 @@ class Game extends Model
             return true;
         }
 
-        if ($winners->count() === 2) {
-            $this->shuffleUserColors();
-        }
-
         return false;
     }
 

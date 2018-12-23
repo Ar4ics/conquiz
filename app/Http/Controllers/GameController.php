@@ -38,8 +38,8 @@ class GameController extends Controller
 
         $validator = Validator::make($data, [
             'title' => 'required|string',
-            'count_x' => 'required|integer',
-            'count_y' => 'required|integer',
+            'count_x' => 'required|integer|between:2,12',
+            'count_y' => 'required|integer|between:2,12',
             'mode' => 'required|string|in:classic,base_mode',
             'duration' => 'nullable|integer',
             'users' => 'required|array',
@@ -103,8 +103,6 @@ class GameController extends Controller
                 $q->select(['id', 'x', 'y']);
             }])->orderBy('score', 'desc')->get();
 
-        $competitive_box = $game->competitive_box;
-
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color', 'user_color_id', 'cost']);
 
@@ -131,7 +129,7 @@ class GameController extends Controller
             $b = &$field[$box->y][$box->x];
             $b['cost'] = $box->cost;
             $b['user_color_id'] = $box->user_color_id;
-            $b['color'] = $box->color;
+            $b['color'] = $box->user_color->color;
         }
 
         foreach ($userColors as $userColor) {
@@ -142,14 +140,11 @@ class GameController extends Controller
         }
 
         $winner = UserColor::with('user')->find($game->winner_user_color_id);
-        $competitors = [];
-        if ($competitive_box) {
-            $target = &$field[$competitive_box->y][$competitive_box->x];
-            $target['color'] = 'LightGrey';
-            $competitors = $competitive_box->competitors;
-        }
 
-        $question = Question::find($game->current_question_id, ['id', 'title', 'answers', 'is_exact_answer']);
+        $competitive_box = $game->competitive_box;
+
+        $question = Question::find($game->current_question_id);
+
         return view('game', [
             'game' => json_encode($game),
             'player' => json_encode($player),
@@ -157,7 +152,7 @@ class GameController extends Controller
             'who_moves' => json_encode($whoMoves),
             'question' => json_encode($question),
             'user_colors' => json_encode($userColors),
-            'competitors' => json_encode($competitors),
+            'competitive_box' => json_encode($competitive_box),
             'winner' => json_encode($winner),
         ]);
     }

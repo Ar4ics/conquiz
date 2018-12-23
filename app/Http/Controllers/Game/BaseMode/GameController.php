@@ -55,12 +55,11 @@ class GameController extends Controller
 
         $userColor = UserColor::find($data['userColorId']);
 
-        if (!$userColor) {
+        if (!$userColor || ($userColor->game_id !== $game->id)) {
             return [
                 'error' => ErrorConstants::USER_NOT_FOUND,
             ];
         }
-
 
         $who_moves = $game->getMovingUserColor();
 
@@ -94,7 +93,7 @@ class GameController extends Controller
         }
 
         if ($game->stage === Constants::GAME_STAGE_3) {
-            return Stage3Controller::boxClicked($game, $x, $y);
+            return Stage3Controller::boxClicked($game, $x, $y, $userColor);
         }
 
         if ($game->stage === Constants::GAME_STAGE_2) {
@@ -149,7 +148,7 @@ class GameController extends Controller
         $userColor = UserColor::find($data['userColorId']);
         $question = Question::find($data['questionId']);
 
-        if (!$userColor) {
+        if (!$userColor || ($userColor->game_id !== $game->id)) {
             return [
                 'error' => ErrorConstants::USER_NOT_FOUND,
             ];
@@ -176,10 +175,16 @@ class GameController extends Controller
             return Stage2Controller::userAnswered($game);
         }
 
-        if (!$game->competitive_box || !$game->competitive_box->competitors) {
+        if (!$game->competitive_box) {
             return [
                 'error' => ErrorConstants::NO_COMPETITIVE_BOX_EXISTS,
             ];
+        }
+
+        Helpers::createUserQuestion($userColor, $question, $userAnswer);
+
+        if ($game->stage === Constants::GAME_STAGE_3) {
+            return Stage3Controller::userAnswered($game);
         }
 
         if (!in_array($userColor->id, $game->competitive_box->competitors)) {
@@ -188,14 +193,8 @@ class GameController extends Controller
             ];
         }
 
-        Helpers::createUserQuestion($userColor, $question, $userAnswer);
-
         if ($game->stage === Constants::GAME_STAGE_4) {
             return Stage4Controller::userAnswered($game);
-        }
-
-        if ($game->stage === Constants::GAME_STAGE_3) {
-            return Stage3Controller::userAnswered($game);
         } else {
             return [
                 'error' => ErrorConstants::NO_GAME_STAGE_FOUND,

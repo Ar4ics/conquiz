@@ -49,14 +49,11 @@ class AddModeToGamesTable extends Migration
     public function down()
     {
         Schema::table('games', function (Blueprint $table) {
-            $table->dropColumn('mode');
-            $table->dropColumn('duration');
-            $table->dropColumn('questioned_at');
+            $table->dropColumn(['mode', 'duration', 'questioned_at']);
         });
 
         Schema::table('user_colors', function (Blueprint $table) {
-            $table->dropColumn('base_box_id');
-            $table->dropColumn('base_guards_count');
+            $table->dropColumn(['base_box_id', 'base_guards_count']);
         });
 
         Schema::table('user_questions', function (Blueprint $table) {
@@ -68,8 +65,7 @@ class AddModeToGamesTable extends Migration
         });
 
         Schema::table('questions', function (Blueprint $table) {
-            $table->dropColumn('is_hidden');
-            $table->dropColumn('is_exact_answer');
+            $table->dropColumn(['is_hidden', 'is_exact_answer']);
         });
     }
 }

@@ -29,7 +29,7 @@
     import {mapMutations} from 'vuex';
 
     export default {
-        props: ['game', 'player', 'field', 'whoMoves', 'winner', 'question', 'competitors', 'userColors'],
+        props: ['game', 'player', 'field', 'whoMoves', 'winner', 'question', 'competitive_box', 'userColors'],
 
         created() {
             this.setGame(this.game);
@@ -43,7 +43,7 @@
                 }
             }
             this.setWhoMoves(this.whoMoves);
-            this.setCompetitors(this.competitors);
+            this.setCompetitiveBox(this.competitive_box);
             this.setUserColors(this.userColors);
             this.setWinner(this.winner);
         },
@@ -63,8 +63,7 @@
                 'setField',
                 'setUserColors',
                 'setWinner',
-                'setCompetitors',
-                'setCompetitiveBoxColor',
+                'setCompetitiveBox',
                 'setQuestion',
                 'setExactQuestion',
                 'setWhoMoves',
@@ -145,8 +144,7 @@
                         })
                         .listen('WhoAttack', (e) => {
                             console.log('who attack', e);
-                            this.setCompetitors(e.competitive_box.competitors);
-                            this.setCompetitiveBoxColor(e);
+                            this.setCompetitiveBox(e.competitive_box);
                         })
                         .listen('CompetitiveAnswerResults', (e) => {
                             console.log('competitive answers', e);

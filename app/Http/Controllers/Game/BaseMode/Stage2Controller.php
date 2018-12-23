@@ -59,7 +59,7 @@ class Stage2Controller
         if ($who_moves) {
             $game->save();
             broadcast(new WhoMoves($who_moves, $game->id));
-            return response()->json(['who_moves' => $who_moves]);
+            return response()->json(['who_moved' => $userColor, 'who_moves' => $who_moves]);
         } else {
             $question = Helpers::getQuestion($game, false);
             if (!$question) {
@@ -75,7 +75,7 @@ class Stage2Controller
 
                 broadcast(new NewQuestion($question, $game->id));
 
-                return response()->json(['question' => $question]);
+                return response()->json(['question' => $question, 'who_moved' => $userColor]);
             }
         }
     }

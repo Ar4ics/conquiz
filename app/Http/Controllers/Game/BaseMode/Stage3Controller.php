@@ -21,10 +21,9 @@ use Exception;
 
 class Stage3Controller
 {
-    public static function boxClicked(Game $game, $x, $y)
+    public static function boxClicked(Game $game, $x, $y, UserColor $userColor)
     {
-        $userColorsIds = UserColor::whereGameId($game->id)->get()->pluck('id');
-        $competitiveBox = new CompetitiveBox(['x' => $x, 'y' => $y, 'competitors' => $userColorsIds]);
+        $competitiveBox = new CompetitiveBox(['x' => $x, 'y' => $y, 'competitors' => []]);
         $game->competitive_box()->save($competitiveBox);
 
         $question = Helpers::getQuestion($game, true);
@@ -44,7 +43,7 @@ class Stage3Controller
             broadcast(new WhoAttack($competitiveBox, $game->id));
             broadcast(new NewExactQuestion($question, $game->id));
 
-            return response()->json(['question' => $question]);
+            return response()->json(['question' => $question, 'who_moved' => $userColor]);
         }
     }
 

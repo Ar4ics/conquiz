@@ -58,7 +58,7 @@ class Stage1Controller
             broadcast(new WhoMoves($who_moves, $game->id));
             broadcast(new UserColorsChanged($game->id));
 
-            return response()->json(['who_moves' => $who_moves]);
+            return response()->json(['who_moved' => $userColor, 'who_moves' => $who_moves]);
         } else {
             return [
                 'error' => Constants::GAME_STAGE_1 . ':' . ErrorConstants::USER_ALREADY_SET_BASE

@@ -9,13 +9,14 @@ use App\User;
 use App\UserColor;
 use Exception;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class GameSecondTest extends TestCase
 {
     private $players;
-    private $count_x = 4;
-    private $count_y = 4;
+    private $count_x = 3;
+    private $count_y = 3;
 
     private $x;
     private $y;
@@ -43,8 +44,11 @@ class GameSecondTest extends TestCase
         $needClick = true;
         $needAnswer = false;
         $winner = null;
+        $error = false;
 
-        while (!$winner && $this->failsCount < 1000) {
+        $moveOrder = collect();
+
+        while (!$winner && !$error && $this->failsCount < 1000) {
 
             if ($needClick) {
                 $this->setRandomBox();
@@ -52,15 +56,20 @@ class GameSecondTest extends TestCase
                 if (array_key_exists('error', $response)) {
                     $handled = $this->tryHandleError($response['error']);
                     if (!$handled) {
-                        break;
+                        $error = true;
                     }
-                } elseif (array_key_exists('who_moves', $response)) {
+                }
+                if (array_key_exists('who_moved', $response)) {
+                    $moveOrder->push($response['who_moved']);
+                }
+                if (array_key_exists('who_moves', $response)) {
                     print_r('who_moves: ' . $response['who_moves']['id'] . PHP_EOL);
                     $currentUserColor = $userColors[$response['who_moves']['id']];
                     $needClick = true;
                     $needAnswer = false;
-                } elseif (array_key_exists('question', $response)) {
-                    print_r('question_id: ' . $response['question']['id'] . PHP_EOL);
+                }
+                if (array_key_exists('question', $response)) {
+                    print_r('question: ' . $response['question']['id'] . PHP_EOL);
                     $question = $response['question'];
                     $needClick = false;
                     $needAnswer = true;
@@ -72,26 +81,35 @@ class GameSecondTest extends TestCase
                         if (array_key_exists('error', $response)) {
                             $handled = $this->tryHandleError($response['error']);
                             if (!$handled) {
+                                $error = true;
                                 break;
                             }
-                        } elseif (array_key_exists('notice', $response)) {
+                        }
+                        if (array_key_exists('notice', $response)) {
                             $handled = $this->tryHandleError($response['notice']);
                             if (!$handled) {
+                                $error = true;
                                 break;
                             }
-                        } elseif (array_key_exists('who_moves', $response)) {
+                        }
+                        if (array_key_exists('who_moved', $response)) {
+                            $moveOrder->push($response['who_moved']);
+                        }
+                        if (array_key_exists('who_moves', $response)) {
                             print_r('who_moves: ' . $response['who_moves']['id'] . PHP_EOL);
                             $currentUserColor = $userColors[$response['who_moves']['id']];
                             $needClick = true;
                             $needAnswer = false;
                             break;
-                        } elseif (array_key_exists('question', $response)) {
-                            print_r('question_id: ' . $response['question']['id'] . PHP_EOL);
+                        }
+                        if (array_key_exists('question', $response)) {
+                            print_r('question: ' . $response['question']['id'] . PHP_EOL);
                             $question = $response['question'];
                             $needClick = false;
                             $needAnswer = true;
                             break;
-                        } elseif (array_key_exists('winner', $response)) {
+                        }
+                        if (array_key_exists('winner', $response)) {
                             $winner = $response['winner'];
                             break;
                         }
@@ -106,7 +124,13 @@ class GameSecondTest extends TestCase
         if ($winner) {
             print_r('winner: ' . $winner['id'] . PHP_EOL);
         }
+        print_r($moveOrder->groupBy('id')->map(function (Collection $state) {
+            return $state->count();
+        }));
+
+        print_r($moveOrder->take(-10)->pluck('id')->toArray());
         print_r('iterations: ' . $this->failsCount . PHP_EOL);
+        print_r('game_id: ' . $game->id . PHP_EOL);
     }
 
     private function createGame(User $user, $players)
@@ -152,7 +176,7 @@ class GameSecondTest extends TestCase
     private function tryHandleError($error)
     {
         $this->failsCount++;
-        print_r($error . PHP_EOL);
+        //print_r($error . PHP_EOL);
         switch ($error) {
 
             case ErrorConstants::ANOTHER_USER_SHOULD_ANSWER:

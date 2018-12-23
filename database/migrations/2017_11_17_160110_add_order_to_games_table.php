@@ -18,8 +18,7 @@ class AddOrderToGamesTable extends Migration
         });
 
         Schema::table('user_colors', function (Blueprint $table) {
-            $table->dropColumn('has_moved');
-            $table->dropColumn('seq');
+            $table->dropColumn(['has_moved', 'seq']);
         });
     }
 
@@ -31,8 +30,7 @@ class AddOrderToGamesTable extends Migration
     public function down()
     {
         Schema::table('games', function (Blueprint $table) {
-            $table->dropColumn('move_order');
-            $table->dropColumn('move_index');
+            $table->dropColumn(['move_order', 'move_index']);
         });
 
         Schema::table('user_colors', function (Blueprint $table) {

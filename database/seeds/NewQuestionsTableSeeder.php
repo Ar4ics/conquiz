@@ -16,8 +16,6 @@ class NewQuestionsTableSeeder extends Seeder
 
     public function run()
     {
-        DB::table('questions')->update(['is_hidden' => true]);
-
         $json_file = file_get_contents("storage/new_questions.json");
         $json_content = json_decode($json_file, true);
         for ($i = 0; $i < count($json_content); $i++) {
