@@ -1,21 +1,22 @@
 <template>
     <div class="container">
 
-        <game-info/>
+        <div class="row">
 
-        <game-users/>
+            <div class="col-12 col-md-6">
+                <chat-messages :messages="messages" :game_id="game.id"/>
+            </div>
 
-        <chat-messages :messages="messages" :game_id="game.id" :title="'Чат'"/>
+            <div class="col-12 col-md-6">
+                <game-field/>
 
-        <game-move/>
+                <game-info/>
 
-        <game-question/>
+                <game-move/>
 
-        <game-exact-question/>
-
-        <game-results/>
-
-        <game-field/>
+                <game-question/>
+            </div>
+        </div>
 
     </div>
 
@@ -43,7 +44,7 @@
                 }
             }
             this.setWhoMoves(this.whoMoves);
-            this.setCompetitiveBox(this.competitive_box);
+            this.setCompetitiveBox(this.competitiveBox);
             this.setUserColors(this.userColors);
             this.setWinner(this.winner);
         },
@@ -67,9 +68,6 @@
                 'setQuestion',
                 'setExactQuestion',
                 'setWhoMoves',
-                'setOnlineUsers',
-                'addOnlineUser',
-                'removeOfflineUser',
                 'changeBoxColor',
                 'clearQuestion',
                 'clearExactQuestion',
@@ -81,29 +79,6 @@
                 'replaceBox',
             ]),
             listenForEvents() {
-
-                Echo.join('game_users.' + this.game.id)
-                    .here((users) => {
-                        console.log('users', users);
-                        this.setOnlineUsers(users);
-                        this.$notify({
-                            text: `В комнате ${users.length} человек`
-                        });
-                    })
-                    .joining((user) => {
-                        console.log('joining', user);
-                        this.addOnlineUser(user);
-                        this.$notify({
-                            text: `В комнату зашел ${user.name}`
-                        });
-                    })
-                    .leaving((user) => {
-                        console.log('leaving', user);
-                        this.removeOfflineUser(user);
-                        this.$notify({
-                            text: `Из комнаты вышел ${user.name}`
-                        });
-                    });
 
                 Echo.private('game.' + this.game.id)
                     .listen('WhoMoves', (e) => {

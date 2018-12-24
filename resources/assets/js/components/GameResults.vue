@@ -1,5 +1,5 @@
 <template>
-    <div class="card text-center list-group" v-if="results">
+    <div class="text-center list-group">
         <div class="list-group-item" v-for="(a, i) in results.user_answers" :key="i">
             <span>{{ a.user_name }}</span> ответил
             <span class="badge badge-primary" v-if="results.is_exact">

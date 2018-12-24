@@ -1,9 +1,11 @@
 <template>
     <div class="card">
-        <h5 class="card-header text-center">{{ title }}</h5>
+        <h6 class="card-header text-center">
+            <game-users :game_id="game_id"/>
+        </h6>
         <div ref="chat" class="chat-content">
-            <div v-for="(g, i) in sorted_messages" :key="i" style="margin: 10px;" class="list-group list-group-flush">
-                <h5 class="text-center">{{ i }}</h5>
+            <div v-for="(g, i) in sorted_messages" :key="i" class="list-group list-group-flush">
+                <span class="text-center sticky-top">{{ i }}</span>
                 <chat-message :chatMessage="m" v-for="m in g" :key="m.i"></chat-message>
             </div>
         </div>
@@ -17,11 +19,11 @@
 <style>
     .chat-content {
         overflow-y: scroll;
-        max-height: 200px;
+        height: 400px;
     }
 
     ::-webkit-scrollbar {
-        width: 0px;
+        width: 0;
         background: transparent;
     }
 
@@ -31,7 +33,7 @@
     import {mapGetters, mapMutations} from 'vuex';
 
     export default {
-        props: ['title', 'game_id', 'messages'],
+        props: ['game_id', 'messages'],
         data() {
             return {
                 chat_message: '',
@@ -45,7 +47,9 @@
                 .listen('GameMessageCreated', (e) => {
                     console.log('GameMessageCreated', e);
                     this.addGameMessage(e);
-                })
+                });
+
+
         },
 
         computed: {
@@ -66,10 +70,9 @@
                 'addGameMessage'
             ]),
 
-
             submitMessage(message) {
                 this.chat_message = '';
-                console.log(this.chat_message);
+                console.log(message);
                 axios.post('/games/' + this.game_id + '/message', {message})
                     .then((response) => {
                         console.log(response);

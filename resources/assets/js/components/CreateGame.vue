@@ -27,11 +27,10 @@
                         </label>
                     </div>
                     <div class="form-group">
-                        <label for="users">Выберите пользователей...</label>
-                        <select class="form-control" id="users" multiple
+                        <select class="selectpicker" multiple title="Выберите игроков..."
                                 v-model="users">
-                            <option :key="user.id" :value="user.id" v-for="user in online_sorted">
-                                {{ user.name }} - {{ user.status }}
+                            <option :key="user.id" :value="user.id" v-for="user in initialUsers">
+                                {{ user.name }}
                             </option>
                         </select>
                     </div>
@@ -45,6 +44,7 @@
 </template>
 
 <script>
+
     export default {
         props: ['initialUsers'],
 
@@ -54,63 +54,16 @@
                 count_x: 2,
                 count_y: 2,
                 mode: 'base_mode',
-                users: [],
-                online_users: this.initialUsers
+                users: []
             }
         },
 
         mounted() {
-            Echo.join('users')
-                .here((users) => {
-                    console.log('users', users);
-                    users.forEach(u => {
-                        let us = this.online_users.find(o => o.id === u.id);
-                        if (us) {
-                            us.status = 'online';
-                        }
-                    });
 
-                    this.$notify({
-                        text: `В зале ${users.length} человек`
-                    });
-                })
-                .joining((user) => {
-                    console.log('joining', user);
-                    let us = this.online_users.find(o => o.id === user.id);
-                    if (us) {
-                        us.status = 'online';
-                    }
-                    this.$notify({
-                        text: `В зал зашел ${user.name}`
-                    });
-                })
-                .leaving((user) => {
-                    console.log('leaving', user);
-                    let us = this.online_users.find(o => o.id === user.id);
-                    if (us) {
-                        us.status = 'offline';
-                    }
-                    this.$notify({
-                        text: `Из зала вышел ${user.name}`
-                    });
-                });
-        },
-
-        computed: {
-            online_sorted: function () {
-                return this.online_users.sort(function (a, b) {
-                    if (a.status > b.status) {
-                        return -1;
-                    }
-                    if (a.status < b.status) {
-                        return 1;
-                    }
-                    return 0;
-                });
-            }
         },
 
         methods: {
+
 
             createGame() {
                 if (this.users.length < 1 || this.users.length > 2) {
@@ -131,7 +84,7 @@
                     });
                     return;
                 }
-                console.log('mode', this.mode);
+
                 axios.post('/games',
                     {
                         title: this.title,
@@ -141,12 +94,15 @@
                         count_y: this.count_y
                     })
                     .then((response) => {
-                        this.title = '';
-                        this.users = [];
-
-                        //$('.selectpicker').selectpicker('deselectAll');
-                        //Bus.$emit('gameCreated', response.data);
+                        if (response.data.hasOwnProperty('error')) {
+                            this.$notify({
+                                text: response.data.error
+                            });
+                        }
                     });
+                this.title = '';
+                this.users = [];
+                $('.selectpicker').selectpicker('deselectAll');
             }
         }
     }

@@ -1,5 +1,6 @@
 <template>
-    <div class="main" v-if="game && field">
+    <div class="card" v-if="game && field">
+        <p class="card-header text-center">{{ game.title }}</p>
         <div class="row no-gutters" v-for="(col, y) in field" :key="y">
             <div class="box" :class="'col-' + game.count_col" :style="{backgroundColor: box.color}"
                  v-for="(box, x) in col" :key="x"
@@ -8,6 +9,7 @@
                     <span v-if="box.user_color_id">
                         <{{ box.cost }}>
                     </span>
+                    <br>
                     <span v-if="box.base">
                         {{ box.base.user_name }}<{{ box.base.guards }}>
                     </span>
@@ -18,14 +20,9 @@
 </template>
 
 <style scoped>
-    .main {
-        border: 0.05rem solid;
-    }
-
     .box {
-        border: 0.05rem solid;
-        height: 10rem;
-        background-color: white;
+        border: 0.01rem solid;
+        height: 100px;
     }
 </style>
 

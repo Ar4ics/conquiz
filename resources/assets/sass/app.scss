@@ -6,3 +6,73 @@
 
 // Bootstrap
 @import "~bootstrap/scss/bootstrap.scss";
+@import "~bootstrap-select/sass/bootstrap-select.scss";
+
+.custom-template {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  text-align: left;
+  font-size: 13px;
+  margin: 5px;
+  margin-bottom: 0;
+  align-items: center;
+  justify-content: center;
+  &, & > div {
+    box-sizing: border-box;
+  }
+  background: #E8F9F0;
+  border: 2px solid #D0F2E1;
+  .custom-template-icon {
+    flex: 0 1 auto;
+    color: #15C371;
+    font-size: 32px;
+    padding: 0 10px;
+  }
+  .custom-template-close {
+    flex: 0 1 auto;
+    padding: 0 20px;
+    font-size: 16px;
+    opacity: 0.2;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  .custom-template-content {
+    padding: 10px;
+    flex: 1 0 auto;
+    .custom-template-title {
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 10px;
+      font-weight: 600;
+    }
+  }
+}
+.v-fade-left-enter-active,
+.v-fade-left-leave-active,
+.v-fade-left-move {
+  transition: all .5s;
+}
+.v-fade-left-enter,
+.v-fade-left-leave-to {
+  opacity: 0;
+  transform: translateX(-500px) scale(0.2);
+}
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}

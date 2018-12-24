@@ -20,7 +20,6 @@ import GameInfo from './components/GameInfo'
 import GameUsers from './components/GameUsers'
 import GameField from './components/GameField'
 import GameQuestion from './components/GameQuestion'
-import GameExactQuestion from './components/GameExactQuestion'
 import GameMove from './components/GameMove'
 import GameResults from './components/GameResults'
 
@@ -57,7 +56,10 @@ const store = new Vuex.Store({
                     return `${c1.user.name} нападает на ${c2.user.name}`;
                 }
             }
-            return null;
+            if (state.results) {
+                return 'Результаты';
+            }
+            return 'Захват территории';
         },
 
         question_asked: state => {
@@ -224,7 +226,6 @@ Vue.component('game-info', GameInfo);
 Vue.component('game-users', GameUsers);
 Vue.component('game-field', GameField);
 Vue.component('game-question', GameQuestion);
-Vue.component('game-exact-question', GameExactQuestion);
 Vue.component('game-move', GameMove);
 Vue.component('game-results', GameResults);
 

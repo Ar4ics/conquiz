@@ -1,16 +1,16 @@
 <template>
     <div class="list-group-item flex-column">
         <div class="d-flex w-100 justify-content-between">
-            <h6 class="mb-1 chat-name">{{ chatMessage.user.name }}</h6>
+            <h6 class="mb-1 message-name">{{ chatMessage.user.name }}</h6>
             <small>{{ chatMessage.time }}</small>
         </div>
-        <p v-html="messageEmoji"></p>
+        <span v-html="messageEmoji"></span>
     </div>
 </template>
 
 
 <style scoped>
-    .chat-name {
+    .message-name {
         padding: 1px;
         border-style: groove;
         border-width: 1px;

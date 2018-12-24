@@ -1,4 +1,5 @@
 window._ = require('lodash');
+import 'es6-promise/auto';
 
 /**
  * JQuery is nice but if the only reason to get it is bootstrap, better to have vanilla JS
@@ -10,6 +11,7 @@ try {
     window.$ = window.jQuery = require('jquery');
     window.Popper = require('popper.js').default;
     require('bootstrap');
+    require('bootstrap-select');
 } catch (e) {}
 
 /**
