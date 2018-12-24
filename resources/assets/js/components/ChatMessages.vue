@@ -1,79 +1,83 @@
 <template>
     <div class="card">
         <h5 class="card-header text-center">{{ title }}</h5>
-        <div ref="chat" class="card-body chat-content">
-            <div v-for="(g, i) in grouped" :key="i">
-                <h5 class="card-title text-center">{{ i }}</h5>
-                <div v-for="m in g" :key="m.i">
-                    <chat-message :chatMessage="m"></chat-message>
-                </div>
+        <div ref="chat" class="chat-content">
+            <div v-for="(g, i) in sorted_messages" :key="i" style="margin: 10px;" class="list-group list-group-flush">
+                <h5 class="text-center">{{ i }}</h5>
+                <chat-message :chatMessage="m" v-for="m in g" :key="m.i"></chat-message>
             </div>
         </div>
         <div class="card-footer">
             <input v-model="chat_message" type="text" placeholder="Сообщение" class="form-control"
-                   @keyup.enter="submitMessage"/>
+                   @keyup.enter="submitMessage(chat_message)"/>
         </div>
     </div>
 </template>
 
+<style>
+    .chat-content {
+        overflow-y: scroll;
+        max-height: 200px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+
+</style>
+
 <script>
+    import {mapGetters, mapMutations} from 'vuex';
+
     export default {
-        props: ['title', 'game_id'],
+        props: ['title', 'game_id', 'messages'],
         data() {
             return {
                 chat_message: '',
-                messages: []
             }
         },
         mounted() {
-            this.listenForEvents();
-            this.loadMessages();
+
+            this.setGameMessages(this.messages);
+
+            Echo.private('game.' + this.game_id)
+                .listen('GameMessageCreated', (e) => {
+                    console.log('GameMessageCreated', e);
+                    this.addGameMessage(e);
+                })
+        },
+
+        computed: {
+
+            ...mapGetters([
+                'sorted_messages',
+            ]),
         },
 
         updated() {
             this.$nextTick(() => this.scrollToEnd());
         },
 
-        computed: {
-            grouped: function () {
-                return _.groupBy(this.messages, 'date');
-            }
-        },
-
         methods: {
 
-            loadMessages() {
-                axios.get('/games/' + this.game_id + '/message')
-                    .then((response) => {
-                        console.log(response);
-                        if (response.data.error) {
-                            this.$notify({
-                                text: response.data.error
-                            });
-                        }
-                        this.messages = response.data;
-                    });
-            },
+            ...mapMutations([
+                'setGameMessages',
+                'addGameMessage'
+            ]),
 
-            submitMessage() {
-                console.log(this.chat_message);
-                axios.post('/games/' + this.game_id + '/message', {message: this.chat_message})
-                    .then((response) => {
-                        console.log(response);
-                        if (response.data.error) {
-                            this.$notify({
-                                text: response.data.error
-                            });
-                        }
-                    });
+
+            submitMessage(message) {
                 this.chat_message = '';
-            },
-
-            listenForEvents() {
-                Echo.private('game.' + this.game_id)
-                    .listen('GameMessageCreated', (e) => {
-                        console.log('GameMessageCreated', e);
-                        this.messages.push(e);
+                console.log(this.chat_message);
+                axios.post('/games/' + this.game_id + '/message', {message})
+                    .then((response) => {
+                        console.log(response);
+                        if (response.data.error) {
+                            this.$notify({
+                                text: response.data.error
+                            });
+                        }
                     });
             },
 
@@ -84,15 +88,3 @@
         }
     }
 </script>
-
-<style scoped>
-    .chat-content {
-        overflow-y: scroll;
-        max-height: 200px;
-    }
-
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent; /* make scrollbar transparent */
-    }
-</style>

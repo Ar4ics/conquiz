@@ -4,6 +4,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+import _ from "lodash";
+
 require('./bootstrap');
 
 import Vue from 'vue'
@@ -29,6 +31,7 @@ const store = new Vuex.Store({
     state: {
         user_colors: [],
         online_users: [],
+        messages: [],
         competitive_box: null,
         game: null,
         player: null,
@@ -56,11 +59,25 @@ const store = new Vuex.Store({
             }
             return null;
         },
+
         question_asked: state => {
             return state.question || state.exact_question;
+        },
+
+        sorted_messages: state => {
+            return _.groupBy(state.messages, 'date');
         }
     },
     mutations: {
+
+        setGameMessages(state, messages) {
+            state.messages = messages;
+        },
+
+        addGameMessage(state, message) {
+            state.messages.push(message);
+        },
+
         setGame(state, game) {
             state.game = game;
             state.game.count_col = 12 / state.game.count_x;

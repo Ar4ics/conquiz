@@ -1,14 +1,21 @@
 <template>
-    <div class="row no-gutters">
-        <div class="col-6 col-md-10">
-            <span class="chat-name">{{ chatMessage.user.name }}</span>
-            <span v-html="messageEmoji"></span>
-        </div>
-        <div class="col-6 col-md-2 text-right">
+    <div class="list-group-item flex-column">
+        <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1 chat-name">{{ chatMessage.user.name }}</h6>
             <small>{{ chatMessage.time }}</small>
         </div>
+        <p v-html="messageEmoji"></p>
     </div>
 </template>
+
+
+<style scoped>
+    .chat-name {
+        padding: 1px;
+        border-style: groove;
+        border-width: 1px;
+    }
+</style>
 
 <script>
     export default {
@@ -25,29 +32,15 @@
         computed: {
             messageEmoji: function () {
                 let emoji = this.message;
-                emoji = emoji.replace('капа', '<img alt="kappa" src="/img/kappa.png"/>');
-                emoji = emoji.replace('вин', '<img alt="win" src="/img/win.png"/>');
-                emoji = emoji.replace('кеепо', '<img alt="win" src="/img/keepo.png"/>');
-                emoji = emoji.replace('рос', '<img alt="win" src="/img/ross.png"/>');
-                emoji = emoji.replace('чит', '<img alt="win" src="/img/cheat.png"/>');
-                emoji = emoji.replace('де', '<img alt="win" src="/img/de.png"/>');
-                emoji = emoji.replace('хил', '<img alt="win" src="/img/hil.png"/>');
-                emoji = emoji.replace('салт', '<img alt="win" src="/img/salt.png"/>');
-                emoji = emoji.replace('ок', '<img alt="win" src="/img/sheep.png"/>');
-                emoji = emoji.replace('кап', '<img alt="win" src="/img/mini_k.png"/>');
-                emoji = emoji.replace('лол', '<img alt="win" src="/img/4head.png"/>');
+                emoji = emoji.replace('kappa', '<img alt="kappa" src="/img/kappa.png"/>');
+                emoji = emoji.replace('win', '<img alt="win" src="/img/win.png"/>');
+                emoji = emoji.replace('keepo', '<img alt="win" src="/img/keepo.png"/>');
+                emoji = emoji.replace('ross', '<img alt="win" src="/img/ross.png"/>');
+                emoji = emoji.replace('cheat', '<img alt="win" src="/img/cheat.png"/>');
+                emoji = emoji.replace('hil', '<img alt="win" src="/img/hil.png"/>');
+                emoji = emoji.replace('salt', '<img alt="win" src="/img/salt.png"/>');
                 return emoji;
             }
         }
     }
 </script>
-
-<style scoped>
-
-    .chat-name {
-        padding: 1px;
-        border-style: groove;
-        border-width: 1px;
-    }
-
-</style>

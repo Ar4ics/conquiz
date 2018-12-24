@@ -5,7 +5,7 @@
 
         <game-users/>
 
-        <chat-messages :game_id="game.id" :title="'Чат'"/>
+        <chat-messages :messages="messages" :game_id="game.id" :title="'Чат'"/>
 
         <game-move/>
 
@@ -29,7 +29,7 @@
     import {mapMutations} from 'vuex';
 
     export default {
-        props: ['game', 'player', 'field', 'whoMoves', 'winner', 'question', 'competitive_box', 'userColors'],
+        props: ['game', 'player', 'field', 'whoMoves', 'winner', 'question', 'competitiveBox', 'userColors', 'messages'],
 
         created() {
             this.setGame(this.game);
@@ -79,7 +79,6 @@
                 'setCompetitiveCorrectAnswers',
                 'setCompetitiveAnswers',
                 'replaceBox',
-                'setCompetitiveBoxColor'
             ]),
             listenForEvents() {
 

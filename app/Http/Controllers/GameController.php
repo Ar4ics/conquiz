@@ -6,6 +6,7 @@ use App;
 use App\Box;
 use App\Events\GameCreated;
 use App\Game;
+use App\GameMessage;
 use App\Helpers\Constants;
 use App\Helpers\ErrorConstants;
 use App\Http\Controllers\Game\Stage1Controller;
@@ -28,7 +29,13 @@ class GameController extends Controller
 
         $users = User::where('id', '<>', Auth::user()->id)->get();
 
-        return view('games', ['games' => $games, 'users' => $users]);
+        $messages = GameMessage::whereGameId(0)->with('user')->orderBy('created_at')->get();
+
+        return view('games', [
+            'games' => json_encode($games),
+            'users' => json_encode($users),
+            'messages' => json_encode($messages),
+        ]);
     }
 
 
@@ -141,9 +148,11 @@ class GameController extends Controller
 
         $winner = UserColor::with('user')->find($game->winner_user_color_id);
 
-        $competitive_box = $game->competitive_box;
+        $competitiveBox = $game->competitive_box;
 
         $question = Question::find($game->current_question_id);
+
+        $messages = GameMessage::whereGameId($game->id)->with('user')->orderBy('created_at')->get();
 
         return view('game', [
             'game' => json_encode($game),
@@ -152,8 +161,9 @@ class GameController extends Controller
             'who_moves' => json_encode($whoMoves),
             'question' => json_encode($question),
             'user_colors' => json_encode($userColors),
-            'competitive_box' => json_encode($competitive_box),
+            'competitive_box' => json_encode($competitiveBox),
             'winner' => json_encode($winner),
+            'messages' => json_encode($messages),
         ]);
     }
 

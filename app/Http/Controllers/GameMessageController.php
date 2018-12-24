@@ -13,14 +13,12 @@ class GameMessageController extends Controller
 {
     public function index($gameId)
     {
-
-        $messages = GameMessage::whereGameId($gameId)->with('user')->get();
+        $messages = GameMessage::whereGameId($gameId)->with('user')->orderBy('created_at')->get();
         return $messages;
     }
 
     public function store(Request $request, $gameId)
     {
-
         $user = Auth::user();
         $data = $request->all();
 
@@ -35,14 +33,9 @@ class GameMessageController extends Controller
 
         $message = GameMessage::create($data);
 
-        $mes = [];
-        $mes['message'] = $message->message;
-        $mes['game_id'] = $message->game_id;
-        $mes['date'] = $message['date'];
-        $mes['time'] = $message['time'];
-        $mes['user'] = ['name' => $user->name];
+        $message->load('user');
 
-        broadcast(new GameMessageCreated($mes));
+        broadcast(new GameMessageCreated($message));
         return $message;
     }
 }

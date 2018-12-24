@@ -13,7 +13,6 @@
           :competitive_box="{{ $competitive_box }}"
           :user-colors="{{ $user_colors }}"
           :winner="{{ $winner }}"
-
-    >
+          :messages="{{ $messages }}">
     </game>
 @endsection
