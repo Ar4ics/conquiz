@@ -1,5 +1,5 @@
 <template>
-    <div v-if="game && is_question_exists">
+    <div v-if="game && is_question_exists && !winner">
         <transition name="modal">
             <div class="modal-mask">
                 <div class="modal-wrapper">
@@ -64,6 +64,7 @@
                 'player',
                 'results',
                 'game',
+                'winner',
                 'competitive_box'
             ]),
 
