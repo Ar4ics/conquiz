@@ -181,9 +181,9 @@ class GameController extends Controller
             ];
         }
 
-        Helpers::createUserQuestion($userColor, $question, $userAnswer);
-
         if ($game->stage === Constants::GAME_STAGE_3) {
+            Helpers::createUserQuestion($userColor, $question, $userAnswer);
+
             return Stage3Controller::userAnswered($game);
         }
 
@@ -194,6 +194,8 @@ class GameController extends Controller
         }
 
         if ($game->stage === Constants::GAME_STAGE_4) {
+            Helpers::createUserQuestion($userColor, $question, $userAnswer);
+
             return Stage4Controller::userAnswered($game);
         } else {
             return [

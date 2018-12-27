@@ -54,12 +54,12 @@
                     });
                     return;
                 }
-                let path = '/box/clicked';
+                let path = 'box/clicked';
 
                 if (this.game.mode === 'base_mode') {
-                    path = '/base/box/clicked';
+                    path = 'base/box/clicked';
                 }
-                axios.post('/games/' + this.game.id + path, {x, y, userColorId: this.player.id})
+                this.axios.post(`/games/${this.game.id}/${path}`, {x, y, userColorId: this.player.id})
                     .then((response) => {
                         //console.log(response);
                         if (response.data.hasOwnProperty('error')) {

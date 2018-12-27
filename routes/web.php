@@ -12,22 +12,6 @@
 */
 
 //Route::get('/crawl', 'CrawlController@parse');
-Route::auth();
-Route::get('/', 'HomeController@index');
-Route::group(['middleware' => ['auth']], function() {
-    Route::get('/home', 'HomeController@index');
-
-    Route::get('/games', 'GameController@index');
-    Route::post('/games', 'GameController@store');
-
-    Route::get('/games/{id}', 'GameController@getGame');
-
-    Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
-    Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
-
-    Route::post('/games/{id}/base/box/clicked', 'Game\BaseMode\GameController@boxClicked');
-    Route::post('/games/{id}/base/user/answered', 'Game\BaseMode\GameController@userAnswered');
-
-    Route::resource('/games/{id}/message', 'GameMessageController');
-});
-
+//Route::get('auth/{provider}/redirect', 'Auth\SocialController@redirect');
+//Route::get('auth/{provider}', 'Auth\SocialController@callback');
+Route::get('/{any}', 'SpaController@index')->where('any', '.*');

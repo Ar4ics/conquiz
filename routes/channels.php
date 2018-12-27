@@ -13,20 +13,15 @@ use App\Game;
 |
 */
 
-// Broadcast::channel('users.{id}', function ($user, $id) {
-//     return (int) $user->id === (int) $id;
-// });
 
 Broadcast::channel('game.{game}', function ($user, $game) {
-    //return $group->hasUser($user->id);
     return true;
 });
 
 Broadcast::channel('games', function ($user) {
-    //return $group->hasUser($user->id);
     return true;
 });
 
-Broadcast::channel('game_users.{game}', function ($user, $game) {
+Broadcast::channel('users', function ($user) {
     return $user;
 });

@@ -3,11 +3,11 @@
 
         <div class="row">
 
-            <div class="col-12 col-md-6">
+            <div class="col-12 order-1 col-md-6 order-md-0">
                 <chat-messages :messages="messages" :game_id="game.id"/>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-12 order-0 col-md-6 order-md-1">
                 <game-field/>
 
                 <game-info/>
@@ -36,13 +36,7 @@
             this.setGame(this.game);
             this.setPlayer(this.player);
             this.setField(this.field);
-            if (this.question) {
-                if (this.question.is_exact_answer) {
-                    this.setExactQuestion(this.question);
-                } else {
-                    this.setQuestion(this.question);
-                }
-            }
+            this.setQuestion(this.question);
             this.setWhoMoves(this.whoMoves);
             this.setCompetitiveBox(this.competitiveBox);
             this.setUserColors(this.userColors);
@@ -65,12 +59,12 @@
                 'setUserColors',
                 'setWinner',
                 'setCompetitiveBox',
+                'clearCompetitiveBox',
                 'setQuestion',
-                'setExactQuestion',
                 'setWhoMoves',
                 'changeBoxColor',
                 'clearQuestion',
-                'clearExactQuestion',
+                'clearCompetitiveQuestion',
                 'clearResults',
                 'setBase',
                 'setAnswers',
@@ -107,7 +101,7 @@
                         setTimeout(() => {
                             this.clearQuestion();
                             this.clearResults();
-                        }, 5000);
+                        }, 6000);
                     });
 
                 if (this.game.mode === 'base_mode') {
@@ -125,9 +119,10 @@
                             this.setCompetitiveAnswers(e);
                             setTimeout(() => {
                                 this.clearQuestion();
-                                this.clearExactQuestion();
+                                this.clearCompetitiveQuestion();
+                                this.clearCompetitiveBox();
                                 this.clearResults();
-                            }, 7000);
+                            }, 6000);
                         })
                         .listen('CorrectAnswers', (e) => {
                             console.log('correct answers', e);
@@ -135,11 +130,11 @@
                             setTimeout(() => {
                                 this.clearQuestion();
                                 this.clearResults();
-                            }, 7000);
+                            }, 4000);
                         })
                         .listen('NewExactQuestion', (e) => {
                             console.log('exact question', e);
-                            this.setExactQuestion(e);
+                            this.setQuestion(e);
                         })
                         .listen('UserColorsChanged', (e) => {
                             console.log('user_colors changed', e);

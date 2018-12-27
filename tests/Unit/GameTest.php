@@ -130,7 +130,7 @@ class GameTest extends TestCase
     private function createGame(User $user, $players)
     {
         $lastGame = Game::orderBy('created_at', 'desc')->first();
-        return $this->actingAs($user)->json('POST', '/games',
+        return $this->actingAs($user)->json('POST', '/api/games',
             [
                 'title' => 'Game №' . ($lastGame->id + 1),
                 'count_x' => $this->count_x,
@@ -159,7 +159,7 @@ class GameTest extends TestCase
     private function boxClick(Game $game, UserColor $userColor, $x, $y)
     {
         return $this->actingAs($userColor->user)->json(
-            'POST', '/games/' . $game->id . '/base/box/clicked',
+            'POST', '/api/games/' . $game->id . '/base/box/clicked',
             [
                 'x' => $x,
                 'y' => $y,
@@ -297,7 +297,7 @@ class GameTest extends TestCase
         }
 
         return $this->actingAs($userColor->user)->json(
-            'POST', '/games/' . $game->id . '/base/user/answered',
+            'POST', '/api/games/' . $game->id . '/base/user/answered',
             [
                 'userAnswer' => $answer,
                 'userColorId' => $userColor->id,

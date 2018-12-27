@@ -27,12 +27,8 @@
                         </label>
                     </div>
                     <div class="form-group">
-                        <select class="selectpicker" multiple title="Выберите игроков..."
-                                v-model="users">
-                            <option :key="user.id" :value="user.id" v-for="user in initialUsers">
-                                {{ user.name }}
-                            </option>
-                        </select>
+                        <label>Выберите одного или двух игроков</label>
+                        <v-select v-model="users" value="id" label="name" multiple :options="initialUsers"/>
                     </div>
                     <div class="form-group text-center">
                         <button @click.prevent="createGame" class="btn btn-primary" type="submit">Создать</button>
@@ -58,12 +54,15 @@
             }
         },
 
+        computed: {
+
+        },
+
         mounted() {
 
         },
 
         methods: {
-
 
             createGame() {
                 if (this.users.length < 1 || this.users.length > 2) {
@@ -85,10 +84,10 @@
                     return;
                 }
 
-                axios.post('/games',
+                this.axios.post('/games',
                     {
                         title: this.title,
-                        users: this.users,
+                        users: this.users.map(u => u.id),
                         mode: this.mode,
                         count_x: this.count_x,
                         count_y: this.count_y
@@ -102,7 +101,6 @@
                     });
                 this.title = '';
                 this.users = [];
-                $('.selectpicker').selectpicker('deselectAll');
             }
         }
     }

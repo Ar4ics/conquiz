@@ -73,7 +73,7 @@
             submitMessage(message) {
                 this.chat_message = '';
                 console.log(message);
-                axios.post('/games/' + this.game_id + '/message', {message})
+                this.axios.post(`/games/${this.game_id}/message`, {message})
                     .then((response) => {
                         console.log(response);
                         if (response.data.error) {

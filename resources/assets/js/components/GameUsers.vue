@@ -26,31 +26,35 @@
                 'removeOfflineUser',
             ]),
 
+            connect() {
+                Echo.join('users')
+                    .here((users) => {
+                        console.log('users', users);
+                        this.setOnlineUsers(users);
+                        this.$notify({
+                            text: `Здесь ${users.length} человек`
+                        });
+                    })
+                    .joining((user) => {
+                        console.log('joining', user);
+                        this.addOnlineUser(user);
+                        this.$notify({
+                            text: `Зашел ${user.name}`
+                        });
+                    })
+                    .leaving((user) => {
+                        console.log('leaving', user);
+                        this.removeOfflineUser(user);
+                        this.$notify({
+                            text: `Вышел ${user.name}`
+                        });
+                    });
+            }
+
         },
         mounted() {
+            this.connect();
 
-            Echo.join('game_users.' + this.game_id)
-                .here((users) => {
-                    console.log('users', users);
-                    this.setOnlineUsers(users);
-                    this.$notify({
-                        text: `Здесь ${users.length} человек`
-                    });
-                })
-                .joining((user) => {
-                    console.log('joining', user);
-                    this.addOnlineUser(user);
-                    this.$notify({
-                        text: `Зашел ${user.name}`
-                    });
-                })
-                .leaving((user) => {
-                    console.log('leaving', user);
-                    this.removeOfflineUser(user);
-                    this.$notify({
-                        text: `Вышел ${user.name}`
-                    });
-                });
         }
     }
 </script>

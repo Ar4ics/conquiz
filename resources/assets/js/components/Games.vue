@@ -14,7 +14,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="watchGame(game.id)" v-for="(game, i) in orderedCurrentGames" :key="game.id">
+                    <tr @click="watchGame(game)" v-for="(game, i) in orderedCurrentGames" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
                         <td>{{ game.id }}</td>
                         <td>{{ game.title }}</td>
@@ -43,7 +43,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="watchGame(game.id)" v-for="(game, i) in finished_games" :key="game.id">
+                    <tr @click="watchGame(game)" v-for="(game, i) in finishedGames" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
                         <td>{{ game.title }}</td>
                         <td>{{ game.winner.user.name }}</td>
@@ -70,25 +70,20 @@
 
         data() {
             return {
-                current_games: [],
-                finished_games: []
+                games: this.initialGames
             }
         },
 
         computed: {
             orderedCurrentGames: function () {
-                return _.orderBy(this.current_games, ['end'], ['desc'])
+                return _.orderBy(this.games.filter(g => !g.winner_user_color_id), ['end'], ['desc'])
+            },
+            finishedGames: function () {
+                return this.games.filter(g => g.winner_user_color_id)
             }
         },
 
         mounted() {
-            this.current_games = this.initialGames.filter(g => !g.winner_user_color_id);
-            this.finished_games = this.initialGames.filter(g => g.winner_user_color_id);
-
-            // Bus.$on('groupCreated', (group) => {
-            //     this.groups.push(group);
-            // });
-
             this.listenForNewGames();
         },
 
@@ -101,11 +96,11 @@
                             text: `Игра №${e.game.id} создана`
                         });
                         e.game.user_colors = e.user_colors;
-                        this.current_games.push(e.game);
+                        this.games.push(e.game);
                     });
             },
             watchGame(game) {
-                window.location.href = '/games/' + game;
+                this.$router.push({name: 'game', params: {id: game.id}});
             }
 
         }

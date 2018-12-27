@@ -61,7 +61,6 @@ class Helpers
             ->where('question_id', $game->current_question_id)
             ->orderBy('user_questions.answered_at')
             ->get();
-        Log::debug($userQuestions);
         return $userQuestions;
     }
 

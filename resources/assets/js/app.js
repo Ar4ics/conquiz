@@ -4,12 +4,10 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-import _ from "lodash";
-
-require('./bootstrap');
-
+import _ from 'lodash';
 import Vue from 'vue'
 import Vuex from 'vuex';
+import vSelect from 'vue-select'
 import Notifications from 'vue-notification'
 import Game from './components/Game'
 import Games from './components/Games'
@@ -22,9 +20,103 @@ import GameField from './components/GameField'
 import GameQuestion from './components/GameQuestion'
 import GameMove from './components/GameMove'
 import GameResults from './components/GameResults'
+import VueRouter from 'vue-router'
+
+import App from './views/App'
+import VueAxios from 'vue-axios'
+import VueAuth from '@websanova/vue-auth'
+import axios from 'axios'
+import Login from './views/Login'
+import Register from './views/Register'
+import NotFound from './views/NotFound';
+import GamesView from './views/GamesView';
+import GameView from "./views/GameView";
+
+require('./bootstrap');
+
+Vue.use(VueAxios, axios);
+Vue.axios.defaults.baseURL = '/api';
+Vue.use(VueRouter);
+Vue.component('v-select', vSelect);
 
 Vue.use(Vuex);
 Vue.use(Notifications);
+
+const router = new VueRouter({
+    mode: 'history',
+    routes: [
+        {
+            path: '/',
+            name: 'home',
+            redirect: '/games'
+        },
+        {
+            path: '/games',
+            name: 'games',
+            component: GamesView,
+            meta: {
+                auth: true,
+                title: 'Игры'
+            }
+        },
+        {
+            path: '/games/:id',
+            name: 'game',
+            component: GameView,
+            meta: {
+                auth: true,
+                title: 'Игра'
+            }
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: Login,
+            meta: {
+                auth: false,
+                title: 'Авторизация'
+            }
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: Register,
+            meta: {
+                auth: false,
+                title: 'Регистрация'
+            }
+        },
+        {
+            path: '/404',
+            component: NotFound,
+            meta: {
+                title: '404 Не найдено'
+            }
+        },
+        {path: '*', redirect: '/404'},
+    ],
+});
+router.beforeEach((to, from, next) => {
+    document.title = to.meta.title;
+
+    next()
+});
+Vue.router = router;
+Vue.use(VueAuth, {
+    auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
+    http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
+    router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
+    googleOauth2Data: {
+        url: 'https://accounts.google.com/o/oauth2/auth',
+        params: {
+            redirect_uri: function () {
+                return this.options.getUrl() + '/login';
+            },
+            client_id: '1080513381768-bo5sbcs0n4qm6802ge5b3qansqdcjmlv.apps.googleusercontent.com',
+            scope: `openid email profile https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`
+        }
+    },
+});
 
 const store = new Vuex.Store({
     state: {
@@ -36,7 +128,7 @@ const store = new Vuex.Store({
         player: null,
         winner: null,
         question: null,
-        exact_question: null,
+        competitive_question: null,
         who_moves: null,
         field: null,
         results: null
@@ -56,14 +148,11 @@ const store = new Vuex.Store({
                     return `${c1.user.name} нападает на ${c2.user.name}`;
                 }
             }
-            if (state.results) {
-                return 'Результаты';
-            }
             return 'Захват территории';
         },
 
-        question_asked: state => {
-            return state.question || state.exact_question;
+        is_question_exists: state => {
+            return state.question || state.competitive_question
         },
 
         sorted_messages: state => {
@@ -110,12 +199,17 @@ const store = new Vuex.Store({
         setBase(state, base) {
             state.field[base.y].splice(base.x, 1, base);
         },
+
         setQuestion(state, question) {
-            state.question = question;
+            if (question) {
+                if (!question.answers) {
+                    state.competitive_question = question;
+                } else {
+                    state.question = question;
+                }
+            }
         },
-        setExactQuestion(state, exact_question) {
-            state.exact_question = exact_question;
-        },
+
         setWhoMoves(state, who_moves) {
             state.who_moves = who_moves;
         },
@@ -169,7 +263,6 @@ const store = new Vuex.Store({
             state.results.user_answers = user_answers;
             state.results.correct = payload.correct;
             state.results.is_exact = payload.is_exact;
-            Vue.set(state, 'competitive_box', null);
             const cb = payload.result_box;
             state.field[cb.y].splice(cb.x, 1, cb);
             const winner = payload.winner;
@@ -192,12 +285,16 @@ const store = new Vuex.Store({
             state.question = null;
         },
 
-        clearExactQuestion(state) {
-            state.exact_question = null;
+        clearCompetitiveQuestion(state) {
+            state.competitive_question = null;
         },
 
         clearResults(state) {
             state.results = null;
+        },
+
+        clearCompetitiveBox(state) {
+            Vue.set(state, 'competitive_box', null);
         },
 
         replaceBox(state, box) {
@@ -229,9 +326,26 @@ Vue.component('game-question', GameQuestion);
 Vue.component('game-move', GameMove);
 Vue.component('game-results', GameResults);
 
+Vue.component('games-view', GamesView);
+Vue.component('game-view', GameView);
 
 const app = new Vue({
     el: '#app',
-    store
+    components: {App},
+    store,
+    router,
+
+    watch: {
+        isAuthenticated() {
+            Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer ' + this.$auth.token();
+            Echo.connector.options.auth.headers['Authorization'] = 'Bearer ' + this.$auth.token();
+        }
+    },
+
+    computed: {
+        isAuthenticated() {
+            return this.$auth.check();
+        },
+    }
 });
 

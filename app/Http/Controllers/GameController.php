@@ -31,11 +31,11 @@ class GameController extends Controller
 
         $messages = GameMessage::whereGameId(0)->with('user')->orderBy('created_at')->get();
 
-        return view('games', [
-            'games' => json_encode($games),
-            'users' => json_encode($users),
-            'messages' => json_encode($messages),
-        ]);
+        return [
+            'games' => $games,
+            'users' => $users,
+            'messages' => $messages,
+        ];
     }
 
 
@@ -93,14 +93,15 @@ class GameController extends Controller
 
         broadcast(new GameCreated($game));
 
-        return response()->json(['game' => $game]);
+        return ['game' => $game];
     }
 
     public function getGame($id)
     {
         $game = Game::find($id);
         if (!$game) {
-            App:abort(404);
+            App:
+            abort(404);
         }
         $userColors = UserColor::whereGameId($game->id)->with([
             'user' => function (BelongsTo $q) {
@@ -124,10 +125,10 @@ class GameController extends Controller
                 $field[$y][] = [
                     'x' => $x,
                     'y' => $y,
-                    'color'=> 'white',
-                    'cost'=> 0,
-                    'user_color_id'=> null,
-                    'base'=> null
+                    'color' => 'white',
+                    'cost' => 0,
+                    'user_color_id' => null,
+                    'base' => null
                 ];
             }
         }
@@ -154,17 +155,17 @@ class GameController extends Controller
 
         $messages = GameMessage::whereGameId($game->id)->with('user')->orderBy('created_at')->get();
 
-        return view('game', [
-            'game' => json_encode($game),
-            'player' => json_encode($player),
-            'field' => json_encode($field),
-            'who_moves' => json_encode($whoMoves),
-            'question' => json_encode($question),
-            'user_colors' => json_encode($userColors),
-            'competitive_box' => json_encode($competitiveBox),
-            'winner' => json_encode($winner),
-            'messages' => json_encode($messages),
-        ]);
+        return [
+            'game' => $game,
+            'player' => $player,
+            'field' => $field,
+            'who_moves' => $whoMoves,
+            'question' => $question,
+            'user_colors' => $userColors,
+            'competitive_box' => $competitiveBox,
+            'winner' => $winner,
+            'messages' => $messages,
+        ];
     }
 
     public function boxClicked($id)

@@ -10,8 +10,33 @@ let mix = require('laravel-mix');
  | file for the application as well as bundling up all the JS files.
  |
  */
-mix.options({ uglify: { uglifyOptions: { compress: { drop_console: true, } } } });
-
+mix.options({
+    extractVueStyles: false,
+    processCssUrls: true,
+    terser: {
+        terserOptions: {
+            output: {
+                comments: false,
+            },
+            ecma: 5,
+            warnings: false,
+            parse: {},
+            compress: {},
+            mangle: true,
+            module: false,
+            toplevel: false,
+            nameCache: null,
+            ie8: true,
+            keep_classnames: undefined,
+            keep_fnames: false,
+            safari10: true,
+        },
+    },
+    purifyCss: false,
+    //purifyCss: {},
+    postCss: [require('autoprefixer')],
+    clearConsole: true
+});
 
 mix.autoload({
     jquery: ['jquery', 'jQuery', '$', 'window.jQuery'],

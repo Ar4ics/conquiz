@@ -1,5 +1,5 @@
 <template>
-    <div v-if="game && question_asked">
+    <div v-if="game && is_question_exists">
         <transition name="modal">
             <div class="modal-mask">
                 <div class="modal-wrapper">
@@ -12,33 +12,24 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <div class="text-center" v-if="question && game">
-                                    <div>
-                                        <p>{{ question.title }}</p>
-                                        <div class="a" v-if="question.answers">
-                                            <button
-                                                    :disabled="!player"
-                                                    v-bind:id="'a-' + i"
-                                                    :class="getClass(i)"
-                                                    v-for="(a, i) in question.answers"
-                                                    v-bind:key="i"
-                                                    v-on:click="answer(i)">
-                                                {{ a }}
-                                            </button>
-                                        </div>
+                                <div class="text-center">
+                                    <div v-if="competitive_question">
+                                        <p>{{ competitive_question.title }}</p>
+                                        <input :disabled="disabledIf()"
+                                               v-model.number="exact_answer" type="number" placeholder="Ответ"
+                                               class="form-control text-center"
+                                               @keyup.enter="answer(exact_answer)"/>
                                     </div>
-                                </div>
-
-                                <div class="text-center"
-                                     v-if="exact_question && game && (!results || results.is_exact)">
-                                    <div>
-                                        <p>{{ exact_question.title }}</p>
-                                        <div>
-                                            <input :disabled="!player"
-                                                   v-model.number="exact_answer" type="number" placeholder="Ответ"
-                                                   class="form-control text-center"
-                                                   @keyup.enter="answer(exact_answer)"/>
-                                        </div>
+                                    <div v-if="question" class="row">
+                                        <p class="col-12 text-center">{{ question.title }}</p>
+                                        <button class="col-12"
+                                                :disabled="disabledIf()"
+                                                :class="getClass(i)"
+                                                v-for="(a, i) in question.answers"
+                                                :key="i"
+                                                @click="answer(i)">
+                                            {{ a }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -69,16 +60,17 @@
         computed: {
             ...mapState([
                 'question',
-                'exact_question',
+                'competitive_question',
                 'player',
                 'results',
-                'game'
+                'game',
+                'competitive_box'
             ]),
 
 
             ...mapGetters([
                 'competition',
-                'question_asked',
+                'is_question_exists',
             ]),
         },
 
@@ -86,6 +78,13 @@
         },
 
         methods: {
+
+            disabledIf() {
+                return !this.player ||
+                    (this.competitive_box &&
+                        this.competitive_box.competitors.length > 0 &&
+                        !this.competitive_box.competitors.includes(this.player.id));
+            },
 
             ...mapMutations([
                 'clearQuestion',
@@ -103,7 +102,6 @@
 
             closeModal() {
                 this.clearQuestion();
-                this.clearExactQuestion();
             },
 
             answer(userAnswer) {
@@ -117,15 +115,15 @@
                 this.exact_answer = '';
                 const userColorId = this.player.id;
 
-                const questionId = this.question ? this.question.id : this.exact_question.id;
+                const questionId = this.question ? this.question.id : this.competitive_question.id;
 
-                let path = '/user/answered';
+                let path = 'user/answered';
 
                 if (this.game.mode === 'base_mode') {
-                    path = '/base/user/answered';
+                    path = 'base/user/answered';
                 }
 
-                axios.post('/games/' + this.game.id + path, {userAnswer, userColorId, questionId})
+                this.axios.post(`/games/${this.game.id}/${path}`, {userAnswer, userColorId, questionId})
                     .then((response) => {
                         if (response.data.hasOwnProperty('error')) {
                             this.$notify({
