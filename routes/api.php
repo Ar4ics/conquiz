@@ -14,10 +14,8 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['middleware' => ['auth:api']], function() {
-    Route::get('/games', 'GameController@index');
-    Route::post('/games', 'GameController@store');
-
-    Route::get('/games/{id}', 'GameController@getGame');
+    Route::resource('/games', 'GameController');
+    Route::resource('/games/{id}/message', 'GameMessageController');
 
     Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
     Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
@@ -25,7 +23,6 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/games/{id}/base/box/clicked', 'Game\BaseMode\GameController@boxClicked');
     Route::post('/games/{id}/base/user/answered', 'Game\BaseMode\GameController@userAnswered');
 
-    Route::resource('/games/{id}/message', 'GameMessageController');
 });
 
 Route::group(['prefix' => 'auth', 'namespace' => 'Auth'], function () {

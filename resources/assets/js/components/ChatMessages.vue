@@ -4,9 +4,9 @@
             <game-users :game_id="game_id"/>
         </div>
         <div ref="chat" class="chat-content">
-            <div v-for="(g, i) in sorted_messages" :key="i" class="list-group list-group-flush">
-                <span class="text-center sticky-top">{{ i }}</span>
-                <chat-message :chatMessage="m" v-for="m in g" :key="m.i"></chat-message>
+            <div v-for="(g, i) in messages" :key="i" class="list-group list-group-flush">
+                <span class="text-center sticky-top">{{ g.date }}</span>
+                <chat-message :chatMessage="m" v-for="m in g.messages" :key="m.i"></chat-message>
             </div>
         </div>
         <div class="card-footer mt-auto">
@@ -33,10 +33,10 @@
 </style>
 
 <script>
-    import {mapGetters, mapMutations} from 'vuex';
+    import {mapState, mapMutations} from 'vuex';
 
     export default {
-        props: ['game_id', 'messages'],
+        props: ['game_id', 'initialMessages'],
         data() {
             return {
                 chat_message: '',
@@ -45,14 +45,13 @@
 
         created() {
 
-            this.setGameMessages(this.messages);
+            this.setGameMessages(this.initialMessages);
 
             Echo.private('game.' + this.game_id)
                 .listen('GameMessageCreated', (e) => {
                     console.log('GameMessageCreated', e);
                     this.addGameMessage(e);
                 });
-
 
         },
 
@@ -62,8 +61,8 @@
 
         computed: {
 
-            ...mapGetters([
-                'sorted_messages',
+            ...mapState([
+                'messages',
             ]),
         },
 

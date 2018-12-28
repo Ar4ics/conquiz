@@ -5,7 +5,7 @@
             <form @submit.prevent="createGame">
                 <div class="form-group">
                     <label for="title">Название игры</label>
-                    <input class="form-control" id="title" required type="text" v-model="title">
+                    <input class="form-control" id="title" type="text" v-model="title">
                 </div>
                 <div class="form-group">
                     <label for="x">Длина поля по x</label>
@@ -68,12 +68,6 @@
                 if (this.users.length < 1 || this.users.length > 2) {
                     this.$notify({
                         text: 'Выберите одного или двух игроков'
-                    });
-                    return;
-                }
-                if (this.title.trim() === '') {
-                    this.$notify({
-                        text: 'Введите название игры'
                     });
                     return;
                 }

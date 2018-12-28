@@ -1,5 +1,5 @@
-window._ = require('lodash');
 import 'es6-promise/auto';
+window._ = require('lodash');
 
 /**
  * JQuery is nice but if the only reason to get it is bootstrap, better to have vanilla JS

@@ -4,7 +4,6 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-import _ from 'lodash';
 import Vue from 'vue'
 import Vuex from 'vuex';
 import vSelect from 'vue-select'
@@ -153,10 +152,6 @@ const store = new Vuex.Store({
 
         is_question_exists: state => {
             return state.question || state.competitive_question
-        },
-
-        sorted_messages: state => {
-            return _.groupBy(state.messages, 'date');
         }
     },
     mutations: {
@@ -166,7 +161,12 @@ const store = new Vuex.Store({
         },
 
         addGameMessage(state, message) {
-            state.messages.push(message);
+            const group = state.messages.find(m => m.date === message.date);
+            if (group) {
+                group.messages.push(message);
+            } else {
+                state.messages.push({date: message.date, messages: [message]});
+            }
         },
 
         setOnlineUsers(state, online_users) {

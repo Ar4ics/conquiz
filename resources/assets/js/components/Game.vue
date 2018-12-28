@@ -4,7 +4,7 @@
         <div class="row">
 
             <div class="col-12 order-1 col-md-6 order-md-0">
-                <chat-messages :messages="messages" :game_id="game.id"/>
+                <chat-messages :initial-messages="messages" :game_id="game.id"/>
             </div>
 
             <div class="col-12 order-0 col-md-6 order-md-1">

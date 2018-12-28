@@ -36,22 +36,21 @@
         },
 
         methods: {
-            load() {
-                this.axios.get(`/games/${this.$route.params.id}`)
-                    .then((response) => {
-                        console.log(response.data);
-                        this.game = response.data.game;
-                        this.player = response.data.player;
-                        this.field = response.data.field;
-                        this.who_moves = response.data.who_moves;
-                        this.question = response.data.question;
-                        this.competitive_box = response.data.competitive_box;
-                        this.user_colors = response.data.user_colors;
-                        this.winner = response.data.winner;
-                        this.messages = response.data.messages;
-                        document.title = this.game.title;
-                        this.loaded = true;
-                    });
+            async load() {
+                const response = await this.axios.get(`/games/${this.$route.params.id}`);
+                this.game = response.data.game;
+                this.player = response.data.player;
+                this.field = response.data.field;
+                this.who_moves = response.data.who_moves;
+                this.question = response.data.question;
+                this.competitive_box = response.data.competitive_box;
+                this.user_colors = response.data.user_colors;
+                this.winner = response.data.winner;
+                document.title = this.game.title;
+
+                const response2 = await this.axios.get(`/games/${this.$route.params.id}/message`);
+                this.messages = response2.data;
+                this.loaded = true;
             },
 
         }

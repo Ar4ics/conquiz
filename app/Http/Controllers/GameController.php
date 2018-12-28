@@ -27,24 +27,20 @@ class GameController extends Controller
     {
         $games = Game::with('user_colors.user')->with('winner.user')->orderBy('updated_at', 'desc')->get();
 
-        $users = User::where('id', '<>', Auth::user()->id)->get();
-
-        $messages = GameMessage::whereGameId(0)->with('user')->orderBy('created_at')->get();
+        $users = User::where('id', '<>', Auth::id())->get();
 
         return [
             'games' => $games,
             'users' => $users,
-            'messages' => $messages,
         ];
     }
-
 
     public function store(Request $request)
     {
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'title' => 'required|string',
+            'title' => 'nullable|string',
             'count_x' => 'required|integer|between:2,12',
             'count_y' => 'required|integer|between:2,12',
             'mode' => 'required|string|in:classic,base_mode',
@@ -57,6 +53,11 @@ class GameController extends Controller
             return [
                 'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
             ];
+        }
+
+        if (!$data['title'] || (trim($data['title']) === '')) {
+            $lastGame = Game::orderBy('created_at', 'desc')->first();
+            $data['title'] = 'Game №' . ($lastGame ? ($lastGame->id + 1) : 1);
         }
 
         if ($data['mode'] === 'classic') {
@@ -96,7 +97,7 @@ class GameController extends Controller
         return ['game' => $game];
     }
 
-    public function getGame($id)
+    public function show($id)
     {
         $game = Game::find($id);
         if (!$game) {
@@ -153,8 +154,6 @@ class GameController extends Controller
 
         $question = Question::find($game->current_question_id);
 
-        $messages = GameMessage::whereGameId($game->id)->with('user')->orderBy('created_at')->get();
-
         return [
             'game' => $game,
             'player' => $player,
@@ -163,8 +162,7 @@ class GameController extends Controller
             'question' => $question,
             'user_colors' => $userColors,
             'competitive_box' => $competitiveBox,
-            'winner' => $winner,
-            'messages' => $messages,
+            'winner' => $winner
         ];
     }
 

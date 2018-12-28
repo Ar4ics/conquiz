@@ -2,7 +2,7 @@
     <div class="container" v-if="loaded">
         <div class="row no-gutters">
             <div class="col-12 col-md-6">
-                <chat-messages :game_id="0" :messages="messages"></chat-messages>
+                <chat-messages :game_id="0" :initial-messages="messages"></chat-messages>
             </div>
             <div class="col-12 col-md-6">
                 <create-game :initial-users="users"></create-game>
@@ -36,15 +36,14 @@
         },
 
         methods: {
-            load() {
-                this.axios.get('/games')
-                    .then((response) => {
-                        console.log(response.data);
-                        this.messages = response.data.messages;
-                        this.users = response.data.users;
-                        this.games = response.data.games;
-                        this.loaded = true;
-                    });
+            async load() {
+                const response = await this.axios.get('/games');
+                this.users = response.data.users;
+                this.games = response.data.games;
+
+                const response2 = await this.axios.get('/games/0/message');
+                this.messages = response2.data;
+                this.loaded = true;
             },
 
         }

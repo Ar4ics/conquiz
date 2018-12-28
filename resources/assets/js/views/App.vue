@@ -37,8 +37,12 @@
                 </ul>
                 <div v-if="!$auth.check()">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><router-link class="nav-link" :to="{name: 'login'}">Вход</router-link></li>
-                        <li class="nav-item"><router-link class="nav-link" :to="{name: 'register'}">Регистрация</router-link></li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{name: 'login'}">Вход</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{name: 'register'}">Регистрация</router-link>
+                        </li>
                     </ul>
                 </div>
                 <div v-else>

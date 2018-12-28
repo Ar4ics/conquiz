@@ -7,13 +7,18 @@ use App\Events\GameMessageCreated;
 use App\GameMessage;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Validator;
 
 class GameMessageController extends Controller
 {
     public function index($gameId)
     {
-        $messages = GameMessage::whereGameId($gameId)->with('user')->orderBy('created_at')->get();
+        $messages = GameMessage::whereGameId($gameId)->with('user')->orderBy('created_at')->get()
+            ->groupBy('date')
+            ->map(function (Collection $collection, $key) {
+                return ['date' => $key, 'messages' => $collection];
+            })->values();
         return $messages;
     }
 
