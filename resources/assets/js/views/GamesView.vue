@@ -1,6 +1,6 @@
 <template>
     <div class="container" v-if="loaded">
-        <div class="row">
+        <div class="row no-gutters">
             <div class="col-12 col-md-6">
                 <chat-messages :game_id="0" :messages="messages"></chat-messages>
             </div>
@@ -9,11 +9,15 @@
             </div>
         </div>
 
-        <div class="row">
+        <div>
             <games :initial-games="games" :user="$auth.user()"></games>
         </div>
     </div>
 </template>
+
+<style scoped>
+
+</style>
 
 <script>
     export default {
@@ -27,7 +31,7 @@
             }
         },
 
-        mounted() {
+        created() {
             this.load();
         },
 

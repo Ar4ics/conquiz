@@ -1,6 +1,6 @@
 <template>
     <div class="card" v-if="game && field">
-        <p class="card-header text-center">{{ game.title }}</p>
+        <span class="card-header text-center">{{ game.title }}</span>
         <div class="row no-gutters" v-for="(col, y) in field" :key="y">
             <div class="box" :class="'col-' + game.count_col" :style="{backgroundColor: box.color}"
                  v-for="(box, x) in col" :key="x"

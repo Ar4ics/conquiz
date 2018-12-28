@@ -31,7 +31,7 @@
             }
         },
 
-        mounted() {
+        created() {
             this.load();
         },
 

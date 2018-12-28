@@ -1,10 +1,10 @@
 <template>
-    <div class="text-center">
-        <span >Онлайн: </span>
+    <span>
+        <span>Онлайн: </span>
         <span v-for="(u, i) in online_users" :key="i.id">
             {{ u.name }}
         </span>
-    </div>
+    </span>
 </template>
 
 <script>
@@ -19,6 +19,14 @@
             ]),
         },
 
+        created() {
+            this.connect();
+        },
+
+        beforeDestroy() {
+            Echo.leave('users.' + this.game_id);
+        },
+
         methods: {
             ...mapMutations([
                 'setOnlineUsers',
@@ -27,7 +35,7 @@
             ]),
 
             connect() {
-                Echo.join('users')
+                Echo.join('users.' + this.game_id)
                     .here((users) => {
                         console.log('users', users);
                         this.setOnlineUsers(users);
@@ -52,10 +60,7 @@
             }
 
         },
-        mounted() {
-            this.connect();
 
-        }
     }
 </script>
 

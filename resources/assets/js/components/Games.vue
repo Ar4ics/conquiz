@@ -1,13 +1,15 @@
 <template>
-    <div class="container">
-        <div class="card">
-            <div class="card-header text-center">Текущие игры</div>
+    <div class="row no-gutters text-center">
+        <div class="card col-12 col-md-6">
+            <div class="card-header">Текущие игры</div>
             <div class="card-body">
+                <div class="table-responsive">
+
                 <table class="table table-hover table-bordered">
                     <thead class="thead-light">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Игра</th>
+                        <th scope="col">№</th>
                         <th scope="col">Название</th>
                         <th scope="col">Игроки</th>
                         <th scope="col">Дата</th>
@@ -23,21 +25,24 @@
                                 {{ uc.user.name }}
                             </span>
                         </td>
-                        <td>{{ game.start }} - {{ game.end }}</td>
+                        <td>{{ game.date }}</td>
                     </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card col-12 col-md-6">
             <div class="card-header text-center">Завершенные игры</div>
             <div class="card-body">
+                <div class="table-responsive">
+
                 <table class="table table-hover table-bordered">
                     <thead class="thead-light">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Комната</th>
+                        <th scope="col">№</th>
                         <th scope="col">Победитель</th>
                         <th scope="col">Дата</th>
                     </tr>
@@ -45,12 +50,13 @@
                     <tbody>
                     <tr @click="watchGame(game)" v-for="(game, i) in finishedGames" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
-                        <td>{{ game.title }}</td>
+                        <td>{{ game.id }}</td>
                         <td>{{ game.winner.user.name }}</td>
-                        <td>{{ game.start }} - {{ game.end }}</td>
+                        <td>{{ game.date }}</td>
                     </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -83,8 +89,12 @@
             }
         },
 
-        mounted() {
+        created() {
             this.listenForNewGames();
+        },
+
+        beforeDestroy() {
+            Echo.leave('games');
         },
 
         methods: {
@@ -95,7 +105,6 @@
                         this.$notify({
                             text: `Игра №${e.game.id} создана`
                         });
-                        e.game.user_colors = e.user_colors;
                         this.games.push(e.game);
                     });
             },

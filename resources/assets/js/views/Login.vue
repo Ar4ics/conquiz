@@ -55,7 +55,7 @@
             }
         },
 
-        mounted() {
+        created() {
             if (this.$route.query.code) {
                 this.$auth.oauth2({
                     code: true,

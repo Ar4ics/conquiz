@@ -22,6 +22,6 @@ Broadcast::channel('games', function ($user) {
     return true;
 });
 
-Broadcast::channel('users', function ($user) {
+Broadcast::channel('users.{game}', function ($user, $game) {
     return $user;
 });

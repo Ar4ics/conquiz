@@ -162,11 +162,27 @@ const store = new Vuex.Store({
     mutations: {
 
         setGameMessages(state, messages) {
-            state.messages = messages;
+            Vue.set(state, 'messages', messages);
         },
 
         addGameMessage(state, message) {
             state.messages.push(message);
+        },
+
+        setOnlineUsers(state, online_users) {
+            Vue.set(state, 'online_users', online_users);
+        },
+
+        addOnlineUser(state, user) {
+            state.online_users.push(user);
+        },
+
+        removeOfflineUser(state, user) {
+            state.online_users = state.online_users.filter(o => o.id !== user.id);
+        },
+
+        setUserColors(state, user_colors) {
+            Vue.set(state, 'user_colors', user_colors);
         },
 
         setGame(state, game) {
@@ -192,8 +208,11 @@ const store = new Vuex.Store({
             }
         },
 
-        setUserColors(state, user_colors) {
-            Vue.set(state, 'user_colors', user_colors);
+        replaceBox(state, box) {
+            if (!state.field) {
+                throw new Error('boxes is null');
+            }
+            state.field[box.y].splice(box.x, 1, box);
         },
 
         setBase(state, base) {
@@ -204,9 +223,14 @@ const store = new Vuex.Store({
             if (question) {
                 if (!question.answers) {
                     state.competitive_question = question;
+                    state.question = null;
                 } else {
                     state.question = question;
+                    state.competitive_question = null;
                 }
+            } else {
+                state.question = null;
+                state.competitive_question = null;
             }
         },
 
@@ -215,15 +239,6 @@ const store = new Vuex.Store({
         },
         setWinner(state, winner) {
             state.winner = winner;
-        },
-        setOnlineUsers(state, online_users) {
-            state.online_users = online_users;
-        },
-        addOnlineUser(state, user) {
-            state.online_users.push(user);
-        },
-        removeOfflineUser(state, user) {
-            state.online_users = state.online_users.filter(o => o.id !== user.id);
         },
 
         setAnswers(state, payload) {
@@ -297,12 +312,6 @@ const store = new Vuex.Store({
             Vue.set(state, 'competitive_box', null);
         },
 
-        replaceBox(state, box) {
-            if (!state.field) {
-                throw new Error('boxes is null');
-            }
-            state.field[box.y].splice(box.x, 1, box);
-        },
     }
 });
 

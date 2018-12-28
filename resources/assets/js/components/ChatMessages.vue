@@ -1,15 +1,15 @@
 <template>
-    <div class="card">
-        <h6 class="card-header text-center">
+    <div class="card chat-header">
+        <div class="card-header text-center">
             <game-users :game_id="game_id"/>
-        </h6>
+        </div>
         <div ref="chat" class="chat-content">
             <div v-for="(g, i) in sorted_messages" :key="i" class="list-group list-group-flush">
                 <span class="text-center sticky-top">{{ i }}</span>
                 <chat-message :chatMessage="m" v-for="m in g" :key="m.i"></chat-message>
             </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer mt-auto">
             <input v-model="chat_message" type="text" placeholder="Сообщение" class="form-control"
                    @keyup.enter="submitMessage(chat_message)"/>
         </div>
@@ -17,9 +17,12 @@
 </template>
 
 <style>
+    .chat-header {
+        height: 550px;
+    }
+
     .chat-content {
         overflow-y: scroll;
-        height: 400px;
     }
 
     ::-webkit-scrollbar {
@@ -39,7 +42,8 @@
                 chat_message: '',
             }
         },
-        mounted() {
+
+        created() {
 
             this.setGameMessages(this.messages);
 
@@ -52,6 +56,10 @@
 
         },
 
+        beforeDestroy() {
+            Echo.leave('game.' + this.game_id);
+        },
+
         computed: {
 
             ...mapGetters([
@@ -59,8 +67,12 @@
             ]),
         },
 
+        mounted() {
+            this.scrollToEnd();
+        },
+
         updated() {
-            this.$nextTick(() => this.scrollToEnd());
+            this.scrollToEnd();
         },
 
         methods: {

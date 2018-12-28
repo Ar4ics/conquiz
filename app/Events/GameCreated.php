@@ -17,12 +17,10 @@ class GameCreated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $game;
-    public $user_colors;
 
     public function __construct(Game $game)
     {
-        $this->game = $game;
-        $this->user_colors = UserColor::with('user')->whereGameId($game->id)->get()->toArray();
+        $this->game = Game::with('user_colors.user')->find($game->id)->toArray();
     }
 
     /**
@@ -38,8 +36,7 @@ class GameCreated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'game' => $this->game,
-            'user_colors' => $this->user_colors
+            'game' => $this->game
         ];
     }
 }

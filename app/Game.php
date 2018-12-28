@@ -80,7 +80,12 @@ class Game extends Model
     ];
     protected $hidden = ['created_at', 'updated_at'];
 
-    protected $appends = ['start', 'end'];
+    protected $appends = ['date', 'end'];
+
+    public function getDateAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
 
     public function getStartAttribute()
     {
@@ -92,18 +97,18 @@ class Game extends Model
         return $this->getLocalTime($this->updated_at);
     }
 
+    private function getLocalTime(Carbon $time) {
+        return Carbon::createFromTimestamp($time->timestamp)
+            ->timezone('Asia/Yekaterinburg')
+            ->toDateTimeString();
+    }
+
     public function setQuestionedAtAttribute(Carbon $value) {
         $this->attributes['questioned_at'] = $value->format('Y-m-d H:i:s.u');
     }
 
     public function getQuestionedAtAttribute($value) {
         return Carbon::parse($value);
-    }
-
-    private function getLocalTime(Carbon $time) {
-        return Carbon::createFromTimestamp($time->timestamp)
-            ->timezone('Asia/Yekaterinburg')
-            ->toDateTimeString();
     }
 
     public function user_colors()

@@ -24,6 +24,7 @@
 
 <style scoped>
 
+
 </style>
 
 <script>
@@ -41,16 +42,21 @@
             this.setCompetitiveBox(this.competitiveBox);
             this.setUserColors(this.userColors);
             this.setWinner(this.winner);
+            this.listenForEvents();
         },
 
         mounted() {
-            this.listenForEvents();
             if (!this.player) {
                 this.$notify({
                     text: 'Вы зашли как гость'
                 });
             }
         },
+
+        beforeDestroy() {
+            Echo.leave('game.' + this.game.id);
+        },
+
         methods: {
             ...mapMutations([
                 'setGame',

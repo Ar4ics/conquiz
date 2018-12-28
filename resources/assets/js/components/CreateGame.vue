@@ -1,44 +1,46 @@
 <template>
-    <div>
-        <div class="card">
-            <div class="card-header text-center">Создание игровой комнаты</div>
-            <div class="card-body">
-                <form>
-                    <div class="form-group">
-                        <label for="title">Название игры</label>
-                        <input class="form-control" id="title" required type="text" v-model="title">
-                    </div>
-                    <div class="form-group">
-                        <label for="x">Длина поля по x</label>
-                        <input class="form-control" id="x" max="4" min="2" type="number" v-model="count_x"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="y">Длина поля по y</label>
-                        <input class="form-control" id="y" max="4" min="2" type="number" v-model="count_y"/>
-                    </div>
-                    <div class="form-group">
-                        <label>Игровой режим</label><br>
-                        <label>
-                            <input disabled type="radio" value="classic" v-model="mode">Классический
-                        </label>
+    <div class="card make-game">
+        <div class="card-header text-center">Создание игры</div>
+        <div class="card-body">
+            <form @submit.prevent="createGame">
+                <div class="form-group">
+                    <label for="title">Название игры</label>
+                    <input class="form-control" id="title" required type="text" v-model="title">
+                </div>
+                <div class="form-group">
+                    <label for="x">Длина поля по x</label>
+                    <input class="form-control" id="x" max="4" min="2" type="number" v-model="count_x"/>
+                </div>
+                <div class="form-group">
+                    <label for="y">Длина поля по y</label>
+                    <input class="form-control" id="y" max="4" min="2" type="number" v-model="count_y"/>
+                </div>
+                <div class="form-group">
+                    <label>Игровой режим</label><br>
+                    <label>
+                        <input disabled type="radio" value="classic" v-model="mode">Классический
+                    </label>
 
-                        <label>
-                            <input type="radio" value="base_mode" v-model="mode">Захват базы
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Выберите одного или двух игроков</label>
-                        <v-select v-model="users" value="id" label="name" multiple :options="initialUsers"/>
-                    </div>
-                    <div class="form-group text-center">
-                        <button @click.prevent="createGame" class="btn btn-primary" type="submit">Создать</button>
-                    </div>
-                </form>
-            </div>
+                    <label>
+                        <input type="radio" value="base_mode" v-model="mode">Захват базы
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Выберите одного или двух игроков</label>
+                    <v-select v-model="users" value="id" label="name" multiple :options="initialUsers"/>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">Создать</button>
+                </div>
+            </form>
         </div>
     </div>
 </template>
-
+<style scoped>
+    .make-game {
+        height: 550px;
+    }
+</style>
 <script>
 
     export default {
@@ -54,9 +56,7 @@
             }
         },
 
-        computed: {
-
-        },
+        computed: {},
 
         mounted() {
 
