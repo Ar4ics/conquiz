@@ -42,7 +42,6 @@
             this.setCompetitiveBox(this.competitiveBox);
             this.setUserColors(this.userColors);
             this.setWinner(this.winner);
-            this.listenForEvents();
         },
 
         mounted() {
@@ -51,6 +50,7 @@
                     text: 'Вы зашли как гость'
                 });
             }
+            this.listenForEvents();
         },
 
         beforeDestroy() {
@@ -77,7 +77,9 @@
                 'setCompetitiveCorrectAnswers',
                 'setCompetitiveAnswers',
                 'replaceBox',
+                'setAnswered'
             ]),
+
             listenForEvents() {
 
                 Echo.private('game.' + this.game.id)
@@ -107,6 +109,7 @@
                         setTimeout(() => {
                             this.clearQuestion();
                             this.clearResults();
+                            this.setAnswered(false);
                         }, 6000);
                     });
 
@@ -128,10 +131,12 @@
                                 this.clearCompetitiveQuestion();
                                 this.clearCompetitiveBox();
                                 this.clearResults();
+                                this.setAnswered(false);
                             }, 6000);
                         })
                         .listen('CorrectAnswers', (e) => {
                             console.log('correct answers', e);
+                            this.setAnswered(false);
                             this.setCompetitiveCorrectAnswers(e);
                             setTimeout(() => {
                                 this.clearQuestion();

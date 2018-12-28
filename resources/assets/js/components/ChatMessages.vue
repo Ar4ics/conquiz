@@ -44,15 +44,20 @@
         },
 
         created() {
-
             this.setGameMessages(this.initialMessages);
+        },
 
+        mounted() {
+            this.scrollToEnd();
             Echo.private('game.' + this.game_id)
                 .listen('GameMessageCreated', (e) => {
                     console.log('GameMessageCreated', e);
                     this.addGameMessage(e);
                 });
+        },
 
+        updated() {
+            this.scrollToEnd();
         },
 
         beforeDestroy() {
@@ -66,13 +71,7 @@
             ]),
         },
 
-        mounted() {
-            this.scrollToEnd();
-        },
 
-        updated() {
-            this.scrollToEnd();
-        },
 
         methods: {
 

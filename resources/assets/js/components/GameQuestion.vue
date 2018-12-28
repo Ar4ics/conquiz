@@ -53,7 +53,7 @@
 
         data() {
             return {
-                exact_answer: ''
+                exact_answer: '',
             }
         },
 
@@ -64,7 +64,8 @@
                 'player',
                 'results',
                 'game',
-                'competitive_box'
+                'competitive_box',
+                'is_answered'
             ]),
 
 
@@ -80,15 +81,16 @@
         methods: {
 
             disabledIf() {
-                return !this.player ||
+                return !this.player || this.is_answered ||
                     (this.competitive_box &&
                         this.competitive_box.competitors.length > 0 &&
                         !this.competitive_box.competitors.includes(this.player.id));
             },
 
             ...mapMutations([
+                'setAnswered',
                 'clearQuestion',
-                'clearExactQuestion',
+                'clearCompetitiveQuestion',
             ]),
 
             getClass(i) {
@@ -102,6 +104,7 @@
 
             closeModal() {
                 this.clearQuestion();
+                this.clearCompetitiveQuestion();
             },
 
             answer(userAnswer) {
@@ -113,8 +116,9 @@
                     return;
                 }
                 this.exact_answer = '';
-                const userColorId = this.player.id;
+                this.setAnswered(true);
 
+                const userColorId = this.player.id;
                 const questionId = this.question ? this.question.id : this.competitive_question.id;
 
                 let path = 'user/answered';

@@ -40,7 +40,7 @@ class GameController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'title' => 'nullable|string',
+            'title' => 'nullable|string|max:30',
             'count_x' => 'required|integer|between:2,12',
             'count_y' => 'required|integer|between:2,12',
             'mode' => 'required|string|in:classic,base_mode',
@@ -55,9 +55,11 @@ class GameController extends Controller
             ];
         }
 
-        if (!$data['title'] || (trim($data['title']) === '')) {
+        if (!array_key_exists('title', $data) || !$data['title'] || (trim($data['title']) === '')) {
             $lastGame = Game::orderBy('created_at', 'desc')->first();
             $data['title'] = 'Game №' . ($lastGame ? ($lastGame->id + 1) : 1);
+        } else {
+            $data['title'] = trim($data['title']);
         }
 
         if ($data['mode'] === 'classic') {

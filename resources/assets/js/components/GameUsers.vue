@@ -19,8 +19,8 @@
             ]),
         },
 
-        created() {
-            this.connect();
+        mounted() {
+            this.listen();
         },
 
         beforeDestroy() {
@@ -34,7 +34,7 @@
                 'removeOfflineUser',
             ]),
 
-            connect() {
+            listen() {
                 Echo.join('users.' + this.game_id)
                     .here((users) => {
                         console.log('users', users);

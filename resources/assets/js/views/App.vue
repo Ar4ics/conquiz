@@ -1,7 +1,7 @@
 <template>
     <div v-if="$auth.ready()" style="padding-top: 3.5rem;">
         <notifications
-                :duration="5000"
+                :duration="3000"
                 animation-name="v-fade-left"
                 position="top left">
             <template slot="body" slot-scope="props">
@@ -54,7 +54,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" href="#"
-                                   @click.prevent="logout()">
+                                   @click="logout">
                                     Выйти
                                 </a>
                             </div>
