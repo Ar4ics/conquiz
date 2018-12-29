@@ -202,8 +202,10 @@ class Game extends Model
     public function baseModeWinnerFound() {
         $winners = $this->user_colors()->where('had_lost', false)->get();
         if ($winners->count() === 1) {
-            $this->winner_user_color_id = $winners->first()->id;
-            $this->current_question_id = null;
+            $winner = UserColor::find($winners->first()->id);
+            $winner->place = 1;
+            $winner->save();
+            $this->winner_user_color_id = $winner->id;
             $this->is_finished = true;
             return true;
         }

@@ -22,7 +22,7 @@ class UserColorsChanged implements ShouldBroadcast
     public function __construct($game_id)
     {
         $this->userColors = UserColor::with('user')
-            ->whereGameId($game_id)->orderBy('score', 'desc')->get()->toArray();
+            ->whereGameId($game_id)->orderByDesc('score')->orderBy('place')->get()->toArray();
         $this->game_id = $game_id;
 
     }

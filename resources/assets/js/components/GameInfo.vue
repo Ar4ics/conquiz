@@ -2,8 +2,17 @@
     <div class="card" v-if="game && user_colors">
         <div class="card-body">
             <div class="row no-gutters" v-for="(u, i) in user_colors" :key="i.id">
-                <div class="col-8 col-md-10">{{ u.user.name }} {{ u.had_lost ? ' проиграл' : ''}}</div>
-                <div class="col-4 col-md-2 player-square" :style="{ backgroundColor: u.color }">{{ u.score }}</div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-8">
+                            {{ u.user.name }}
+                        </div>
+                        <div class="col-4 text-center">
+                            <div v-if="u.place">{{ u.place }} место</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2 player-square" :style="{ backgroundColor: u.color }">{{ u.score }}</div>
             </div>
         </div>
     </div>

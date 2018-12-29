@@ -213,18 +213,19 @@ class Stage4Controller
             ];
         }
 
+        $game->current_question_id = null;
+
         broadcast(new CompetitiveAnswerResults($results, $targetBox, $question->correct, $question->is_exact_answer, $winnerUserColor, $game->id));
-        broadcast(new UserColorsChanged($game->id));
         if ($game->baseModeWinnerFound()) {
             $game->save();
+
             $winner = UserColor::with('user')->find($game->winner_user_color_id);
+            broadcast(new UserColorsChanged($game->id));
             broadcast(new WinnerFound($winner, $game->id));
 
             return response()->json(['winner' => $winner]);
 
         } else {
-            $game->current_question_id = null;
-
             $who_moves = $game->getMovingUserColor();
             if (!$who_moves) {
                 $game->shuffleUserColors();
@@ -239,6 +240,7 @@ class Stage4Controller
 
             $game->save();
 
+            broadcast(new UserColorsChanged($game->id));
             broadcast(new WhoMoves($who_moves, $game->id));
 
             return response()->json(['who_moves' => $who_moves]);

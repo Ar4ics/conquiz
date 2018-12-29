@@ -26,7 +26,7 @@
                     </label>
                 </div>
                 <div class="form-group">
-                    <label>Выберите одного или двух игроков</label>
+                    <label>Выберите от 1 до 3 игроков</label>
                     <v-select v-model="users" value="id" label="name" multiple :options="initialUsers"/>
                 </div>
                 <div class="form-group text-center">
@@ -49,8 +49,8 @@
         data() {
             return {
                 title: '',
-                count_x: 2,
-                count_y: 2,
+                count_x: 3,
+                count_y: 3,
                 mode: 'base_mode',
                 users: []
             }
@@ -65,9 +65,9 @@
         methods: {
 
             createGame() {
-                if (this.users.length < 1 || this.users.length > 2) {
+                if (this.users.length < 1 || this.users.length > 3) {
                     this.$notify({
-                        text: 'Выберите одного или двух игроков'
+                        text: 'Выберите от 1 до 3 игроков'
                     });
                     return;
                 }

@@ -180,8 +180,12 @@ class Helpers
                 $lossUserColor->base_guards_count -= 1;
 
                 if ($lossUserColor->base_guards_count === 0) {
-                    $lossUserColor->had_lost = true;
 
+                    $players = $game->user_colors;
+                    $lostPlayersCount = $players->where('had_lost', true)->count();
+                    $lossUserColor->place = $players->count() - $lostPlayersCount;
+
+                    $lossUserColor->had_lost = true;
 
                     $lostUserBoxes = Box::whereUserColorId($lossUserColor->id)->get();
 
@@ -196,6 +200,7 @@ class Helpers
                     $targetBox['loss_user_color_id'] = $lossUserColor->id;
 
                     $lossUserColor->save();
+
 
                     $game->shuffleUserColors();
 

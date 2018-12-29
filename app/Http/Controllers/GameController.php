@@ -40,13 +40,13 @@ class GameController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'title' => 'nullable|string|max:30',
-            'count_x' => 'required|integer|between:2,12',
-            'count_y' => 'required|integer|between:2,12',
-            'mode' => 'required|string|in:classic,base_mode',
+            'title' => 'nullable|string|max:20',
+            'count_x' => 'required|integer|between:3,12',
+            'count_y' => 'required|integer|between:3,12',
+            'mode' => 'nullable|string|in:classic,base_mode',
             'duration' => 'nullable|integer',
-            'users' => 'required|array',
-            'users.*' => 'integer'
+            'users' => 'required|array|between:1,3',
+            'users.*' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
@@ -62,6 +62,10 @@ class GameController extends Controller
             $data['title'] = trim($data['title']);
         }
 
+        if (!array_key_exists('mode', $data)) {
+            $data['mode'] = 'base_mode';
+        }
+
         if ($data['mode'] === 'classic') {
             $data['next_question_id'] = Question::whereIsHidden(false)
                 ->whereIsExactAnswer(false)
@@ -72,15 +76,9 @@ class GameController extends Controller
         $data['stage'] = Constants::GAME_STAGE_1;
         $game = Game::create($data);
 
-        $colors = ['LightPink', 'LightGreen', 'LightBlue'];
+        $colors = ['LightPink', 'LightGreen', 'LightBlue', '#FFFF99'];
         $users = collect($data['users']);
         $users->prepend(Auth::user()->id);
-
-        if ($users->count() > count($colors) || $users->count() < 2) {
-            return [
-                'error' => ErrorConstants::GAME_VALIDATION_ERRORS,
-            ];
-        }
 
         for ($i = 0; $i < $users->count(); $i++) {
             UserColor::create([
@@ -112,7 +110,7 @@ class GameController extends Controller
             },
             'base' => function (BelongsTo $q) {
                 $q->select(['id', 'x', 'y']);
-            }])->orderBy('score', 'desc')->get();
+            }])->orderByDesc('score')->orderBy('place')->get();
 
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color', 'user_color_id', 'cost']);

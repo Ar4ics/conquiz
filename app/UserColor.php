@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $had_lost
  * @property int|null $base_box_id
  * @property int|null $base_guards_count
+ * @property int|null $place
  * @property-read \App\Box|null $base
  * @property-read \App\Game $game
  * @property-read \App\User $user
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereHadLost($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereHasAnswered($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor wherePlace($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereScore($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\UserColor whereUserId($value)
