@@ -43,6 +43,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">№</th>
+                        <th scope="col">Название</th>
                         <th scope="col">Победитель</th>
                         <th scope="col">Дата</th>
                     </tr>
@@ -51,6 +52,7 @@
                     <tr @click="watchGame(game)" v-for="(game, i) in finishedGames" :key="game.id">
                         <th scope="row">{{ i + 1}}</th>
                         <td>{{ game.id }}</td>
+                        <td>{{ game.title }}</td>
                         <td>{{ game.winner.user.name }}</td>
                         <td>{{ game.date }}</td>
                     </tr>
