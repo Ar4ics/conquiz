@@ -7,7 +7,8 @@ if (env('APP_ENV') === 'local' || env('APP_ENV') === 'testing') {
     $password = env('DB_PASSWORD', '');
 }
 else {
-    $url = parse_url(getenv('HEROKU_POSTGRESQL_AQUA_URL'));
+    $db = getenv('DB_URL');
+    $url = parse_url(getenv($db));
     $host = $url['host'];
     $database = substr($url['path'], 1);    
     $username = $url['user'];
