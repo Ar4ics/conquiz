@@ -27,7 +27,7 @@ class NewQuestion implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game_id);
+        return new Channel('game.' . $this->game_id);
     }
 
     public function broadcastWith()
@@ -36,6 +36,7 @@ class NewQuestion implements ShouldBroadcast
             'id' => $this->question->id,
             'title' => $this->question->title,
             'answers' => $this->question->answers,
+            'is_exact_answer' => false
         ];
     }
 }

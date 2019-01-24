@@ -101,7 +101,7 @@
 
         methods: {
             listenForNewGames() {
-                Echo.private('games')
+                Echo.channel('games')
                     .listen('GameCreated', (e) => {
                         console.log(e);
                         this.$notify({

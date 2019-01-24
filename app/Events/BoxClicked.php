@@ -25,7 +25,7 @@ class BoxClicked implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->box->game_id);
+        return new Channel('game.' . $this->box->game_id);
     }
 
     public function broadcastWith()
@@ -34,9 +34,9 @@ class BoxClicked implements ShouldBroadcast
             'x' => $this->box->x,
             'y' => $this->box->y,
             'color' => $this->box->user_color->color,
-            'base_guards_count' => 0,
             'cost' => $this->box->cost,
             'user_color_id' => $this->box->user_color_id,
+            'base' => null
         ];
     }
 }

@@ -49,7 +49,7 @@
 
         mounted() {
             this.scrollToEnd();
-            Echo.private('game.' + this.game_id)
+            Echo.channel('game.' + this.game_id)
                 .listen('GameMessageCreated', (e) => {
                     console.log('GameMessageCreated', e);
                     this.addGameMessage(e);

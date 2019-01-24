@@ -26,7 +26,7 @@ class WhoAttack implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game_id);
+        return new Channel('game.' . $this->game_id);
     }
 
     public function broadcastWith()

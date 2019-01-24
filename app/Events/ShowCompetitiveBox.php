@@ -30,7 +30,7 @@ class ShowCompetitiveBox implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->id);
+        return new Channel('game.' . $this->id);
     }
 
     public function broadcastWith()

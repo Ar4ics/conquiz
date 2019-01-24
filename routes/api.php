@@ -12,17 +12,19 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/games', 'GameController@index');
+Route::get('/games/{id}', 'GameController@show');
+Route::get('/games/{id}/message', 'GameMessageController@index');
 
 Route::group(['middleware' => ['auth:api']], function() {
-    Route::resource('/games', 'GameController');
-    Route::resource('/games/{id}/message', 'GameMessageController');
+    Route::post('/games', 'GameController@store');
+    Route::post('/games/{id}/message', 'GameMessageController@store');
 
     Route::post('/games/{id}/box/clicked', 'GameController@boxClicked');
     Route::post('/games/{id}/user/answered', 'GameController@userAnswered');
 
     Route::post('/games/{id}/base/box/clicked', 'Game\BaseMode\GameController@boxClicked');
     Route::post('/games/{id}/base/user/answered', 'Game\BaseMode\GameController@userAnswered');
-
 });
 
 Route::group(['prefix' => 'auth', 'namespace' => 'Auth'], function () {

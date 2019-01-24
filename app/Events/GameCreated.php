@@ -30,7 +30,7 @@ class GameCreated implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('games');
+        return new Channel('games');
     }
 
     public function broadcastWith()

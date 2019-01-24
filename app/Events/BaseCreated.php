@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Box;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -22,7 +23,7 @@ class BaseCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->box->game_id);
+        return new Channel('game.' . $this->box->game_id);
     }
 
     public function broadcastWith()

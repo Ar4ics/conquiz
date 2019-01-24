@@ -82,7 +82,7 @@
 
             listenForEvents() {
 
-                Echo.private('game.' + this.game.id)
+                Echo.channel('game.' + this.game.id)
                     .listen('WhoMoves', (e) => {
                         console.log('who moves', e);
                         this.setWhoMoves(e.user_color);
@@ -114,7 +114,7 @@
                     });
 
                 if (this.game.mode === 'base_mode') {
-                    Echo.private('game.' + this.game.id)
+                    Echo.channel('game.' + this.game.id)
                         .listen('BaseCreated', (e) => {
                             console.log('base created', e);
                             this.setBase(e);

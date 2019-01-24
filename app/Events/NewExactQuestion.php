@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Question;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -25,14 +26,15 @@ class NewExactQuestion implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game.' . $this->game_id);
+        return new Channel('game.' . $this->game_id);
     }
 
     public function broadcastWith()
     {
         return [
             'id' => $this->question->id,
-            'title' => $this->question->title
+            'title' => $this->question->title,
+            'is_exact_answer' => true
         ];
     }
 }

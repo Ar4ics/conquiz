@@ -115,7 +115,7 @@ class GameController extends Controller
         $boxes = Box::join('user_colors', 'boxes.user_color_id', '=', 'user_colors.id')
             ->where('boxes.game_id', '=', $game->id)->get(['x', 'y', 'color', 'user_color_id', 'cost']);
 
-        $player = $game->getUserColor(Auth::user()->id);
+        $player = Auth::user() != null ? $game->getUserColor(Auth::user()->id) : null;
         $whoMoves = $game->getMovingUserColor();
 
         $field = [];
