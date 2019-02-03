@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 Route::get('/games', 'GameController@index');
+Route::get('/users', 'UserController@index');
 Route::get('/games/{id}', 'GameController@show');
 Route::get('/games/{id}/message', 'GameMessageController@index');
 
