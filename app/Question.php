@@ -47,5 +47,5 @@ class Question extends Model
         'answers',
     ];
 
-    protected $hidden = ['created_at', 'updated_at', 'is_hidden'];
+    protected $hidden = ['created_at', 'updated_at', 'is_hidden', 'correct'];
 }

@@ -45,8 +45,8 @@ class GameController extends Controller
 
         $validator = Validator::make($data, [
             'title' => 'nullable|string|max:20',
-            'count_x' => 'required|integer|between:3,12',
-            'count_y' => 'required|integer|between:3,12',
+            'count_x' => 'required|integer|between:2,5',
+            'count_y' => 'required|integer|between:2,5',
             'mode' => 'nullable|string|in:classic,base_mode',
             'duration' => 'nullable|integer',
             'users' => 'required|array|between:1,3',
