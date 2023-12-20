@@ -9,7 +9,7 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-pdo_sqlite": "*",
-        "HighSolutions/eloquent-sequence": "^1.0",
+        "highsolutions/eloquent-sequence": "^1.0",
         "barryvdh/laravel-ide-helper": "^2.4",
         "doctrine/dbal": "^2.6",
         "fabpot/goutte": "^3.2",

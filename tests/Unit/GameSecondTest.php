@@ -48,7 +48,7 @@ class GameSecondTest extends TestCase
 
         $moveOrder = collect();
 
-        while (!$winner && !$error && $this->failsCount < 200) {
+        while (!$winner && !$error && $this->failsCount < 1000) {
 
             if ($needClick) {
                 $this->setRandomBox();

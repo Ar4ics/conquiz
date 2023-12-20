@@ -32,13 +32,16 @@
         computed: {
             messageEmoji: function () {
                 let emoji = this.message;
-                emoji = emoji.replace('kappa', '<img alt="kappa" src="/img/kappa.png"/>');
-                emoji = emoji.replace('win', '<img alt="win" src="/img/win.png"/>');
-                emoji = emoji.replace('keepo', '<img alt="win" src="/img/keepo.png"/>');
-                emoji = emoji.replace('ross', '<img alt="win" src="/img/ross.png"/>');
-                emoji = emoji.replace('cheat', '<img alt="win" src="/img/cheat.png"/>');
-                emoji = emoji.replace('hil', '<img alt="win" src="/img/hil.png"/>');
-                emoji = emoji.replace('salt', '<img alt="win" src="/img/salt.png"/>');
+                emoji = emoji.replaceAll('kappa', '<img alt="kappa" src="/img/kappa.png"/>');
+                emoji = emoji.replaceAll('win', '<img alt="win" src="/img/win.png"/>');
+                emoji = emoji.replaceAll('keepo', '<img alt="keepo" src="/img/keepo.png"/>');
+                emoji = emoji.replaceAll('ross', '<img alt="ross" src="/img/ross.png"/>');
+                emoji = emoji.replaceAll('cheat', '<img alt="cheat" src="/img/cheat.png"/>');
+                emoji = emoji.replaceAll('de', '<img alt="de" src="/img/de.png"/>');
+                emoji = emoji.replaceAll('mini_k', '<img alt="mini_k" src="/img/mini_k.png"/>');
+                emoji = emoji.replaceAll('sheep', '<img alt="sheep" src="/img/sheep.png"/>');
+                emoji = emoji.replaceAll('hil', '<img alt="hil" src="/img/hil.png"/>');
+                emoji = emoji.replaceAll('salt', '<img alt="salt" src="/img/salt.png"/>');
                 return emoji;
             }
         }

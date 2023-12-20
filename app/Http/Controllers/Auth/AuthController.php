@@ -76,7 +76,10 @@ class AuthController extends Controller
 
         $user = User::where('email', $userSocial->getEmail())->first();
 
-        if (!$user) {
+        if ($user) {
+            $user->name = $userSocial->getName();
+            $user->save();
+        } else {
             $user = User::create([
                 'name' => $userSocial->getName(),
                 'email' => $userSocial->getEmail(),

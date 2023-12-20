@@ -1,19 +1,19 @@
 <?php
 
-if (env('APP_ENV') === 'local' || env('APP_ENV') === 'testing') {
-    $host = env('DB_HOST', '127.0.0.1');
-    $database = env('DB_DATABASE', 'forge');    
-    $username = env('DB_USERNAME', 'forge');
-    $password = env('DB_PASSWORD', '');
-}
-else {
-    $db = getenv('DB_URL');
-    $url = parse_url(getenv($db));
-    $host = $url['host'];
-    $database = substr($url['path'], 1);    
-    $username = $url['user'];
-    $password = $url['pass'];
-}
+//if (env('APP_ENV') === 'local' || env('APP_ENV') === 'testing') {
+$host = env('DB_HOST', '127.0.0.1');
+$database = env('DB_DATABASE', 'forge');
+$username = env('DB_USERNAME', 'forge');
+$password = env('DB_PASSWORD', '');
+//}
+//else {
+//    $db = getenv('DB_URL');
+//    $url = parse_url(getenv($db));
+//    $host = $url['host'];
+//    $database = substr($url['path'], 1);
+//    $username = $url['user'];
+//    $password = $url['pass'];
+//}
 
 return [
 

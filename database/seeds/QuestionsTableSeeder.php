@@ -19,11 +19,9 @@ class QuestionsTableSeeder extends Seeder
         {
             $q = new Question();
             $q->title = $json_content[$i]['title'];
-            $correct = $json_content[$i]['answers'][0];
-            $answers = $json_content[$i]['answers'];
-            shuffle($answers);
-            $q->answers = $answers;
-            $q->correct = array_search($correct, $answers);
+            $q->answers = $json_content[$i]['answers'];
+            $q->correct = $json_content[$i]['correct'];
+            $q->is_exact_answer = false;
             $q->save();
         }
     }
