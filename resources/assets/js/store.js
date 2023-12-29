@@ -16,7 +16,8 @@ const store = new Vuex.Store({
         who_moves: null,
         is_answered: false,
         field: null,
-        results: null
+        results: null,
+        error: null,
     },
     getters: {
         competition: state => {
@@ -201,7 +202,9 @@ const store = new Vuex.Store({
         clearCompetitiveBox(state) {
             Vue.set(state, 'competitive_box', null);
         },
-
+        setError(state, error) {
+            state.error = error;
+        },
     }
 });
 

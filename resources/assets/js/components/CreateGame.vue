@@ -43,6 +43,8 @@
 </style>
 <script>
 
+import {mapMutations} from "vuex";
+
     export default {
         props: ['initialUsers'],
 
@@ -63,7 +65,9 @@
         },
 
         methods: {
-
+            ...mapMutations([
+                'setError'
+            ]),
             createGame() {
                 if (this.users.length < 1 || this.users.length > 3) {
                     this.$notify({
@@ -91,7 +95,14 @@
                             this.$notify({
                                 text: response.data.error
                             });
+                            this.setError(response.data.error);
+                        } else {
+                            this.setError(null);
                         }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data.message);
+                        this.setError(error.response.data.message);
                     });
                 this.title = '';
                 this.users = [];

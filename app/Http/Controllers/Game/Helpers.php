@@ -232,6 +232,7 @@ class Helpers
                         'guards' => $userBase->base_guards_count,
                         'user_name' => $userBase->user->name
                     ];
+                    $targetBox['color'] = $winnerUserColor->color;
                 } else {
 
                     $targetBox->delete();

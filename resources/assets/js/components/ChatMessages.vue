@@ -77,7 +77,8 @@
 
             ...mapMutations([
                 'setGameMessages',
-                'addGameMessage'
+                'addGameMessage',
+                'setError',
             ]),
 
             submitMessage(message) {
@@ -91,6 +92,10 @@
                                 text: response.data.error
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data.message);
+                        this.setError(error.response.data.message);
                     });
             },
 

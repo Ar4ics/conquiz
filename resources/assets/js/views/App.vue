@@ -64,13 +64,26 @@
                 </div>
             </div>
         </nav>
+        <div class="alert alert-danger" v-if="error">
+            <a href="#" class="close" @click="setError(null)" aria-label="close">&times;</a>
+            Ошибка: {{error}}
+        </div>
         <router-view></router-view>
     </div>
 </template>
 <script>
+import {mapMutations, mapState} from "vuex";
+
     export default {
 
+        computed: {
+            ...mapState(['error'])
+        },
+
         methods: {
+            ...mapMutations([
+                'setError'
+            ]),
             logout() {
                 this.$auth.logout({
                     makeRequest: true,

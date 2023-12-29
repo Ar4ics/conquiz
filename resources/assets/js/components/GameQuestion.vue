@@ -91,6 +91,7 @@
                 'setAnswered',
                 'clearQuestion',
                 'clearCompetitiveQuestion',
+                'setError',
             ]),
 
             getClass(i) {
@@ -134,6 +135,10 @@
                                 text: response.data.error
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data.message);
+                        this.setError(error.response.data.message);
                     });
             },
         }

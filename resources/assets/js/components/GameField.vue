@@ -27,7 +27,7 @@
 </style>
 
 <script>
-    import {mapState} from 'vuex';
+import {mapMutations, mapState} from 'vuex';
 
     export default {
         name: "GameField",
@@ -46,6 +46,9 @@
         },
 
         methods: {
+            ...mapMutations([
+                'setError'
+            ]),
             clickBox(x, y) {
                 console.log(x, y);
                 if (!this.player) {
@@ -67,6 +70,10 @@
                                 text: response.data.error
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data.message);
+                        this.setError(error.response.data.message);
                     });
             }
         }

@@ -28,7 +28,7 @@
 </style>
 
 <script>
-    import {mapMutations} from 'vuex';
+import {mapMutations, mapState} from 'vuex';
 
     export default {
         props: ['game', 'player', 'field', 'whoMoves', 'winner', 'question', 'competitiveBox', 'userColors', 'messages'],
@@ -51,10 +51,18 @@
                 });
             }
             this.listenForEvents();
+            this.logQuestion();
         },
 
         beforeDestroy() {
             Echo.leave('game.' + this.game.id);
+        },
+
+        computed: {
+          ...mapState({
+              questionState: 'question',
+              competitiveQuestionState: 'competitive_question'
+          })
         },
 
         methods: {
@@ -80,6 +88,30 @@
                 'setAnswered'
             ]),
 
+            logQuestion() {
+                console.log('questionState', this.questionState);
+                console.log('competitiveQuestionState', this.competitiveQuestionState);
+            },
+
+            getCurrentQuestionId() {
+                let id = null;
+                if (this.questionState !== null) {
+                    id = this.questionState.id;
+                } else if (this.competitiveQuestionState !== null) {
+                    id = this.competitiveQuestionState.id;
+                }
+                return id;
+            },
+
+            needToClear(prevQuestionId) {
+                const currentQuestionId = this.getCurrentQuestionId();
+                const result = currentQuestionId === prevQuestionId;
+                console.log('prevQuestionId', prevQuestionId);
+                console.log('currentQuestionId', currentQuestionId);
+                console.log('needToClear', result);
+                return result;
+            },
+
             listenForEvents() {
 
                 Echo.channel('game.' + this.game.id)
@@ -102,15 +134,22 @@
                     .listen('NewQuestion', (e) => {
                         console.log('new question', e);
                         this.setQuestion(e);
+                        this.clearResults();
+                        this.setAnswered(false);
                     })
                     .listen('AnswersResults', (e) => {
                         console.log('answer results', e);
                         this.setAnswers(e);
+                        const questionId = this.getCurrentQuestionId();
                         setTimeout(() => {
-                            this.clearQuestion();
-                            this.clearResults();
-                            this.setAnswered(false);
-                        }, 6000);
+                            this.logQuestion();
+                            const clear = this.needToClear(questionId);
+                            if (clear) {
+                                this.clearQuestion();
+                                this.clearResults();
+                                this.setAnswered(false);
+                            }
+                        }, 5000);
                     });
 
                 if (this.game.mode === 'base_mode') {
@@ -126,26 +165,28 @@
                         .listen('CompetitiveAnswerResults', (e) => {
                             console.log('competitive answers', e);
                             this.setCompetitiveAnswers(e);
+                            const questionId = this.getCurrentQuestionId();
                             setTimeout(() => {
-                                this.clearQuestion();
-                                this.clearCompetitiveQuestion();
-                                this.clearCompetitiveBox();
-                                this.clearResults();
-                                this.setAnswered(false);
-                            }, 6000);
+                                this.logQuestion();
+                                const clear = this.needToClear(questionId);
+                                if (clear) {
+                                    this.clearQuestion();
+                                    this.clearCompetitiveQuestion();
+                                    this.clearCompetitiveBox();
+                                    this.clearResults();
+                                    this.setAnswered(false);
+                                }
+                            }, 5000);
                         })
                         .listen('CorrectAnswers', (e) => {
                             console.log('correct answers', e);
-                            this.setAnswered(false);
                             this.setCompetitiveCorrectAnswers(e);
-                            setTimeout(() => {
-                                this.clearQuestion();
-                                this.clearResults();
-                            }, 4000);
                         })
                         .listen('NewExactQuestion', (e) => {
                             console.log('exact question', e);
                             this.setQuestion(e);
+                            this.clearResults();
+                            this.setAnswered(false);
                         })
                         .listen('UserColorsChanged', (e) => {
                             console.log('user_colors changed', e);

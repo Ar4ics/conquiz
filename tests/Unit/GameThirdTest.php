@@ -26,7 +26,7 @@ class GameThirdTest extends TestCase
 
     public function testFourUsersGame()
     {
-        $this->players = collect([User::find(1), User::find(2), User::find(3), User::find(8)]);
+        $this->players = collect([User::find(1), User::find(2), User::find(3), User::find(4)]);
         $response = $this->createGame();
 
         if (array_key_exists('error', $response)) {

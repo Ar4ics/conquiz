@@ -44,7 +44,7 @@ class GameController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'title' => 'nullable|string|max:20',
+            'title' => 'required|string|max:50',
             'count_x' => 'required|integer|between:2,5',
             'count_y' => 'required|integer|between:2,5',
             'mode' => 'nullable|string|in:classic,base_mode',

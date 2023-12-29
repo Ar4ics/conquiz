@@ -44,6 +44,8 @@
 </template>
 
 <script>
+    import {mapMutations} from "vuex";
+
     export default {
         name: "Login",
 
@@ -72,6 +74,9 @@
         },
 
         methods: {
+            ...mapMutations([
+                'setError'
+            ]),
             login() {
                 this.$auth.login({
                     data: {email: this.email, password: this.password},
@@ -79,8 +84,8 @@
                         console.log(e);
                     },
                     error: function (e) {
-                        console.log(e);
-
+                        console.log(e.response);
+                        this.setError(e.response.data.error);
                     },
                     rememberMe: true,
                     redirect: '/',
